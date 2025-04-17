@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Rule Name: Working Directory and File Structure Enforcement
+
+Description:
+  - **CRITICAL:** Before running **ANY** terminal command (`mkdir`, `touch`, `pnpm`, `npx`, etc.) or creating/editing files, **ALWAYS** verify the Present Working Directory (PWD). Use the `pwd` command or check terminal prompt/output if unsure.
+  - The Next.js application code, dependencies (`node_modules`), configuration (`package.json`, `tailwind.config.js`, etc.), and related commands **MUST** reside within the `/Users/jkb/Projects/wellsync` directory.
+  - **Verify PWD is `/Users/jkb/Projects/wellsync`** before running `pnpm install`, `pnpm add`, `pnpm run dev`, `pnpm run build`, `npx shadcn@latest add`, or creating source files (`*.ts`, `*.tsx`) or directories (`mkdir`) for the application.
+  - **Anti-Pattern:** Actively avoid creating nested structures like `/Users/jkb/Projects/wellsync/app/app`. If the PWD looks like this, immediately correct it (e.g., `cd ..`) before proceeding.
+  - Use `pnpm` for all package management..

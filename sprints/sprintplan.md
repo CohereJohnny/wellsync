@@ -131,3 +131,12 @@ This document outlines the planned sprints for the WellSync AI demo project, bas
   - Review and update `README.md` with setup and usage instructions.
   - Final code cleanup and review.
   - Prepare for potential demo deployment merge.
+
+# Cohere API Key (Replace with your production key)
+COHERE_API_KEY=
+
+# Supabase Project URL (Replace with your project URL)
+SUPABASE_URL=https://<your-project-id>.supabase.co
+
+# Supabase Anon Key (Replace with your anon key)
+SUPABASE_KEY=<your-anon-key>
