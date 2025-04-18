@@ -3,200 +3,89 @@ description:
 globs: 
 alwaysApply: true
 ---
-# Sprint Management Rule - WellSync AI
+# Streamlined Sprint Workflow - WellSync AI
 
-## 1. Description
+This document defines a simplified sprint workflow for managing development sprints in the WellSync AI project, optimized for collaboration between the User and the AI Assistant (Gemini). It aims to reduce overhead and work around AI tool limitations.
 
-This document defines the standardized sprint workflow for managing development sprints in the **WellSync AI** project, a web-based demo application for AI-driven fault management in the Permian Basin. The workflow is designed for vibe coding with Cursor and Supabase MCP tools, supporting rapid prototyping and iterative development for a demo environment with 30 wells, 15 parts, and 3 warehouses. It ensures clear task planning, execution, and reporting while maintaining flexibility for creative coding. The process leverages NextJS, Supabase, Cohere V2 TypeScript SDK, and a structured `/sprints` directory.
+## 1. **Sprint Initialization**
 
-## 2. Workflow
+1.  **AI Action:** Create the Git branch for the sprint (e.g., `git checkout -b sprint-x`).
+2.  **AI Action:** Create the sprint directory (e.g., `mkdir sprints/sprint_x`).
+3.  **AI Action:** Based on `sprintplan.md`, the AI generates the initial task list for the sprint goals.
+4.  **AI Action:** Create `sprints/sprint_x/sprint_x_tasks.md`.  Add appropriate headers (`# Sprint X Tasks`, `## Goals`, `## Tasks`).
+        *   `sprint_x_tasks.md`: For the detailed task breakdown.
+        *   `sprint_x_updates.md`: For ongoing notes, context, and progress updates during the sprint.
+        *   `sprint_x_report.md`: For the final sprint summary (populated at the end).
+6.  **AI Action:** Generate a draft test plan based on tasks.
+7.  **AI Action:** Create `sprints/sprint_x/sprint_x_testplan.md` 
 
-### 2.1 Sprint Initialization (Start of Sprint X)
+## 2.  **Sprint Planning:**
+    *   Review the master plan in `sprints/sprintplan.md` to understand the goals and high-level tasks for Sprint X.
+    *   Create a detailed, logical breakdown of all tasks required to meet the sprint goals.
+    *   Populate `sprints/sprint_x/sprint_x_tasks.md` with this detailed task list (e.g., using checkboxes `[ ] Task description`).
 
-- **Objective**: Set up a new sprint with consistent documentation and version control.
-- **Steps**:
-  1. Create a new Git branch named `sprint-x` (e.g., `sprint-1`) and commit all sprint-related changes to this branch.
-  2. Create a new directory `sprints/sprint_x/` under the project root (e.g., `sprints/sprint_1/`).
-  3. Copy template files from `sprints/templates/` to `sprints/sprint_x/`:
-     - `sprint_x_tasks.md`: For task breakdown, progress notes, and test requirements.
-     - `sprint_x_updates.md`: For sprint-wide observations and sprint review.
-     - `sprint_x_report.md`: For the final sprint summary (drafted at end).
-     - `sprint_x_testplan.md`: For end-user testing instructions (drafted during planning).
-     - Command: `cp -r sprints/templates/* sprints/sprint_x/`.
-  4. Ensure template files exist in `sprints/templates/` with predefined headers:
-     - Example `sprints/templates/sprint_tasks.md`:
-       ```markdown
-       # Sprint X Tasks
-       ## Goals
-       - [Describe sprint objectives]
-       ## Tasks
-       - [ ] Task 1: [Description] [Test: Describe test case]
-         - Progress: [Notes, snippets, dates]
-       - [ ] Task 2: [Description] [Test: Describe test case]
-         - Progress: [Notes, snippets, dates]
-       ```
-- **Notes**:
-  - Templates ensure consistency and reduce setup time.
-  - Verify `sprints/templates/` exists before starting (create if missing).
+## 3. **Sprint Execution**
 
-### 2.2 Sprint Planning
+1.  **AI Action:** Implement code changes required to meet the sprint goals defined in `sprints/sprint_x/sprint_x_tasks.md`.
+2.  **AI Action:** **Directly edit `sprints/sprint_x/sprint_x_tasks.md`** throughout the sprint:
+    *   Mark tasks as complete using `[x]`.
+    *   Add progress notes, relevant code snippets, observations, or commit references directly under the corresponding task in a "Progress" section.
+3.  **AI Action:** Commit code changes *and* the updated `sprint_x_tasks.md` file frequently to the `sprint-x` branch (e.g., `git add . && git commit -m "feat: Implement feature X (closes task Y)"`).
 
-- **Objective**: Define clear, actionable tasks and test cases based on sprint goals.
-- **Steps**:
-  1. Review the master plan in `sprints/sprintplan.md` to understand Sprint X objectives and high-level tasks.
-  2. Break down goals into detailed, logical tasks (e.g., “Create WellGrid component”).
-  3. Populate `sprints/sprint_x/sprint_x_tasks.md` with:
-     - Sprint goals.
-     - Task list using checkboxes (`[ ] Task description [Test: Describe test case]`).
-     - Example:
-       ```markdown
-       # Sprint 1 Tasks
-       ## Goals
-       - Set up WellSync AI project and homescreen.
-       ## Tasks
-       - [ ] Initialize NextJS project with pnpm [Test: Verify app runs on localhost:3000]
-         - Progress: [Notes]
-       - [ ] Set up Supabase schema [Test: Confirm tables in Supabase dashboard]
-         - Progress: [Notes]
-       ```
-  4. Draft preliminary test cases in `sprints/sprint_x/sprint_x_testplan.md`:
-     - Example:
-       ```markdown
-       # Sprint 1 Test Plan
-       ## Homescreen
-       - Verify 30 well cards display in 5x6 grid.
-       - Test filter dropdowns (camp, formation, status).
-       ```
-- **Notes**:
-  - Tasks must be immutable post-planning (no edits to descriptions or additions/removals).
-  - Test cases should focus on demo-critical features (e.g., well grid, chat) and browser testing (Chrome, Firefox).
+## 4.  **Handling Deviations:**
+    *   If non-critical technical issues or necessary refactors are identified that deviate from the planned tasks, add them to `sprints/tech_debt.md` instead of addressing them immediately.
+    *   If new feature ideas, non-critical enhancements, or "nice-to-haves" arise, add them to `sprints/backlog.md`.
+    *   Only address critical blockers that prevent the completion of planned tasks. Document the deviation in `sprint_x_updates.md`.
 
-### 2.3 Sprint Execution
+## 5. **Bug Swatting**
 
-- **Objective**: Complete tasks while documenting progress and handling deviations.
-- **Steps**:
-  1. Work through tasks in `sprints/sprint_x/sprint_x_tasks.md`, making changes in the appropriate project folders (e.g., `app/`, `components/`).
-  2. Verify the correct folder before modifying files to avoid errors.
-  3. Update each task in `sprints/sprint_x/sprint_x_tasks.md`:
-     - Mark completed tasks with `[x]`.
-     - Add progress notes under each task in a “Progress” section (e.g., dates, code snippets, commands).
-     - Example:
-       ```markdown
-       - [x] Initialize NextJS project [Test: Verify app runs on localhost:3000]
-         - Progress: Ran `pnpm create next-app` (2025-04-18). Font import issue resolved.
-         - Snippets: `pnpm add tailwindcss@latest`
-       ```
-  4. Document sprint-wide observations (e.g., architectural decisions, blockers) in `sprints/sprint_x/sprint_x_updates.md`.
-  5. Refine `sprints/sprint_x/sprint_x_testplan.md` as tasks are completed, adding browser-specific checks.
-  6. Handle deviations:
-     - Non-critical issues/refactors: Log in `sprints/tech_debt.md`.
-     - New features/enhancements: Log in `sprints/backlog.md`.
-     - Critical blockers: Address immediately, document in `sprint_x_updates.md`.
-- **Notes**:
-  - Do **NOT** modify task descriptions or add/remove tasks in `sprint_x_tasks.md` after planning.
-  - Use `sprint_x_updates.md` sparingly for high-level context to avoid redundancy.
+1.  **AI Action:** If a critical bug blocking progress is found:
+    *   Pause work on sprint tasks.
+    *   Fix the bug.
+    *   Manually log the bug fix details in `sprints/bug_swatting.md` using the format:
+        ```markdown
+        ## Bug Entry: [Date]
+        - **ID**: BUG-XXX
+        - **Description**: ...
+        - **Discovered**: ...
+        - **Context**: Sprint X, Feature Y
+        - **Fix**: ...
+        - **Status**: Resolved
+        ```
+    *   Reference the Bug ID in the commit message (e.g., `fix: Resolve BUG-XXX affecting component Z`).
+    *   Resume work on sprint tasks.
 
-### 2.4 Bug Swatting
+## 4. Sprint Review (Lightweight)
 
-- **Objective**: Address critical bugs that interrupt sprint tasks with structured tracking.
-- **Steps**:
-  1. Pause `sprint_x_tasks.md` work if a UI or console bug is found.
-  2. Log the bug in `sprints/bug_swatting.md` with a structured format:
-     ```markdown
-     ## Bug Entry: [Date]
-     - **ID**: BUG-001
-     - **Description**: [e.g., Chat input loses focus on mobile view]
-     - **Discovered**: [e.g., 2025-04-18]
-     - **Context**: [e.g., Sprint 1, WellDetail view]
-     - **Fix**: [e.g., Updated input ref in ChatPanel.tsx]
-     - **Status**: [e.g., Resolved]
-     ```
-  3. Assign a unique ID (e.g., BUG-001) for reference in `sprint_x_updates.md` or commits.
-  4. Commit bug fixes to the `sprint-x` branch and resume tasks.
-- **Notes**:
-  - Keep entries concise, focusing on critical bugs that block demo functionality.
-  - Reference bug IDs in commit messages (e.g., “Fix BUG-001: Chat input focus”).
+1.  **AI Action:** Near the end of the sprint, review the completed tasks in `sprints/sprint_x/sprint_x_tasks.md`.
+2.  **User Action:** Manually execute key tests based on `sprints/sprint_x/sprint_x_testplan.md` (if created).
+3.  **AI Action:** Run `pnpm run build` locally to check for build errors.
+4.  **AI Action:** Add a brief "## Sprint Review" section at the bottom of `sprints/sprint_x/sprint_x_tasks.md`. Include notes on:
+    *   Demo Readiness: What key features are working?
+    *   Gaps/Issues: What's incomplete or needs refinement?
+    *   Next Steps: What should be carried over or addressed next?
 
-### 2.5 Sprint Review
+## 5. Sprint Completion
 
-- **Objective**: Validate demo readiness and document sprint outcomes.
-- **Steps**:
-  1. Before completing the sprint, conduct a lightweight review (15-30 minutes).
-  2. Add a “Sprint Review” section to `sprints/sprint_x/sprint_x_updates.md`:
-     ```markdown
-     ## Sprint Review (2025-04-20)
-     - **Demo Readiness**: [e.g., Homescreen grid displays 30 wells, filters work]
-     - **Gaps**: [e.g., Chat panel styling needs tweak for tablet]
-     - **Next Steps**: [e.g., Finalize styling in Sprint 2]
-     ```
-  3. Test key features in the browser (per `sprint_x_testplan.md`) on Chrome and Firefox.
-  4. Run `pnpm run build` to ensure no build errors.
-- **Notes**:
-  - Focus on demo-critical features (e.g., well grid, Realtime updates, chat).
-  - Document gaps as tech debt or backlog items if not addressed in the sprint.
+1.  **AI Action:** Upon user request, the AI reads the final, committed version of `sprints/sprint_x/sprint_x_tasks.md`.
+2.  **AI Action:** The AI generates a draft summary report in the chat, based *only* on the contents of `sprint_x_tasks.md` (task status, progress notes, review section).
+3.  **AI Action:** Manually create `sprints/sprint_x/sprint_x_report.md`. Paste and refine the AI-generated report draft.
+4.  **AI Action:** Finalize `sprints/sprint_x/sprint_x_testplan.md` (if used).
+5.  **AI Action:** Commit all final sprint documentation (`sprint_x_tasks.md`, `sprint_x_report.md`, `sprint_x_testplan.md`) to the `sprint-x` branch.
+6.  **AI Action:** Create a pull request for `sprint-x`, verify checks pass (including `pnpm run build`), and merge into `main`.
+7.  **AI Action:** Tag the merge commit (`git tag sprint-x <commit-hash>`) and push the tag (`git push origin sprint-x`).
+8.  **AI Action:** Archive the sprint directory (`mv sprints/sprint_x/ sprints/archive/`).
+9.  **AI Action:** Delete the `sprint-x` branch locally and remotely (`git branch -d sprint-x; git push origin --delete sprint-x`).
 
-### 2.6 Sprint Completion (End of Sprint X)
+## Key Files Per Sprint
 
-- **Objective**: Finalize documentation, test plans, and version control for the sprint.
-- **Steps**:
-  1. Use Cursor AI to generate a draft of `sprints/sprint_x/sprint_x_report.md`:
-     - Prompt: “Summarize `sprint_x_tasks.md` (task status) and `sprint_x_updates.md` (notes, context, outcomes) into a concise report for `sprint_x_report.md`, listing completed tasks, key outcomes, and blockers.”
-     - Example:
-       ```markdown
-       # Sprint 1 Report
-       ## Summary
-       Set up WellSync AI project with NextJS and Supabase, implemented homescreen grid.
-       ## Completed Tasks
-       - Initialized NextJS project.
-       - Applied Supabase schema and mock data.
-       ## Key Outcomes
-       - Homescreen loads in <2s, Realtime subscriptions working.
-       ## Blockers
-       - Tailwind font import delayed setup.
-       ```
-  2. Review and refine the draft report manually.
-  3. Finalize `sprints/sprint_x/sprint_x_testplan.md` with detailed browser testing instructions:
-     ```markdown
-     # Sprint 1 Test Plan
-     ## Homescreen
-     - Verify 30 well cards display in 5x6 grid (Chrome, Firefox).
-     - Test filter dropdowns (camp, formation, status).
-     - Confirm Realtime updates on fault trigger (<1s).
-     ```
-  4. Commit all sprint documentation to the `sprint-x` branch.
-  5. Create a pull request for `sprint-x`, verify `pnpm run build` passes, and merge into `main`.
-  6. Tag the merged commit: `git tag sprint-x <commit-hash>` and push: `git push origin sprint-x`.
-  7. Archive the sprint directory by moving `sprints/sprint_x/` to `sprints/archive/sprint_x/`.
-  8. Delete the `sprint-x` branch locally and remotely: `git branch -d sprint-x; git push origin --delete sprint-x`.
-- **Notes**:
-  - Ensure all files are committed before merging.
-  - Archiving keeps the `sprints/` directory clean for future sprints.
+- `sprints/sprint_x/sprint_x_tasks.md`: The primary file for tracking tasks, progress, and review notes. **User-maintained.**
+- `sprints/sprint_x/sprint_x_testplan.md`: (Optional) Detailed test cases. User-maintained, AI can draft.
+- `sprints/sprint_x/sprint_x_report.md`: Final summary report. AI drafts, User finalizes.
 
-## 3. Key Files in sprints/
+## Central Logs
 
-- **sprints/sprintplan.md**: Master plan with high-level goals for all sprints.
-- **sprints/tech_debt.md**: Non-critical technical issues or refactors.
-- **sprints/backlog.md**: New feature ideas or enhancements.
-- **sprints/bug_swatting.md**: Structured log of critical bug fixes.
-- **sprints/templates/**: Boilerplate files for sprint initialization.
-  - `sprint_tasks.md`, `sprint_updates.md`, `sprint_report.md`, `sprint_testplan.md`.
-- **sprints/sprint_x/**: Per-sprint directory with tasks, updates, report, and test plan.
-- **sprints/archive/**: Archived sprint directories post-merge.
-
-## 4. Assumptions
-
-- Cursor AI can generate reliable report drafts based on task and update files.
-- pnpm and Git are set up for build and version control.
-- Browser testing (Chrome, Firefox) is sufficient for demo validation.
-- Sprint duration is flexible (e.g., 1-2 weeks) based on demo needs.
-
-## 5. Notes for Vibe Coding
-
-- Use Cursor’s AI to streamline task planning, note-taking, and reporting.
-- Leverage Supabase MCP tools in Cursor for schema and data management.
-- Keep documentation lightweight to maintain coding momentum.
-- Reference bug IDs and sprint tags in commits for traceability (e.g., “Fix BUG-001 in sprint-1”).
-
-## 6. Relevant Memories
-
-This workflow builds on your preference for vibe coding with Cursor and Supabase MCP tools, as seen in your insurance underwriting demo (April 6, 2025) and agent swarm monitoring (April 14, 2025). The refinements—templates, combined task updates, AI reports, structured bug logs, early test plans, sprint reviews, and Git tagging—enhance efficiency and demo readiness, aligning with your focus on rapid, impactful development for **WellSync AI**.
+- `sprints/sprintplan.md`: High-level plan for all sprints.
+- `sprints/bug_swatting.md`: Log for critical bug fixes.
+- `sprints/tech_debt.md`: Log for non-critical issues/refactors.
+- `sprints/backlog.md`: Log for new feature ideas.
