@@ -67,9 +67,9 @@ This document defines a simplified sprint workflow for managing development spri
 
 ## 5. Sprint Completion
 
-1.  **AI Action:** Upon user request, the AI reads the final, committed version of `sprints/sprint_x/sprint_x_tasks.md`.
+1.  **AI Action:** AI reads the final committed version of `sprints/sprint_x/sprint_x_tasks.md`.
 2.  **AI Action:** The AI generates a draft summary report in the chat, based *only* on the contents of `sprint_x_tasks.md` (task status, progress notes, review section).
-3.  **AI Action:** Manually create `sprints/sprint_x/sprint_x_report.md`. Paste and refine the AI-generated report draft.
+3.  **AI Action:** AI creates `sprints/sprint_x/sprint_x_report.md`.
 4.  **AI Action:** Finalize `sprints/sprint_x/sprint_x_testplan.md` (if used).
 5.  **AI Action:** Commit all final sprint documentation (`sprint_x_tasks.md`, `sprint_x_report.md`, `sprint_x_testplan.md`) to the `sprint-x` branch.
 6.  **AI Action:** Create a pull request for `sprint-x`, verify checks pass (including `pnpm run build`), and merge into `main`.
