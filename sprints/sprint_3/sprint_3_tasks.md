@@ -8,10 +8,10 @@
   - Progress: Created in Sprint 1 (2024-05-16).
 - [x] Verify `app/globals.css` exists.
   - Progress: Created in Sprint 1 (2024-05-16).
-- [ ] Set up Shadcn/UI.
-  - Progress:
-- [ ] Add initial Shadcn/UI components (`Button`, `Card`, `Badge`).
-  - Progress:
+- [x] Set up Shadcn/UI.
+  - Progress: Created in Sprint 1 (2024-05-16).
+- [x] Add initial Shadcn/UI components (`Button`, `Card`, `Badge`).
+  - Progress: Added Button, Card, Badge via CLI on 2024-05-16.
 - [ ] Configure Tailwind CSS colors/theme for Shadcn/UI components.
   - Progress:
 
