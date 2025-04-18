@@ -23,18 +23,18 @@ export default function WellGrid() {
           .select('id, name, camp, formation, status')
           .order('name', { ascending: true });
 
-        // Apply filters if they exist
+        // Apply filters if they exist and are not 'all'
         const camp = searchParams.get('camp');
         const formation = searchParams.get('formation');
         const status = searchParams.get('status');
 
-        if (camp) {
+        if (camp && camp !== 'all') {
           query = query.eq('camp', camp);
         }
-        if (formation) {
+        if (formation && formation !== 'all') {
           query = query.eq('formation', formation);
         }
-        if (status) {
+        if (status && status !== 'all') {
           query = query.eq('status', status);
         }
 
