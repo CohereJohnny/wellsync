@@ -99,3 +99,18 @@
   4. Added additional logging for debugging
 - **Status**: Resolved
 - **Impact**: Wells now update their status in real-time when faults are simulated
+
+## Bug Entry: [2024-03-21]
+- **ID**: BUG-008
+- **Description**: Module not found error for '@supabase/ssr' in server-side Supabase client
+- **Discovered**: During Sprint 7 implementation of well detail page
+- **Context**: Sprint 7, Well Detail Component
+- **Fix**: 
+  1. Installed @supabase/ssr package using `pnpm add @supabase/ssr`
+  2. Updated server-side Supabase client implementation in `lib/supabase/server.ts`:
+     - Added proper cookie handling for SSR
+     - Added set/remove cookie methods for complete cookie management
+  3. Created `lib/supabase/database.types.ts` with complete type definitions for our schema
+  4. Verified proper environment variables are set
+- **Status**: Resolved
+- **Impact**: Well detail page now loads correctly with proper server-side Supabase integration
