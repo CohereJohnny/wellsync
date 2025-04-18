@@ -7,16 +7,24 @@ alwaysApply: true
 
 This document defines a simplified sprint workflow for managing development sprints in the WellSync AI project, optimized for collaboration between the User and the AI Assistant (Gemini). It aims to reduce overhead and work around AI tool limitations.
 
-## 1. Sprint Initialization
+## 1. **Sprint Initialization**
 
 1.  **AI Action:** Create the Git branch for the sprint (e.g., `git checkout -b sprint-x`).
 2.  **AI Action:** Create the sprint directory (e.g., `mkdir sprints/sprint_x`).
-3.  **AI Action:** Based on `sprintplan.md`, the AI generates the initial task list for the sprint goals in the chat.
-4.  **AI Action:** Manually create `sprints/sprint_x/sprint_x_tasks.md`. Paste the AI-generated task list into this file. Add appropriate headers (`# Sprint X Tasks`, `## Goals`, `## Tasks`).
-5.  **(Optional) AI Action:** Generate a draft test plan based on tasks.
-6.  **(Optional) User Action:** Manually create `sprints/sprint_x/sprint_x_testplan.md` and paste/edit the AI-generated test plan.
+3.  **AI Action:** Based on `sprintplan.md`, the AI generates the initial task list for the sprint goals.
+4.  **AI Action:** Create `sprints/sprint_x/sprint_x_tasks.md`.  Add appropriate headers (`# Sprint X Tasks`, `## Goals`, `## Tasks`).
+        *   `sprint_x_tasks.md`: For the detailed task breakdown.
+        *   `sprint_x_updates.md`: For ongoing notes, context, and progress updates during the sprint.
+        *   `sprint_x_report.md`: For the final sprint summary (populated at the end).
+6.  **AI Action:** Generate a draft test plan based on tasks.
+7.  **AI Action:** Create `sprints/sprint_x/sprint_x_testplan.md` 
 
-## 2. Sprint Execution
+## 2.  **Sprint Planning:**
+    *   Review the master plan in `sprints/sprintplan.md` to understand the goals and high-level tasks for Sprint X.
+    *   Create a detailed, logical breakdown of all tasks required to meet the sprint goals.
+    *   Populate `sprints/sprint_x/sprint_x_tasks.md` with this detailed task list (e.g., using checkboxes `[ ] Task description`).
+
+## 3. **Sprint Execution**
 
 1.  **AI Action:** Implement code changes required to meet the sprint goals defined in `sprints/sprint_x/sprint_x_tasks.md`.
 2.  **AI Action:** **Directly edit `sprints/sprint_x/sprint_x_tasks.md`** throughout the sprint:
@@ -24,7 +32,12 @@ This document defines a simplified sprint workflow for managing development spri
     *   Add progress notes, relevant code snippets, observations, or commit references directly under the corresponding task in a "Progress" section.
 3.  **AI Action:** Commit code changes *and* the updated `sprint_x_tasks.md` file frequently to the `sprint-x` branch (e.g., `git add . && git commit -m "feat: Implement feature X (closes task Y)"`).
 
-## 3. Bug Swatting
+## 4.  **Handling Deviations:**
+    *   If non-critical technical issues or necessary refactors are identified that deviate from the planned tasks, add them to `sprints/tech_debt.md` instead of addressing them immediately.
+    *   If new feature ideas, non-critical enhancements, or "nice-to-haves" arise, add them to `sprints/backlog.md`.
+    *   Only address critical blockers that prevent the completion of planned tasks. Document the deviation in `sprint_x_updates.md`.
+
+## 5. **Bug Swatting**
 
 1.  **AI Action:** If a critical bug blocking progress is found:
     *   Pause work on sprint tasks.
@@ -45,7 +58,7 @@ This document defines a simplified sprint workflow for managing development spri
 ## 4. Sprint Review (Lightweight)
 
 1.  **AI Action:** Near the end of the sprint, review the completed tasks in `sprints/sprint_x/sprint_x_tasks.md`.
-2.  **AI Action:** Manually execute key tests based on `sprints/sprint_x/sprint_x_testplan.md` (if created).
+2.  **User Action:** Manually execute key tests based on `sprints/sprint_x/sprint_x_testplan.md` (if created).
 3.  **AI Action:** Run `pnpm run build` locally to check for build errors.
 4.  **AI Action:** Add a brief "## Sprint Review" section at the bottom of `sprints/sprint_x/sprint_x_tasks.md`. Include notes on:
     *   Demo Readiness: What key features are working?
