@@ -6,6 +6,13 @@ export type Well = {
   camp: string;
   formation: string;
   status: string;
+  location: string;
+  depth: number;
+  pressure: number;
+  temperature: number;
+  flow_rate: number;
+  updated_at: string;
+  created_at: string;
 };
 
 // We can add other types (Part, Inventory, Fault) here later as needed

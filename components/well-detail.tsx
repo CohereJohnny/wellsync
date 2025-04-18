@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 
 interface WellDetailProps {
-  wellId: number
+  wellId: string
 }
 
 export async function WellDetail({ wellId }: WellDetailProps) {

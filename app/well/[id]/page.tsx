@@ -11,8 +11,9 @@ interface WellPageProps {
 }
 
 export default async function WellPage({ params }: WellPageProps) {
-  // Validate id parameter
-  if (!params.id || isNaN(parseInt(params.id))) {
+  // Validate id parameter - check if it's a valid UUID format
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+  if (!params.id || !UUID_REGEX.test(params.id)) {
     notFound()
   }
 
@@ -22,7 +23,7 @@ export default async function WellPage({ params }: WellPageProps) {
         <BackButton />
       </div>
       <Suspense fallback={<LoadingSpinner />}>
-        <WellDetail wellId={parseInt(params.id)} />
+        <WellDetail wellId={params.id} />
       </Suspense>
     </main>
   )

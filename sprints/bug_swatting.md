@@ -114,3 +114,16 @@
   4. Verified proper environment variables are set
 - **Status**: Resolved
 - **Impact**: Well detail page now loads correctly with proper server-side Supabase integration
+
+## Bug Entry: [2024-03-21]
+- **ID**: BUG-009
+- **Description**: 404 error when accessing well detail page with UUID - type mismatch between URL parameter and database
+- **Discovered**: During Sprint 7 testing of well detail page
+- **Context**: Sprint 7, Well Detail Page
+- **Fix**: 
+  1. Updated Well type definition in `lib/types.ts` to include all fields and use string ID
+  2. Removed parseInt from page component and added UUID validation
+  3. Updated WellDetail component to accept string IDs
+  4. Added proper type checking for UUIDs in the URL
+- **Status**: Resolved
+- **Impact**: Well detail pages now load correctly with UUID parameters
