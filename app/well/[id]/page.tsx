@@ -1,8 +1,6 @@
-import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import { WellDetail } from '@/components/well-detail'
-import { LoadingSpinner } from '@/components/ui/loading-spinner'
-import { BackButton } from '@/components/back-button'
 
 interface WellPageProps {
   params: {
@@ -11,20 +9,31 @@ interface WellPageProps {
 }
 
 export default async function WellPage({ params }: WellPageProps) {
-  // Validate id parameter - check if it's a valid UUID format
-  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-  if (!params.id || !UUID_REGEX.test(params.id)) {
+  const supabase = createClient()
+
+  const { data: well, error: wellError } = await supabase
+    .from('wells')
+    .select('*')
+    .eq('id', params.id)
+    .single()
+
+  const { data: faults, error: faultsError } = await supabase
+    .from('faults')
+    .select('*')
+    .eq('well_id', params.id)
+    .order('timestamp', { ascending: false })
+
+  if (wellError || !well) {
     notFound()
   }
 
   return (
-    <main className="min-h-screen p-4 md:p-6 lg:p-8">
-      <div className="mb-6">
-        <BackButton />
-      </div>
-      <Suspense fallback={<LoadingSpinner />}>
-        <WellDetail wellId={params.id} />
-      </Suspense>
+    <main className="container mx-auto py-6">
+      <WellDetail 
+        wellId={params.id} 
+        initialWell={well} 
+        initialFaults={faults || []} 
+      />
     </main>
   )
 }

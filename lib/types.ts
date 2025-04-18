@@ -1,38 +1,38 @@
 // Define the structure for the Well data based on the Supabase schema
 
-export type Well = {
+export interface Well {
   id: string;
   name: string;
   camp: string;
   formation: string;
-  status: string;
   location: string;
+  status: string;
   depth: number;
   pressure: number;
   temperature: number;
   flow_rate: number;
   updated_at: string;
-  created_at: string;
-};
+}
 
 // We can add other types (Part, Inventory, Fault) here later as needed
-export type Part = {
+export interface Part {
   part_id: string;
   name: string;
   description: string;
-  specifications: Record<string, any>;
+  specifications: Record<string, unknown>;
   manufacturer: string;
-};
+}
 
-export type Fault = {
-  id: string;
+export interface Fault {
+  fault_id: string;
   well_id: string;
   part_id: string;
+  fault_type: string;
   description: string;
-  created_at: string;
-  resolved_at?: string;
+  timestamp: string;
   status: 'active' | 'resolved';
-};
+  resolved_at?: string;
+}
 
 export type FaultType = {
   id: string;
