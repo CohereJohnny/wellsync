@@ -34,3 +34,33 @@
   - Existing filter functionality
   - Shadcn/UI components
   - Current well data structure
+
+## Fault Description Field
+- **Priority**: Medium
+- **Description**: Add a free-form text description field to the Trigger Fault dialog
+- **Requirements**:
+  - Add a text area field to the fault simulation form
+  - Allow users to provide context about the fault
+  - Make the field optional
+  - Store descriptions in the faults table
+  - Display descriptions in fault history (future feature)
+  - Add character limit with visual counter
+  - Add placeholder text suggesting what to include
+
+- **Technical Considerations**:
+  - Update fault creation API to handle descriptions
+  - Add validation for maximum length
+  - Consider markdown support for formatting
+  - Add proper sanitization for user input
+  - Update TypeScript types to include description
+
+- **Benefits**:
+  - Better fault documentation
+  - Improved troubleshooting context
+  - Enhanced maintenance history
+  - Better communication between shifts
+
+- **Dependencies**:
+  - Existing fault simulation dialog
+  - Fault creation API endpoint
+  - Database schema update required

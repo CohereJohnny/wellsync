@@ -1,29 +1,35 @@
 // Define the structure for the Well data based on the Supabase schema
 
-export interface Well {
-  id: string; // UUID maps to string in TS
+export type Well = {
+  id: string;
   name: string;
   camp: string;
   formation: string;
-  latitude: number;
-  longitude: number;
-  status: "Operational" | "Fault" | "Pending Repair"; // Use a union type for status
-  last_maintenance?: string | null; // Timestamp can be string (ISO format) or null
-  fault_details?: { // Define structure for JSONB field
-    part_id?: string | null;
-    fault_type?: string | null;
-  } | null;
-}
+  status: string;
+};
 
 // We can add other types (Part, Inventory, Fault) here later as needed
-export interface Part {
-  // Define Part structure later
-}
+export type Part = {
+  part_id: string;
+  name: string;
+  description: string;
+  specifications: Record<string, any>;
+  manufacturer: string;
+};
 
-export interface Inventory {
-  // Define Inventory structure later
-}
+export type Fault = {
+  id: string;
+  well_id: string;
+  part_id: string;
+  description: string;
+  created_at: string;
+  resolved_at?: string;
+  status: 'active' | 'resolved';
+};
 
-export interface Fault {
-  // Define Fault structure later
-} 
+export type FaultType = {
+  id: string;
+  name: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+}; 

@@ -7,11 +7,25 @@ interface WellCardProps {
   well: Well;
 }
 
-export default function WellCard({ well }: WellCardProps) {
+// Custom comparison function for React.memo
+const arePropsEqual = (prevProps: WellCardProps, nextProps: WellCardProps) => {
+  return (
+    prevProps.well.id === nextProps.well.id &&
+    prevProps.well.status === nextProps.well.status &&
+    prevProps.well.name === nextProps.well.name &&
+    prevProps.well.camp === nextProps.well.camp &&
+    prevProps.well.formation === nextProps.well.formation
+  );
+};
+
+const WellCard = React.memo(({ well }: WellCardProps) => {
+  // Add console log to track re-renders
+  console.log('WellCard rendering for:', well.name, 'Status:', well.status);
+
   // Determine badge variant based on status
-  const badgeVariant = well.status === "Operational" ? "default" : "destructive";
+  const badgeVariant = well.status.toLowerCase() === "operational" ? "default" : "destructive";
   // Assign appropriate background colors based on Shadcn theme variables or custom Tailwind colors
-  const badgeBgColor = well.status === "Operational" ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600";
+  const badgeBgColor = well.status.toLowerCase() === "operational" ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600";
 
   return (
     <Card className="hover:scale-[1.03] transition-transform duration-200 ease-in-out cursor-pointer shadow-sm">
@@ -30,4 +44,8 @@ export default function WellCard({ well }: WellCardProps) {
       </CardContent>
     </Card>
   );
-} 
+}, arePropsEqual);
+
+WellCard.displayName = 'WellCard';
+
+export default WellCard; 

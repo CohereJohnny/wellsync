@@ -12,7 +12,13 @@ if (!supabaseAnonKey) {
 }
 
 // Create a single supabase client for interacting with your database
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  realtime: {
+    params: {
+      eventsPerSecond: 10
+    }
+  }
+})
 
 // Optional: Define Database interface if using generated types later
 // import { Database } from './types_db' // Assuming types_db.ts holds generated types
