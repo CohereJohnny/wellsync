@@ -9,6 +9,7 @@ Create the well detail page structure and display fundamental well information.
   - Implement loading and error states
   - Set up proper TypeScript types
   Progress: Created page component with proper routing, loading state using Suspense, and error handling for invalid IDs.
+  Added back button for improved navigation.
 
 [x] Create `WellDetail.tsx` component with split-screen layout
   - Implement responsive layout using Tailwind CSS
@@ -33,6 +34,12 @@ Create the well detail page structure and display fundamental well information.
   - Last update timestamp
   Progress: Implemented all well details display with proper formatting and status indicator.
 
+[x] Implement well card navigation
+  - Add click handler to well cards
+  - Add navigation to well detail page
+  - Add back button to well detail page
+  Progress: Added navigation from well cards to detail page and back button for return navigation.
+
 ## Progress Notes
 - Set up dynamic routing with proper error handling for invalid IDs
 - Created LoadingSpinner component for loading states
@@ -40,4 +47,6 @@ Create the well detail page structure and display fundamental well information.
 - Added Supabase server client for data fetching
 - Displayed all required well information with proper formatting
 - Added placeholder for chat panel (to be implemented in future sprint)
-- Used Shadcn UI components (Card, Badge) for consistent styling 
+- Used Shadcn UI components (Card, Badge) for consistent styling
+- Added navigation from well cards to detail page
+- Added back button for improved user experience 

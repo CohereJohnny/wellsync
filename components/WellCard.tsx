@@ -1,7 +1,8 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"; 
 import { Badge } from "@/components/ui/badge"; 
-import { Well } from '@/lib/types'; 
+import { Well } from '@/lib/types';
+import { useRouter } from 'next/navigation';
 
 interface WellCardProps {
   well: Well;
@@ -19,6 +20,8 @@ const arePropsEqual = (prevProps: WellCardProps, nextProps: WellCardProps) => {
 };
 
 const WellCard = React.memo(({ well }: WellCardProps) => {
+  const router = useRouter();
+
   // Add console log to track re-renders
   console.log('WellCard rendering for:', well.name, 'Status:', well.status);
 
@@ -27,8 +30,15 @@ const WellCard = React.memo(({ well }: WellCardProps) => {
   // Assign appropriate background colors based on Shadcn theme variables or custom Tailwind colors
   const badgeBgColor = well.status.toLowerCase() === "operational" ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600";
 
+  const handleClick = () => {
+    router.push(`/well/${well.id}`);
+  };
+
   return (
-    <Card className="hover:scale-[1.03] transition-transform duration-200 ease-in-out cursor-pointer shadow-sm">
+    <Card 
+      className="hover:scale-[1.03] transition-transform duration-200 ease-in-out cursor-pointer shadow-sm"
+      onClick={handleClick}
+    >
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-bold text-navy-900">{well.name}</CardTitle>
