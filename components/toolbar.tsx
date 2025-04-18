@@ -50,9 +50,8 @@ export function Toolbar() {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Camps</SelectItem>
-          <SelectItem value="north">North Camp</SelectItem>
-          <SelectItem value="south">South Camp</SelectItem>
-          <SelectItem value="east">East Camp</SelectItem>
+          <SelectItem value="midland">Midland</SelectItem>
+          <SelectItem value="delaware">Delaware</SelectItem>
         </SelectContent>
       </Select>
 
@@ -65,9 +64,9 @@ export function Toolbar() {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Formations</SelectItem>
-          <SelectItem value="sandstone">Sandstone</SelectItem>
-          <SelectItem value="limestone">Limestone</SelectItem>
-          <SelectItem value="shale">Shale</SelectItem>
+          <SelectItem value="spraberry">Spraberry</SelectItem>
+          <SelectItem value="wolfcamp">Wolfcamp</SelectItem>
+          <SelectItem value="bone-spring">Bone Spring</SelectItem>
         </SelectContent>
       </Select>
 
@@ -81,9 +80,8 @@ export function Toolbar() {
         <SelectContent>
           <SelectItem value="all">All Status</SelectItem>
           <SelectItem value="operational">Operational</SelectItem>
-          <SelectItem value="maintenance">Maintenance</SelectItem>
           <SelectItem value="fault">Fault</SelectItem>
-          <SelectItem value="offline">Offline</SelectItem>
+          <SelectItem value="pending-repair">Pending Repair</SelectItem>
         </SelectContent>
       </Select>
     </div>

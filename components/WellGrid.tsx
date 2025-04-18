@@ -29,13 +29,22 @@ export default function WellGrid() {
         const status = searchParams.get('status');
 
         if (camp && camp !== 'all') {
-          query = query.eq('camp', camp);
+          // Capitalize first letter for database query
+          query = query.eq('camp', camp.charAt(0).toUpperCase() + camp.slice(1));
         }
         if (formation && formation !== 'all') {
-          query = query.eq('formation', formation);
+          // Handle hyphenated values and capitalize first letter
+          const formattedFormation = formation === 'bone-spring'
+            ? 'Bone Spring'
+            : formation.charAt(0).toUpperCase() + formation.slice(1);
+          query = query.eq('formation', formattedFormation);
         }
         if (status && status !== 'all') {
-          query = query.eq('status', status);
+          // Handle hyphenated values and capitalize first letter
+          const formattedStatus = status === 'pending-repair'
+            ? 'Pending Repair'
+            : status.charAt(0).toUpperCase() + status.slice(1);
+          query = query.eq('status', formattedStatus);
         }
 
         const { data, error: fetchError } = await query;
