@@ -12,8 +12,8 @@
   - Progress: Created in Sprint 1 (2024-05-16).
 - [x] Add initial Shadcn/UI components (`Button`, `Card`, `Badge`).
   - Progress: Added Button, Card, Badge via CLI on 2024-05-16.
-- [ ] Configure Tailwind CSS colors/theme for Shadcn/UI components.
-  - Progress:
+- [x] Configure Tailwind CSS colors/theme for Shadcn/UI components.
+  - Progress: Verified theme variables in globals.css on 2024-05-16.
 
 ## Notes
 - This sprint focuses on integrating the Shadcn/UI library and its basic components.
