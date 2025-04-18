@@ -1,0 +1,91 @@
+'use client'
+
+import { useCallback } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+
+export type WellFilters = {
+  camp?: string
+  formation?: string
+  status?: string
+}
+
+export function Toolbar() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams)
+      if (value) {
+        params.set(name, value)
+      } else {
+        params.delete(name)
+      }
+      return params.toString()
+    },
+    [searchParams]
+  )
+
+  const updateFilter = (name: keyof WellFilters, value: string | undefined) => {
+    const queryString = createQueryString(name, value ?? '')
+    router.push(pathname + '?' + queryString)
+  }
+
+  return (
+    <div className="flex items-center gap-4 p-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 w-full border-b">
+      <Select
+        onValueChange={(value: string) => updateFilter('camp', value)}
+        value={searchParams.get('camp') ?? ''}
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Filter by Camp" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">All Camps</SelectItem>
+          <SelectItem value="north">North Camp</SelectItem>
+          <SelectItem value="south">South Camp</SelectItem>
+          <SelectItem value="east">East Camp</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select
+        onValueChange={(value: string) => updateFilter('formation', value)}
+        value={searchParams.get('formation') ?? ''}
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Filter by Formation" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">All Formations</SelectItem>
+          <SelectItem value="sandstone">Sandstone</SelectItem>
+          <SelectItem value="limestone">Limestone</SelectItem>
+          <SelectItem value="shale">Shale</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select
+        onValueChange={(value: string) => updateFilter('status', value)}
+        value={searchParams.get('status') ?? ''}
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Filter by Status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">All Status</SelectItem>
+          <SelectItem value="operational">Operational</SelectItem>
+          <SelectItem value="maintenance">Maintenance</SelectItem>
+          <SelectItem value="fault">Fault</SelectItem>
+          <SelectItem value="offline">Offline</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  )
+} 
