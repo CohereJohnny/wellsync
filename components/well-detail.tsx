@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { FaultHistoryTable } from '@/components/fault-history-table'
+import { ChatPanel } from '@/components/chat/chat-panel'
 import type { Well, Fault } from '@/lib/types'
 
 interface WellDetailProps {
@@ -119,12 +120,10 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
           </div>
         </Card>
 
-        {/* Right Panel - Chat (Placeholder) */}
-        <Card className="p-6">
-          <div className="h-full flex items-center justify-center text-muted-foreground">
-            Chat panel coming in future sprint
-          </div>
-        </Card>
+        {/* Right Panel - Chat */}
+        <div className="h-full">
+          <ChatPanel wellId={wellId} />
+        </div>
       </div>
 
       {/* Fault History Section */}

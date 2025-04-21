@@ -18,3 +18,15 @@
 - **Impact**: Users may need to refresh the page to see the latest well status changes
 - **Effort Estimate**: 1-2 days
 - **Added**: 2024-03-21
+
+## Deferred Testing (Sprints 8-10) (TD-002)
+- **Priority**: Low (Demo app focus)
+- **Related Sprints**: 8, 9, 10
+- **Description**: Formal testing tasks were deferred during Sprints 8, 9, and 10 to prioritize core functionality for the demo. This includes unit tests, integration tests, end-to-end tests, and potentially accessibility/performance validation.
+- **Specific Tasks Deferred**: 
+  - **Sprint 8 (Implicit)**: Testing for `FaultHistoryTable` component (sorting, expand/collapse), `GET /faults` API, real-time fault updates on detail page.
+  - **Sprint 9**: Unit tests for chat components (`ChatPanel`, state store), Cohere API integration testing, error handling verification (chat API, history API), responsive testing for chat, accessibility validation for chat.
+  - **Sprint 10**: Unit tests for `/api/chat_history` routes, integration testing for history fetching/display in `ChatPanel`, validation of markdown rendering.
+- **Impact**: Lower confidence in robustness, edge cases, and cross-browser/device compatibility. Potential for undiscovered bugs.
+- **Effort Estimate**: 3-5 days (Combined estimate)
+- **Added**: 2024-03-23

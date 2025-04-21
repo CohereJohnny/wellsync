@@ -127,3 +127,91 @@
   4. Added proper type checking for UUIDs in the URL
 - **Status**: Resolved
 - **Impact**: Well detail pages now load correctly with UUID parameters
+
+## Bug Entry: [2024-03-21]
+- **ID**: BUG-010
+- **Description**: Chat API using incorrect column name for fault timestamps
+- **Discovered**: During chat system testing
+- **Context**: Sprint 9, Chat Integration
+- **Fix**: 
+  - Updated fault query in chat API route to use 'timestamp' instead of 'created_at'
+  - Modified fault display formatting to use 'timestamp' field
+- **Status**: Resolved
+- **Impact**: Chat system can now properly fetch and display recent faults as context
+
+## Bug Entry: [2024-03-21]
+- **ID**: BUG-011
+- **Description**: Invalid role in chat history causing Cohere API errors
+- **Discovered**: During chat conversation testing
+- **Context**: Sprint 9, Chat Integration
+- **Fix**: 
+  - Identified that chat history roles must be one of: User, Chatbot, System, Tool
+  - Updated chat history formatting in `/api/chat` route to map:
+    - 'user' -> 'User'
+    - 'assistant' -> 'Chatbot'
+- **Status**: Resolved
+- **Impact**: Chat system now correctly formats message roles for Cohere API, allowing conversations to continue beyond the first few messages
+
+## Bug Entry: [2024-03-21]
+- **ID**: BUG-012
+- **Description**: Chat messages not displaying in UI despite successful API responses
+- **Discovered**: During chat system testing
+- **Context**: Sprint 9, Chat Integration
+- **Fix**: 
+  - Found issue in ChatPanel where API request was using a new message array instead of the stored messages
+  - Updated handleSubmit to use wellMessages array from chat store
+  - This ensures consistency between UI state and API requests
+- **Status**: Resolved
+- **Impact**: Chat messages now display correctly in the UI, maintaining conversation history
+
+## Bug Entry: [2024-03-21]
+- **ID**: BUG-013
+- **Description**: Chat messages not wrapping properly and inconsistent bubble layout
+- **Discovered**: During chat UI testing
+- **Context**: Sprint 9, Chat Panel Component
+- **Fix**: 
+  - Added proper text wrapping with whitespace-pre-wrap and break-words
+  - Improved chat bubble layout with better width control and alignment
+  - Fixed message alignment for user and assistant messages
+  - Updated loading indicator styling for consistency
+- **Status**: Resolved
+- **Impact**: Chat messages now display properly with correct wrapping and consistent layout
+
+## Bug Entry: [2024-03-21]
+- **ID**: BUG-014
+- **Description**: ChunkLoadError when loading app/layout chunk
+- **Discovered**: During application startup
+- **Context**: Next.js App Router Layout
+- **Fix**: 
+  - Cleared Next.js build cache to resolve webpack caching issues
+  - Updated layout.tsx with proper font configuration (display: swap, preload)
+  - Added suppressHydrationWarning to html element
+  - Added viewport metadata and proper layout structure
+  - Improved font loading with consistent variable usage
+- **Status**: Resolved
+- **Impact**: Application now loads properly with optimized font loading and layout structure
+
+## Bug Entry: [2024-03-21]
+- **ID**: BUG-015
+- **Description**: Chat module loading error and viewport metadata warnings
+- **Discovered**: During chat interaction
+- **Context**: Sprint 9, Chat Integration
+- **Fix**: 
+  - Moved viewport metadata to its own export using Next.js 14 viewport API
+  - Cleaned up Next.js cache and node_modules
+  - Reinstalled dependencies to resolve missing module issue
+  - Fixed static chunk loading by proper cache cleanup
+- **Status**: Resolved
+- **Impact**: Chat system now loads and functions properly without module errors or metadata warnings
+
+## Bug Entry: [2024-03-21]
+- **ID**: BUG-016
+- **Description**: TypeError in chat API route due to empty messages array
+- **Discovered**: During first chat message attempt after previous fixes
+- **Context**: Sprint 9, Chat API Route & Panel Interaction
+- **Fix**: 
+  - Identified that `handleSubmit` in `ChatPanel` was sending the message history *before* the new user message was included.
+  - Modified `handleSubmit` to construct a `messagesToSend` array containing both the existing `wellMessages` and the `currentUserMessage`.
+  - Passed `messagesToSend` to the API route, ensuring the latest message is always present.
+- **Status**: Resolved
+- **Impact**: Chat API route no longer errors on the first message, and conversation context is correctly maintained.

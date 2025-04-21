@@ -13,4 +13,7 @@ export const createClient = () =>
         eventsPerSecond: 10,
       },
     },
-  }) 
+  })
+
+// Added export for a singleton supabase client instance
+export const supabase = createClient(); 

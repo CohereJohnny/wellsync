@@ -11,12 +11,16 @@ A real-time monitoring and fault simulation dashboard for well management, built
 - 📱 Responsive design
 - 🚀 Real-time updates via Supabase
 - 🎨 Modern UI with Shadcn/UI components
+- 💬 AI Chat Assistant with history (Cohere)
+- 🔎 Semantic Fault Search Backend (Cohere Embed + pgvector)
 
 ## Tech Stack
 
 - **Framework**: Next.js 14 (App Router)
-- **Database**: Supabase (PostgreSQL)
+- **Database**: Supabase (PostgreSQL + pgvector)
 - **Real-time**: Supabase Realtime
+- **AI**: Cohere (Command A, Embed v3)
+- **Edge Functions**: Supabase Edge Functions (Deno)
 - **UI Components**: Shadcn/UI
 - **Styling**: Tailwind CSS
 - **Language**: TypeScript
@@ -39,18 +43,42 @@ A real-time monitoring and fault simulation dashboard for well management, built
    ```bash
    cp .env.example .env.local
    ```
-   Fill in your Supabase credentials:
+   Fill in your Supabase and Cohere credentials:
    ```
+   # Supabase
    NEXT_PUBLIC_SUPABASE_URL=your-project-url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   # Cohere
+   COHERE_API_KEY=your-cohere-api-key
    ```
 
-4. **Run the development server**
+4. **Set up Supabase Database**
+   - Ensure you have the Supabase CLI installed and logged in.
+   - Link your local project: `supabase link --project-ref <your-project-ref>`
+   - Push database migrations: `supabase db push`
+
+5. **Set up Supabase Edge Function Secrets**
+   - Go to your Supabase Project Dashboard -> Edge Functions -> generate-fault-embedding -> Secrets.
+   - Add the following secrets:
+     - `COHERE_API_KEY`: Your Cohere API key.
+     - `PROJECT_URL`: Your Supabase Project URL (from Project Settings -> API).
+     - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase Service Role Key (from Project Settings -> API -> Project API keys).
+
+6. **Set up Supabase Database Webhook**
+   - Go to your Supabase Project Dashboard -> Database -> Webhooks.
+   - Create a new webhook:
+     - Name: `Trigger Fault Embedding`
+     - Table: `faults`
+     - Events: `INSERT`
+     - Type: `Supabase Edge Functions`
+     - Edge Function: `generate-fault-embedding`
+
+7. **Run the development server**
    ```bash
    pnpm run dev
    ```
 
-5. **Open the application**
+8. **Open the application**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## Project Structure
@@ -59,43 +87,63 @@ A real-time monitoring and fault simulation dashboard for well management, built
 wellsync/
 ├── app/                    # Next.js app directory
 │   ├── api/               # API routes
-│   └── page.tsx           # Home page
+│   └── (main)/            # Main application routes
+│       ├── layout.tsx
+│       ├── page.tsx       # Home page
+│       └── well/[id]/     # Well detail page
+│           └── page.tsx
 ├── components/            # React components
 │   ├── ui/               # Shadcn UI components
-│   ├── WellCard.tsx      # Well display component
-│   ├── WellGrid.tsx      # Well grid layout
-│   └── toolbar.tsx       # Filtering toolbar
-├── lib/                  # Utility functions
-│   ├── supabase.ts       # Supabase client
-│   └── types.ts          # TypeScript types
-├── docs/                 # Documentation
-│   ├── components.md     # Component documentation
-│   └── demo_script.md    # Demo walkthrough
-└── public/               # Static assets
+│   ├── chat/             # Chat related components
+│   └── ...               # Other shared components
+├── lib/                   # Utility functions & libs
+│   ├── cohere.ts         # Cohere client setup
+│   ├── stores/           # Zustand stores
+│   ├── supabase/         # Supabase client/server setup
+│   └── utils.ts          # General utilities
+├── supabase/              # Supabase specific files
+│   ├── functions/        # Edge Functions
+│   │   ├── _shared/
+│   │   └── generate-fault-embedding/
+│   ├── migrations/       # Database migration SQL files
+│   └── config.toml       # Supabase CLI config
+├── public/                # Static assets
+├── sprints/               # Sprint planning/tracking docs
+│   ├── archive/
+│   └── ...
+├── .env.local             # Local environment variables
+├── next.config.mjs        # Next.js config
+├── package.json
+├── pnpm-lock.yaml
+├── README.md
+└── tsconfig.json
 ```
-
-## Key Components
-
-- **WellGrid**: Main dashboard component displaying well status
-- **WellCard**: Individual well display with real-time updates
-- **Toolbar**: Filtering and fault simulation controls
-- **FaultSimulationDialog**: Fault creation interface
 
 ## Database Schema
 
 ```sql
--- Key tables
-wells (id, name, camp, formation, status)
-parts (id, name, well_id, status)
-faults (id, well_id, part_id, fault_type, timestamp)
+-- Key tables (simplified)
+wells (id, name, camp, formation, status, depth, pressure, temperature, flow_rate, ...)
+parts (id, name, well_id, status, ...)
+faults (id, well_id, part_id, fault_type, timestamp, status, ...)
+fault_embeddings (id, fault_id FK, embedding vector(1024), created_at) -- Stores embeddings for semantic search
+chat_history (id, well_id UNIQUE, messages jsonb, updated_at) -- Stores conversation history per well
 ```
 
-## Development
+## Semantic Search Backend (Sprint 11)
 
-- Run tests: `pnpm test`
-- Build: `pnpm build`
+- An Edge Function (`generate-fault-embedding`) automatically creates vector embeddings (using Cohere Embed v3) for new faults via a Database Webhook on the `faults` table.
+- A PostgreSQL RPC function (`search_faults`) enables efficient vector similarity searches on these embeddings using pgvector's `<=>` operator (cosine distance).
+
+## Development Commands
+
+- Run dev server: `pnpm run dev`
+- Run tests: `pnpm test` (Note: Testing deferred, see `sprints/tech_debt.md`)
+- Build: `pnpm run build`
 - Lint: `pnpm lint`
 - Format: `pnpm format`
+- Supabase DB Push: `supabase db push`
+- Supabase Function Deploy: `supabase functions deploy <function_name>`
 
 ## Contributing
 
@@ -112,5 +160,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Next.js](https://nextjs.org/)
 - [Supabase](https://supabase.com/)
+- [Cohere](https://cohere.com/)
 - [Shadcn/UI](https://ui.shadcn.com/)
-- [Tailwind CSS](https://tailwindcss.com/) 
+- [Tailwind CSS](https://tailwindcss.com/)
