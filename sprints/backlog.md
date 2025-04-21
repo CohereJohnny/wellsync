@@ -259,3 +259,24 @@
   - Existing `faults` table schema.
   - Fault simulation logic (`POST /api/faults`).
   - Chat context generation (`/api/chat`).
+
+## Automatic Semantic Search Trigger
+- **Priority**: Low
+- **Description**: Automatically trigger the semantic fault search based on user intent classification within the chat, rather than relying solely on keywords or a dedicated button.
+- **Requirements**:
+  - Integrate a mechanism (potentially another Cohere API call like Classify or a custom model/logic) to analyze the user's chat message.
+  - Determine if the user's intent is to search for similar faults.
+  - If search intent is detected with high confidence, automatically call the `/api/search_faults` endpoint.
+  - Clearly indicate to the user that a search was performed automatically.
+  - Provide a way for the user to override or correct if the classification was wrong.
+- **Technical Considerations**:
+  - Choosing the right classification method/model.
+  - Defining confidence thresholds for triggering.
+  - Handling potential latency added by the classification step.
+  - Designing the UI feedback for automatic triggering.
+- **Benefits**:
+  - More natural and seamless user experience for searching.
+  - Reduces the need for specific commands or button clicks.
+- **Dependencies**:
+  - Existing `/api/search_faults` endpoint.
+  - Chat panel UI.

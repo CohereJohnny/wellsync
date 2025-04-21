@@ -30,3 +30,14 @@
 - **Impact**: Lower confidence in robustness, edge cases, and cross-browser/device compatibility. Potential for undiscovered bugs.
 - **Effort Estimate**: 3-5 days (Combined estimate)
 - **Added**: 2024-03-23
+
+## API Error Handling Tests (Search Faults) (TD-003)
+- **Priority**: Low (Demo app focus)
+- **Related Sprint**: 12
+- **Description**: Testing for specific error scenarios in the `/api/search_faults` endpoint was deferred to prioritize core functionality.
+- **Specific Tests Deferred**:
+  - **Test Case 1.5**: Test Cohere API error handling (e.g., by temporarily invalidating the API key and observing the 500 response).
+  - **Test Case 1.6**: Test Supabase RPC error handling (e.g., by temporarily renaming/dropping the `search_faults` function and observing the 500 response).
+- **Impact**: Reduced confidence in the robustness of the API endpoint under specific failure conditions (e.g., external API outages, database function issues).
+- **Effort Estimate**: < 0.5 days
+- **Added**: 2024-04-21
