@@ -1,0 +1,108 @@
+import { NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server'; // Use server client for backend operations
+
+// Define expected request body structure for dispatching a part
+interface DispatchRequestBody {
+  part_id?: string;
+  quantity?: number;
+  source_warehouse_id?: string;
+  destination_well_id?: string;
+}
+
+// POST handler for the dispatch simulation endpoint
+export async function POST(request: Request) {
+  console.log('POST /api/dispatches: Received request');
+
+  let requestBody: DispatchRequestBody;
+  try {
+    requestBody = await request.json();
+  } catch (error) {
+    console.error('POST /api/dispatches: Invalid JSON body', error);
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+  }
+
+  const { part_id, quantity, source_warehouse_id, destination_well_id } = requestBody;
+
+  // --- Input Validation ---
+  if (!part_id || typeof part_id !== 'string') {
+    return NextResponse.json({ error: 'Missing or invalid part_id' }, { status: 400 });
+  }
+  if (quantity === undefined || typeof quantity !== 'number' || !Number.isInteger(quantity) || quantity <= 0) {
+    return NextResponse.json({ error: 'Missing, invalid, or non-positive integer quantity' }, { status: 400 });
+  }
+   if (!source_warehouse_id || typeof source_warehouse_id !== 'string') {
+    return NextResponse.json({ error: 'Missing or invalid source_warehouse_id' }, { status: 400 });
+  }
+  if (!destination_well_id || typeof destination_well_id !== 'string') {
+    return NextResponse.json({ error: 'Missing or invalid destination_well_id' }, { status: 400 });
+  }
+
+  console.log(`POST /api/dispatches: Simulating dispatch for part=${part_id}, quantity=${quantity}, from=${source_warehouse_id}, to=${destination_well_id}`);
+
+  const supabase = createClient();
+
+  try {
+    // --- Simulation Logic --- 
+    
+    // 1. Check current stock level
+    const { data: inventoryItem, error: fetchError } = await supabase
+      .from('inventory')
+      .select('id, stock_level') // Select id for update and stock_level for check
+      .eq('part_id', part_id)
+      .eq('warehouse_id', source_warehouse_id)
+      .single(); // Expecting unique part/warehouse combo
+
+    if (fetchError) {
+      if (fetchError.code === 'PGRST116') { // PostgREST error code for "exact one row not found"
+        console.error(`POST /api/dispatches: Inventory item not found for part ${part_id} in warehouse ${source_warehouse_id}`);
+        return NextResponse.json({ success: false, error: `Part ${part_id} not found in warehouse ${source_warehouse_id}.` }, { status: 404 });
+      }
+      console.error('POST /api/dispatches: Error fetching inventory:', fetchError);
+      throw new Error(`Failed to fetch inventory: ${fetchError.message}`);
+    }
+
+    if (!inventoryItem) {
+         console.error(`POST /api/dispatches: Inventory item is null/undefined after fetch for part ${part_id} in warehouse ${source_warehouse_id}`);
+         return NextResponse.json({ success: false, error: `Part ${part_id} not found in warehouse ${source_warehouse_id}.` }, { status: 404 });
+    }
+
+    console.log(`POST /api/dispatches: Current stock for ${part_id} in ${source_warehouse_id} is ${inventoryItem.stock_level}`);
+
+    // 2. Check if stock is sufficient
+    if (inventoryItem.stock_level < quantity) {
+      console.warn(`POST /api/dispatches: Insufficient stock for part ${part_id}. Required: ${quantity}, Available: ${inventoryItem.stock_level}`);
+      return NextResponse.json({
+        success: false,
+        error: `Insufficient stock for part ${part_id} in warehouse ${source_warehouse_id}. Required: ${quantity}, Available: ${inventoryItem.stock_level}.`,
+      }, { status: 409 }); // 409 Conflict might be appropriate
+    }
+
+    // 3. Update stock level (Decrement)
+    const newStockLevel = inventoryItem.stock_level - quantity;
+    console.log(`POST /api/dispatches: Attempting to update stock for ${part_id} to ${newStockLevel}`);
+    
+    const { error: updateError } = await supabase
+      .from('inventory')
+      .update({ stock_level: newStockLevel, last_updated: new Date().toISOString() })
+      .eq('id', inventoryItem.id); // Update using the specific row ID
+      // Consider adding .eq('stock_level', inventoryItem.stock_level) for optimistic concurrency check
+
+    if (updateError) {
+      console.error('POST /api/dispatches: Error updating inventory:', updateError);
+      throw new Error(`Failed to update inventory: ${updateError.message}`);
+    }
+
+    console.log(`POST /api/dispatches: Stock updated successfully for part ${part_id}.`);
+
+    // Return success response
+    return NextResponse.json({
+      success: true,
+      message: `Successfully dispatched ${quantity} unit(s) of part ${part_id} from warehouse ${source_warehouse_id} to well ${destination_well_id}. New stock: ${newStockLevel}.`,
+    });
+
+  } catch (error) {
+    console.error('POST /api/dispatches: Error during simulation:', error);
+    const message = error instanceof Error ? error.message : 'Internal server error during dispatch simulation';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+} 
