@@ -85,12 +85,12 @@ export function FaultSimulationForm({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pt-4">
       <Select value={selectedWell} onValueChange={setSelectedWell}>
         <SelectTrigger>
           <SelectValue placeholder="Select a well" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
           {wells.map((well) => (
             <SelectItem key={well.id} value={well.id}>
               {well.name}
@@ -103,7 +103,7 @@ export function FaultSimulationForm({
         <SelectTrigger>
           <SelectValue placeholder="Select a part" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
           {parts.map((part) => (
             <SelectItem key={part.part_id} value={part.part_id}>
               {part.name}
@@ -116,7 +116,7 @@ export function FaultSimulationForm({
         <SelectTrigger>
           <SelectValue placeholder="Select a fault type" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white">
           {FAULT_TYPES.map((faultType) => (
             <SelectItem key={faultType.name} value={faultType.name}>
               {faultType.name} ({faultType.severity})
@@ -128,7 +128,7 @@ export function FaultSimulationForm({
       <Button 
         onClick={handleSubmit} 
         disabled={isLoading}
-        className="w-full"
+        className="w-full bg-blue-500 text-primary-foreground hover:bg-blue-600"
       >
         {isLoading ? 'Triggering Fault...' : 'Trigger Fault'}
       </Button>

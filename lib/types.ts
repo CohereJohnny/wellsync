@@ -5,12 +5,11 @@ export interface Well {
   name: string;
   camp: string;
   formation: string;
-  location: string;
+  latitude?: number | null;
+  longitude?: number | null;
   status: string;
-  depth: number;
-  pressure: number;
-  temperature: number;
-  flow_rate: number;
+  last_maintenance?: string | null;
+  fault_details?: { part_id?: string; fault_type?: string } | null;
   updated_at: string;
 }
 

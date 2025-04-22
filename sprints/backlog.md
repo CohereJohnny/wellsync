@@ -1,5 +1,42 @@
 # Feature Backlog
 
+## Toolbar Responsive Layout
+- **Priority**: Medium
+- **Description**: The toolbar elements (filters and trigger button) overflow the screen width on narrow mobile viewports.
+- **Requirements**:
+  - Adjust the toolbar layout to be responsive.
+  - Consider a two-row layout on smaller screens: top row for filters, bottom row for action buttons (Trigger Fault, Reset Demo).
+  - Alternatively, collapse filters into a single dropdown or use smaller button variants on mobile.
+  - Ensure usability and aesthetics on various screen sizes (mobile, tablet, desktop).
+- **Technical Considerations**:
+  - Use Tailwind CSS responsive prefixes (sm:, md:, lg:).
+  - May require restructuring the Toolbar component's JSX.
+- **Benefits**:
+  - Improves usability on mobile devices.
+  - Ensures all controls are accessible without horizontal scrolling.
+- **Dependencies**:
+  - Existing Toolbar component.
+
+## Reset Demo Functionality
+- **Priority**: Medium
+- **Description**: Add a "Reset Demo" button to the toolbar that resets the status of all wells to "Operational".
+- **Requirements**:
+  - Add a new button (e.g., "Reset Demo") to the toolbar, likely next to "Trigger Fault".
+  - Implement backend logic (e.g., a new API endpoint `/api/reset_demo` or a Supabase Edge Function) that updates the `status` column to 'Operational' for all rows in the `wells` table.
+  - Ensure the button calls this backend logic.
+  - Provide visual feedback to the user upon successful reset (e.g., toast notification).
+  - Update the frontend (homescreen grid) to reflect the reset statuses (potentially via `router.refresh()` or relying on existing Realtime updates).
+- **Technical Considerations**:
+  - Creating the new API endpoint/function requires backend work.
+  - Need efficient SQL `UPDATE` query in the backend.
+  - Consider potential race conditions if faults are triggered concurrently.
+- **Benefits**:
+  - Allows easy resetting of the demo state for presentations or testing.
+  - Improves demo usability.
+- **Dependencies**:
+  - Existing Toolbar component.
+  - `wells` table schema.
+
 ## Well Display View Toggle
 - **Priority**: Medium
 - **Description**: Add ability to switch between card view and table view on the homepage for wells

@@ -5,13 +5,15 @@ import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Search } from 'lucide-react'
+import { Search, ArrowRight } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import { useChatStore } from '@/lib/stores/chat-store'
 import { useToast } from '@/hooks/use-toast'
 import type { Message } from '@/lib/stores/chat-store'
 import { Skeleton } from '@/components/ui/skeleton'
+import { createClient } from '@/lib/supabase/client'
+import type { RealtimeChannel } from '@supabase/supabase-js'
 
 interface ChatPanelProps {
   className?: string
@@ -33,6 +35,8 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
   const [isSearching, setIsSearching] = React.useState(false)
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
   const wellMessages = messages[wellId] || []
+  const supabase = createClient()
+  const inventoryChannelRef = React.useRef<RealtimeChannel | null>(null)
 
   React.useEffect(() => {
     async function fetchHistory() {
@@ -66,6 +70,48 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wellId])
 
+  React.useEffect(() => {
+    console.log('[Realtime] Setting up inventory subscription.');
+
+    if (inventoryChannelRef.current) {
+      supabase.removeChannel(inventoryChannelRef.current);
+      inventoryChannelRef.current = null;
+      console.log('[Realtime] Removed previous inventory channel.');
+    }
+
+    const channel = supabase
+      .channel('inventory-changes')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'inventory' },
+        (payload) => {
+          console.log('[Realtime] Inventory Change received!', payload)
+        }
+      )
+      .subscribe((status, err) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('[Realtime] Successfully subscribed to inventory changes!');
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error('[Realtime] Inventory subscription error:', status, err);
+          toast({
+            variant: 'destructive',
+            title: 'Realtime Error',
+            description: `Could not subscribe to inventory updates: ${err?.message || status}`,
+          });
+        }
+      });
+
+    inventoryChannelRef.current = channel;
+
+    return () => {
+      if (inventoryChannelRef.current) {
+        console.log('[Realtime] Unsubscribing from inventory changes.');
+        supabase.removeChannel(inventoryChannelRef.current);
+        inventoryChannelRef.current = null;
+      }
+    };
+  }, [supabase, toast]);
+
   const scrollToBottom = React.useCallback(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
@@ -89,9 +135,9 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
    */
   const handleSearch = async (query: string) => {
     if (!query || isSearching || isLoading) return;
-    console.log('handleSearch: Initiating search for:', query);
     setIsSearching(true);
     setInput('');
+    setError(null);
 
     try {
       const response = await fetch('/api/search_faults', {
@@ -106,32 +152,16 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
       }
 
       const searchResults = await response.json();
-      console.log('handleSearch: Received results:', searchResults);
-
-      // --- Display Search Results --- 
       let resultSummary = 'No relevant faults found.';
       if (searchResults && searchResults.length > 0) {
         resultSummary = `Found ${searchResults.length} relevant faults. Top result: \n- **Type**: ${searchResults[0].fault_type}\n- **Timestamp**: ${new Date(searchResults[0].timestamp).toLocaleString()}\n- **Score**: ${searchResults[0].rerank_score.toFixed(3)}`;
-        // Add more details or format differently as needed
       }
       
-      // Add a system message to display the results summary
       addMessage(wellId, {
-          role: 'assistant', // Use assistant role for display purposes
+          role: 'assistant',
           content: resultSummary, 
-          // Maybe add a special flag later to render this differently
-          // isSearchResult: true 
           wellId,
       });
-
-      // Remove toast notifications as results are now shown in chat
-      /* 
-      if (searchResults && searchResults.length > 0) {
-          toast({ ... });
-      } else {
-          toast({ ... });
-      }
-      */
 
     } catch (error) {
       console.error('handleSearch: Error:', error);
@@ -181,7 +211,6 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
       // Ensure the temp message object has all needed fields for API (even if ignored)
       const messagesToSend = [
           ...currentMessagesForWell, 
-        //   { ...currentUserMessage, id: 'temp', timestamp: new Date() } // Re-evaluate if this structure is needed for API
       ];
 
       // Clear input immediately for responsiveness
@@ -190,7 +219,6 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
       setError(null);
 
       try {
-        console.log('handleSubmit: Sending message to /api/chat');
         const response = await fetch('/api/chat', { 
             method: 'POST',
             headers: {
@@ -246,17 +274,37 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
     }
   }
 
+  // Determine message alignment and styling based on role
+  const getMessageClasses = (role: 'user' | 'assistant') => {
+    if (role === 'user') {
+      // User: right-align, teal bg, navy text, rounded except top-right
+      return 'flex justify-end mb-2';
+    } else {
+      // Assistant: left-align
+      return 'flex justify-start mb-2';
+    }
+  };
+  const getBubbleClasses = (role: 'user' | 'assistant') => {
+     if (role === 'user') {
+       // User: cyan-100 bg, rounded-lg, rounded-tr-none, p-3, max-w-sm
+       return 'bg-cyan-100 rounded-lg rounded-tr-none p-3 max-w-sm'; 
+     } else {
+       // Assistant: white bg, rounded-lg, rounded-tl-none, p-3, max-w-sm, shadow
+       return 'bg-white rounded-lg rounded-tl-none p-3 max-w-sm shadow-sm'; 
+     }
+  }
+
   return (
-    <Card className={cn('flex h-[600px] flex-col', className)}>
+    <Card className={cn('flex flex-col h-full bg-gray-50 shadow-sm rounded-lg', className)}>
       <ScrollArea 
         ref={scrollAreaRef} 
-        className="flex-1 p-4 scrollbar scrollbar-track-background scrollbar-thumb-muted-foreground/50 scrollbar-thumb-rounded scrollbar-w-2"
+        className="flex-1 p-4 scrollbar scrollbar-track-background scrollbar-thumb-muted-foreground/50 scrollbar-thumb-rounded scrollbar-w-2 max-h-[600px]"
       >
         <div className="space-y-4">
           {isHistoryLoading && (
             <div className="space-y-4 p-4">
               <Skeleton className="h-16 w-3/4" />
-              <Skeleton className="h-16 w-3/4 self-end" />
+              <Skeleton className="h-16 w-3/4 ml-auto" />
               <Skeleton className="h-16 w-3/4" />
             </div>
           )}
@@ -268,33 +316,20 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
           {!isHistoryLoading &&
             wellMessages.length > 0 &&
             wellMessages.map((message) => (
-              <div
-                key={message.id}
-                className={cn(
-                  'flex flex-col gap-2 animate-in fade-in duration-300',
-                  message.role === 'user' ? 'items-end' : 'items-start'
-                )}
-              >
-                <div
-                  className={cn(
-                    'flex w-fit max-w-[85%] flex-col rounded-lg px-4 py-2 text-sm',
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
-                  )}
-                >
+              <div key={message.id} className={getMessageClasses(message.role)}>
+                <div className={getBubbleClasses(message.role)}>
                   <ReactMarkdown
                     components={{
-                      p: ({ node, ...props }) => (
-                        <p {...props} className="mb-2 last:mb-0" />
-                      ),
+                      p: ({node, ...props}) => <p {...props} className="mb-0 last:mb-0" />,
                     }}
                   >
                     {message.content}
                   </ReactMarkdown>
-                  <div className="mt-1 text-xs opacity-50">
-                    {new Date(message.timestamp).toLocaleTimeString()}
-                  </div>
+                  {message.timestamp && (
+                    <div className={`text-xs text-gray-400 mt-1 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+                      {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  )}
                 </div>
               </div>
             ))
@@ -308,44 +343,39 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
             </div>
           )}
           {isLoading && (
-            <div className="flex items-start">
-              <div className="flex w-fit max-w-[85%] flex-col rounded-lg bg-muted px-4 py-2">
-                <div className="flex space-x-2">
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-foreground/50" />
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-foreground/50 [animation-delay:0.2s]" />
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-foreground/50 [animation-delay:0.4s]" />
-                </div>
-              </div>
+            <div className={getMessageClasses('assistant')}>
+               <div className={getBubbleClasses('assistant')}>
+                 <Skeleton className="h-5 w-10" />
+               </div>
             </div>
           )}
         </div>
       </ScrollArea>
-      <form onSubmit={handleSubmit} className="flex gap-2 border-t p-4">
+      <div className="border-t p-4 flex items-center gap-2 bg-white rounded-b-lg">
         <Input
+          type="text"
+          placeholder="Type your message or /search ..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder='Type /search [query] or message...'
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit(e as any);
+            }
+          }}
           disabled={isLoading || isSearching}
-          className="flex-1"
+          className="flex-grow h-10 bg-white border border-gray-300 rounded-md focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500"
         />
         <Button 
-          type="button"
-          variant="outline" 
-          size="icon"
-          onClick={handleSearchButtonClick}
-          disabled={isLoading || isSearching || !input.trim()} 
-          title="Search similar faults"
-        >
-          <Search className="h-4 w-4" />
-        </Button>
-        <Button 
           type="submit" 
-          disabled={isLoading || isSearching}
-          title="Send message"
+          size="icon" 
+          disabled={isLoading || isSearching || !input.trim()}
+          onClick={(e) => handleSubmit(e as any)}
+          className="bg-cyan-500 text-white rounded-md hover:bg-cyan-600 disabled:bg-gray-300"
         >
-          Send
+          <ArrowRight className="h-5 w-5" />
         </Button>
-      </form>
+      </div>
     </Card>
   )
 } 

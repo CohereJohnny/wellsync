@@ -1,0 +1,271 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "North",
+        "summary": "The spec for the MCP server endpoints",
+        "description": "",
+        "contact": {
+            "name": "Cohere Sales",
+            "url": "https://cohere.com/contact-sales",
+            "email": "support@cohere.com"
+        },
+        "version": "0.1.0"
+    },
+    "servers": [
+        {
+            "url": "/api"
+        }
+    ],
+    "paths": {
+        "/internal/v1/mcp_servers": {
+            "get": {
+                "tags": [
+                    "internal"
+                ],
+                "summary": "List Mcp Servers",
+                "description": "Lists all the registered MCP servers.",
+                "operationId": "list_mcp_servers_internal_v1_mcp_servers_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/MCPServerResponse"
+                                    },
+                                    "type": "array",
+                                    "title": "Response List Mcp Servers Internal V1 Mcp Servers Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "internal"
+                ],
+                "summary": "Register Mcp Server",
+                "description": "Registers an MCP server.",
+                "operationId": "register_mcp_server_internal_v1_mcp_servers_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterMCPRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RegisterMCPResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/internal/v1/mcp_servers/delete": {
+            "post": {
+                "tags": [
+                    "internal"
+                ],
+                "summary": "Delete Mcp Server",
+                "description": "Deletes the MCP server given the URL.",
+                "operationId": "delete_mcp_server_internal_v1_mcp_servers_delete_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteMCPRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeleteMCPResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "DeleteMCPRequest": {
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "title": "Url"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "url"
+                ],
+                "title": "DeleteMCPRequest"
+            },
+            "DeleteMCPResponse": {
+                "properties": {},
+                "type": "object",
+                "title": "DeleteMCPResponse"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            },
+            "MCPServerResponse": {
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "title": "Url"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "required_connectors": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Required Connectors"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "url",
+                    "name",
+                    "required_connectors"
+                ],
+                "title": "MCPServerResponse"
+            },
+            "RegisterMCPRequest": {
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "title": "Url"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "secret": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Secret"
+                    },
+                    "required_connectors": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Required Connectors",
+                        "default": []
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "url",
+                    "name"
+                ],
+                "title": "RegisterMCPRequest"
+            },
+            "RegisterMCPResponse": {
+                "properties": {},
+                "type": "object",
+                "title": "RegisterMCPResponse"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "internal",
+            "description": "Cohere Only Internal Endpoints. These endpoints will break and change to support the North application FE and apps."
+        }
+    ]
+}

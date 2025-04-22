@@ -70,6 +70,14 @@ export function FaultHistoryTable({ faults, isLoading }: FaultHistoryTableProps)
     }))
   }
 
+  // Badge styling based on spec
+  const getBadgeClasses = (status: string) => {
+    const lowerStatus = status?.toLowerCase() || '';
+    // Use green for resolved, red for active (destructive)
+    const bgColor = lowerStatus === 'resolved' ? 'bg-green-500' : 'bg-red-500'; 
+    return cn('text-white px-2 py-1 text-xs font-medium rounded', bgColor); // Use text-xs for smaller badges
+  }
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -135,7 +143,8 @@ export function FaultHistoryTable({ faults, isLoading }: FaultHistoryTableProps)
             <TableRow 
               className={cn(
                 'cursor-pointer hover:bg-muted/50 transition-colors',
-                expandedFaultId === fault.fault_id && 'bg-muted/50'
+                expandedFaultId === fault.fault_id && 'bg-muted/50',
+                'odd:bg-gray-100'
               )}
               onClick={() => setExpandedFaultId(
                 expandedFaultId === fault.fault_id ? null : fault.fault_id
@@ -154,9 +163,7 @@ export function FaultHistoryTable({ faults, isLoading }: FaultHistoryTableProps)
               <TableCell>{fault.fault_type}</TableCell>
               <TableCell>{fault.part_id}</TableCell>
               <TableCell>
-                <Badge
-                  variant={fault.status === 'active' ? 'destructive' : 'default'}
-                >
+                <Badge className={getBadgeClasses(fault.status)}>
                   {fault.status}
                 </Badge>
               </TableCell>

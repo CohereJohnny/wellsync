@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     // Return success response
     return NextResponse.json({
       success: true,
-      message: `Order successfully simulated for ${quantity} unit(s) of part ${part_id} for well ${destination_well_id}.`,
+      message: `Order successfully placed for ${quantity} unit(s) of part ${part_id} for well ${destination_well_id}.`,
     });
 
   } catch (error) {
