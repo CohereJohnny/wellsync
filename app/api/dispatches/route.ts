@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server'; // Use server client for backend operations
+import { supabaseAdmin } from '@/lib/supabase/server'; // Import the server-side client
 
 // Define expected request body structure for dispatching a part
 interface DispatchRequestBody {
@@ -39,13 +39,11 @@ export async function POST(request: Request) {
 
   console.log(`POST /api/dispatches: Simulating dispatch for part=${part_id}, quantity=${quantity}, from=${source_warehouse_id}, to=${destination_well_id}`);
 
-  const supabase = createClient();
-
   try {
     // --- Simulation Logic --- 
     
     // 1. Check current stock level
-    const { data: inventoryItem, error: fetchError } = await supabase
+    const { data: inventoryItem, error: fetchError } = await supabaseAdmin
       .from('inventory')
       .select('id, stock_level') // Select id for update and stock_level for check
       .eq('part_id', part_id)
@@ -81,7 +79,7 @@ export async function POST(request: Request) {
     const newStockLevel = inventoryItem.stock_level - quantity;
     console.log(`POST /api/dispatches: Attempting to update stock for ${part_id} to ${newStockLevel}`);
     
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('inventory')
       .update({ stock_level: newStockLevel, last_updated: new Date().toISOString() })
       .eq('id', inventoryItem.id); // Update using the specific row ID

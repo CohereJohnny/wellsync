@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase/server'
 
 export async function POST(request: Request) {
   try {
@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     const { wellId, partId, faultType, description } = await request.json()
 
     // Start a Supabase transaction
-    const { data: fault, error: faultError } = await supabase
+    const { data: fault, error: faultError } = await supabaseAdmin
       .from('faults')
       .insert([
         {
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     }
 
     // Update well status and fault details
-    const { error: wellError } = await supabase
+    const { error: wellError } = await supabaseAdmin
       .from('wells')
       .update({ 
         status: 'Fault',

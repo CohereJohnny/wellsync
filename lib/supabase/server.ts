@@ -1,33 +1,25 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { Database } from '@/lib/supabase/database.types'
+import { createClient } from '@supabase/supabase-js'
 
-export function createClient() {
-  const cookieStore = cookies()
+// Ensure these environment variables are set in your .env.local (or environment)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: any) {
-          try {
-            cookieStore.set(name, value, options)
-          } catch (error) {
-            // Handle cookies in read-only contexts
-          }
-        },
-        remove(name: string, options: any) {
-          try {
-            cookieStore.set(name, '', { ...options, maxAge: 0 })
-          } catch (error) {
-            // Handle cookies in read-only contexts
-          }
-        },
-      },
-    }
-  )
-} 
+if (!supabaseUrl) {
+  throw new Error('Missing environment variable: NEXT_PUBLIC_SUPABASE_URL')
+}
+
+if (!supabaseServiceRoleKey) {
+  throw new Error('Missing environment variable: SUPABASE_SERVICE_ROLE_KEY')
+}
+
+// Create a singleton Supabase client for server-side operations
+// Note: This is safe on the server, unlike the client-side singleton issue.
+export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
+  auth: {
+    // No need to persist session for server-side operations
+    autoRefreshToken: false,
+    persistSession: false
+  }
+})
+
+// You can add server-specific helper functions here if needed 

@@ -38,7 +38,8 @@ export function FaultSimulationForm({
   defaultWellId,
 }: FaultSimulationFormProps) {
   const { toast } = useToast()
-  const [selectedWell, setSelectedWell] = useState<string>('')
+  // Initialize selectedWell state with defaultWellId if provided
+  const [selectedWell, setSelectedWell] = useState<string>(defaultWellId || '')
   const [selectedPart, setSelectedPart] = useState<string>('')
   const [selectedFaultType, setSelectedFaultType] = useState<string>('')
   const [description, setDescription] = useState<string>('')

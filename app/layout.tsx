@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google"; 
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { SupabaseProvider } from "@/context/supabase-context";
 
 // Load Inter font with all required subsets and display swap
 const inter = Inter({ 
@@ -31,9 +32,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head />
       <body className={`${inter.variable} font-sans antialiased`}>
-        <main className="min-h-screen bg-background">
-          {children}
-        </main>
+        <SupabaseProvider>
+          <main className="min-h-screen bg-background">
+            {children}
+          </main>
+        </SupabaseProvider>
         <Toaster />
       </body>
     </html>

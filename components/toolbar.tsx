@@ -18,10 +18,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { AlertTriangle, RotateCcw } from 'lucide-react'
+import { AlertTriangle, RotateCcw, LayoutGrid, List } from 'lucide-react'
 import { FaultSimulationForm } from './fault-simulation-form'
 import { useToast } from '@/hooks/use-toast'
-import { supabase } from '@/lib/supabase'
+import { useSupabase } from '@/context/supabase-context'
 import { Well, Part } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -32,6 +32,7 @@ export type WellFilters = {
 }
 
 export function Toolbar() {
+  const supabase = useSupabase()
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -43,6 +44,7 @@ export function Toolbar() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
+  const currentView = searchParams.get('view') || 'card'
 
   // Fetch wells and parts when dialog opens
   useEffect(() => {
@@ -85,7 +87,7 @@ export function Toolbar() {
     }
 
     fetchData()
-  }, [dialogOpen, toast])
+  }, [dialogOpen, toast, supabase])
 
   const createQueryString = useCallback(
     (name: string, value: string | null) => {
@@ -102,6 +104,11 @@ export function Toolbar() {
 
   const updateFilter = (name: keyof WellFilters, value: string) => {
     const queryString = createQueryString(name, value === 'all' ? null : value)
+    router.push(pathname + '?' + queryString)
+  }
+
+  const updateView = (newView: 'card' | 'table') => {
+    const queryString = createQueryString('view', newView)
     router.push(pathname + '?' + queryString)
   }
 
@@ -178,49 +185,72 @@ export function Toolbar() {
 
   return (
     <div className="sticky top-0 z-10 flex flex-wrap items-center justify-center gap-4 p-4 bg-white shadow-sm">
-      <Select
-        onValueChange={(value) => updateFilter('camp', value)}
-        defaultValue={searchParams.get('camp') || 'all'}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="All Camps" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Camps</SelectItem>
-          <SelectItem value="Midland">Midland</SelectItem>
-          <SelectItem value="Delaware">Delaware</SelectItem>
-        </SelectContent>
-      </Select>
+      <div className="flex items-center flex-wrap gap-4">
+        <Select
+          onValueChange={(value) => updateFilter('camp', value)}
+          defaultValue={searchParams.get('camp') || 'all'}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="All Camps" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            <SelectItem value="all">All Camps</SelectItem>
+            <SelectItem value="Midland">Midland</SelectItem>
+            <SelectItem value="Delaware">Delaware</SelectItem>
+          </SelectContent>
+        </Select>
 
-      <Select
-        onValueChange={(value) => updateFilter('formation', value)}
-        defaultValue={searchParams.get('formation') || 'all'}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="All Formations" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Formations</SelectItem>
-          <SelectItem value="Spraberry">Spraberry</SelectItem>
-          <SelectItem value="Wolfcamp">Wolfcamp</SelectItem>
-          <SelectItem value="Bone Spring">Bone Spring</SelectItem>
-        </SelectContent>
-      </Select>
+        <Select
+          onValueChange={(value) => updateFilter('formation', value)}
+          defaultValue={searchParams.get('formation') || 'all'}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="All Formations" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            <SelectItem value="all">All Formations</SelectItem>
+            <SelectItem value="Spraberry">Spraberry</SelectItem>
+            <SelectItem value="Wolfcamp">Wolfcamp</SelectItem>
+            <SelectItem value="Bone Spring">Bone Spring</SelectItem>
+          </SelectContent>
+        </Select>
 
-      <Select
-        onValueChange={(value) => updateFilter('status', value)}
-        defaultValue={searchParams.get('status') || 'all'}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="All Status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Status</SelectItem>
-          <SelectItem value="Operational">Operational</SelectItem>
-          <SelectItem value="Fault">Fault</SelectItem>
-          <SelectItem value="Pending Repair">Pending Repair</SelectItem>
-        </SelectContent>
-      </Select>
+        <Select
+          onValueChange={(value) => updateFilter('status', value)}
+          defaultValue={searchParams.get('status') || 'all'}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="All Status" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="Operational">Operational</SelectItem>
+            <SelectItem value="Fault">Fault</SelectItem>
+            <SelectItem value="Pending Repair">Pending Repair</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex items-center flex-wrap gap-2">
+        <Button
+          variant={currentView === 'card' ? 'secondary' : 'ghost'} 
+          size="sm"
+          onClick={() => updateView('card')}
+          className="gap-2"
+        >
+          <LayoutGrid className="h-4 w-4" />
+          Card View
+        </Button>
+        <Button
+          variant={currentView === 'table' ? 'secondary' : 'ghost'} 
+          size="sm"
+          onClick={() => updateView('table')}
+          className="gap-2"
+        >
+          <List className="h-4 w-4" />
+          Table View
+        </Button>
+      </div>
 
       <div className="flex items-center flex-wrap gap-2">
         <Button 
@@ -237,7 +267,7 @@ export function Toolbar() {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <Button variant="destructive" className="gap-2 hover:bg-red-600">
+          <Button variant="destructive" className="gap-2 hover:bg-red-600 border">
             <AlertTriangle className="h-4 w-4" />
             Trigger Fault
           </Button>

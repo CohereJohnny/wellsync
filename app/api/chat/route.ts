@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { cohere } from '@/lib/cohere'
-import { createClient } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/server'
 import { type Message, Tool, ToolCall, ToolResult, type NonStreamedChatResponse } from 'cohere-ai/api'
 
 // --- Tool Definitions ---
@@ -82,8 +82,7 @@ export async function POST(request: Request) {
 
     // Get well context from Supabase
     console.log('Chat API: Fetching well data')
-    const supabase = createClient()
-    const { data: well, error: wellError } = await supabase
+    const { data: well, error: wellError } = await supabaseAdmin
       .from('wells')
       .select('*')
       .eq('id', wellId)
@@ -99,7 +98,7 @@ export async function POST(request: Request) {
 
     // Get recent faults for context
     console.log('Chat API: Fetching recent faults')
-    const { data: recentFaults, error: faultsError } = await supabase
+    const { data: recentFaults, error: faultsError } = await supabaseAdmin
       .from('faults')
       .select('*')
       .eq('well_id', wellId)
@@ -141,7 +140,7 @@ export async function POST(request: Request) {
 
     // Fetch existing chat history from chat_history table
     let historicalMessages = [];
-    const { data: historyData, error: historyError } = await supabase
+    const { data: historyData, error: historyError } = await supabaseAdmin
       .from('chat_history')
       .select('messages')
       .eq('well_id', wellId)
@@ -284,7 +283,7 @@ export async function POST(request: Request) {
 
     // Update and upsert history (including the final assistant message)
     const finalUpdatedMessages = [...combinedMessages, assistantMessage];
-    const { error: upsertError } = await supabase
+    const { error: upsertError } = await supabaseAdmin
       .from('chat_history')
       .upsert({ well_id: wellId, messages: finalUpdatedMessages, updated_at: new Date() }, { onConflict: 'well_id' });
       

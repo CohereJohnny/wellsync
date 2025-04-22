@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useSupabase } from '@/context/supabase-context'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { FaultHistoryTable } from '@/components/fault-history-table'
@@ -31,6 +31,8 @@ interface WellDetailProps {
 }
 
 export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailProps) {
+  console.log(`[WellDetail ${wellId}] Initial status:`, initialWell?.status); // Log initial status
+  const supabase = useSupabase()
   const [well, setWell] = useState<Well>(initialWell)
   const [faults, setFaults] = useState<Fault[]>(initialFaults)
   const [isLoadingFaults, setIsLoadingFaults] = useState(false)
@@ -42,8 +44,6 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
   
   const { toast } = useToast()
   const router = useRouter()
-
-  const supabase = createClient()
 
   useEffect(() => {
     async function fetchParts() {
@@ -66,7 +66,7 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
       }
     }
     fetchParts()
-  }, [supabase, toast])
+  }, [toast, supabase])
 
   useEffect(() => {
     const channel = supabase
@@ -162,6 +162,63 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
       setIsSubmittingFault(false);
     }
   };
+
+  // useEffect to subscribe to well updates (e.g., status changes)
+  useEffect(() => {
+    const wellChannel = supabase
+      .channel('well-detail-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'wells',
+          filter: `id=eq.${wellId}`,
+        },
+        async (payload) => {
+          console.log('Received well update:', payload)
+          
+          const newWellData = payload.new as Partial<Well>; // Type assertion
+          const incomingStatus = newWellData?.status;
+          
+          if (incomingStatus) { 
+             console.log(`[WellDetail ${wellId}] Realtime status update received:`, incomingStatus);
+          } else if (payload.new && typeof payload.new === 'object' && 'status' in payload.new) { 
+             console.log(`[WellDetail ${wellId}] Realtime status update received but status is:`, (payload.new as any).status);
+          } 
+
+          if (payload.eventType === 'UPDATE') {
+            // Check if the update tries to set status to Operational while active faults exist
+            const hasActiveFaults = faults.some(fault => fault.status !== 'resolved'); // Use lowercase 'resolved'
+
+            // Add detailed logging for debugging
+            console.log(
+              `[WellDetail ${wellId}] Checking status update. ` +
+              `Incoming: ${incomingStatus}, HasActiveFaults: ${hasActiveFaults}, ` +
+              `FaultsState: ${JSON.stringify(faults)}`
+            );
+
+            if (incomingStatus === 'Operational' && hasActiveFaults) {
+              console.warn(`[WellDetail ${wellId}] Ignored realtime update setting status to 'Operational' because active faults exist.`);
+              // Optionally update other fields but keep the status derived from faults
+              setWell((current) => ({ 
+                  ...current, 
+                  ...newWellData, // Apply other updates from payload
+                  status: current.status // Keep existing status (likely 'Fault')
+              }));
+            } else {
+              // Apply the update as usual (including the status)
+              setWell((current) => ({ ...current, ...newWellData }));
+            }
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(wellChannel)
+    }
+  }, [wellId, supabase, faults])
 
   // Badge styling based on spec
   const getBadgeClasses = (status: string) => {

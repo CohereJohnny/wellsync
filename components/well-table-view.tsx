@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase/client'
+import { useSupabase } from '@/context/supabase-context'
 import {
   Table,
   TableBody,
@@ -18,6 +18,7 @@ import { Well } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 export function WellTableView() {
+  const supabase = useSupabase()
   const searchParams = useSearchParams()
   const [wells, setWells] = useState<Well[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -60,7 +61,7 @@ export function WellTableView() {
     }
 
     fetchWells()
-  }, [searchParams])
+  }, [searchParams, supabase])
 
   // *** Add new useEffect for Realtime Updates ***
   useEffect(() => {
@@ -110,7 +111,7 @@ export function WellTableView() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [supabase]) // Dependency: supabase client
+  }, [supabase])
 
   const getBadgeClasses = (status: string) => {
     const lowerStatus = status?.toLowerCase() || '';

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server'; // Server client for RPC
+import { supabaseAdmin } from '@/lib/supabase/server'; // Import the server-side client
 import { cohere } from '@/lib/cohere'; // Existing Cohere client
 
 // Define expected request body structure
@@ -49,7 +49,6 @@ export async function POST(request: Request) {
 
   try {
     // --- Initialize Clients ---
-    const supabase = createClient();
     console.log('POST /api/search_faults: Clients initialized');
 
     // --- 1. Generate Query Embedding ---
@@ -87,7 +86,7 @@ export async function POST(request: Request) {
     const SIMILARITY_THRESHOLD = 0.5; // Start broad, Rerank will refine
     const MATCH_COUNT = 30;           // Get enough candidates for Rerank
 
-    const { data: initialResults, error: rpcError } = await supabase.rpc('search_faults', { 
+    const { data: initialResults, error: rpcError } = await supabaseAdmin.rpc('search_faults', { 
       query_embedding: queryEmbedding,
       similarity_threshold: SIMILARITY_THRESHOLD,
       match_count: MATCH_COUNT,

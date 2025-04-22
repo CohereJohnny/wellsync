@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/server'
 import { WellDetail } from '@/components/well-detail'
 
 interface WellPageProps {
@@ -9,15 +9,13 @@ interface WellPageProps {
 }
 
 export default async function WellPage({ params }: WellPageProps) {
-  const supabase = createClient()
-
-  const { data: well, error: wellError } = await supabase
+  const { data: well, error: wellError } = await supabaseAdmin
     .from('wells')
     .select('*')
     .eq('id', params.id)
     .single()
 
-  const { data: faults, error: faultsError } = await supabase
+  const { data: faults, error: faultsError } = await supabaseAdmin
     .from('faults')
     .select('*')
     .eq('well_id', params.id)
