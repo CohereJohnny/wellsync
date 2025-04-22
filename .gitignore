@@ -44,8 +44,7 @@ pnpm-debug.log*
 .turbo
 
 # Supabase
-<<<<<<< HEAD
 /supabase/temp/
-=======
-/supabase/temp/ 
->>>>>>> origin/main
+
+# Python Virtual Environments
+/.venv/
