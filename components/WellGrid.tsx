@@ -3,12 +3,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import WellCard from './WellCard';
-import { supabase } from '@/lib/supabase'; // Import Supabase client
+import { useSupabase } from '@/context/supabase-context'; // Import the hook
 import { Well } from '@/lib/types'; // Import Well type
 import type { WellFilters } from './toolbar';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
 export default function WellGrid() {
+  const supabase = useSupabase(); // Get client from context
   const [wells, setWells] = useState<Well[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,7 +64,7 @@ export default function WellGrid() {
     } finally {
       setLoading(false);
     }
-  }, [searchParams]);
+  }, [searchParams, supabase]);
 
   // Handle real-time updates
   const handleRealtimeUpdate = useCallback((payload: any) => {
@@ -126,10 +127,10 @@ export default function WellGrid() {
     // Cleanup subscription on unmount
     return () => {
       if (channel) {
-        channel.unsubscribe();
+        supabase.removeChannel(channel); // Use the state client to remove
       }
     };
-  }, [fetchWells, handleRealtimeUpdate]);
+  }, [fetchWells, handleRealtimeUpdate, supabase]);
 
   if (loading) {
     return (

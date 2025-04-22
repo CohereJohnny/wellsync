@@ -1,6 +1,6 @@
 'use client'
 
-import * as React from 'react'
+import React, { useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -12,7 +12,7 @@ import { useChatStore } from '@/lib/stores/chat-store'
 import { useToast } from '@/hooks/use-toast'
 import type { Message } from '@/lib/stores/chat-store'
 import { Skeleton } from '@/components/ui/skeleton'
-import { createClient } from '@/lib/supabase/client'
+import { useSupabase } from '@/context/supabase-context'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 
 interface ChatPanelProps {
@@ -34,8 +34,8 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
   const [isHistoryLoading, setIsHistoryLoading] = React.useState(true)
   const [isSearching, setIsSearching] = React.useState(false)
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
-  const wellMessages = messages[wellId] || []
-  const supabase = createClient()
+  const wellMessages = useMemo(() => messages[wellId] || [], [messages, wellId])
+  const supabase = useSupabase()
   const inventoryChannelRef = React.useRef<RealtimeChannel | null>(null)
 
   React.useEffect(() => {

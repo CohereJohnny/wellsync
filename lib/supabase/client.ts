@@ -16,4 +16,4 @@ export const createClient = () =>
   })
 
 // Added export for a singleton supabase client instance
-export const supabase = createClient(); 
+// export const supabase = createClient(); // REMOVE this line 

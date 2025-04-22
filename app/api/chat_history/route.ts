@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '../../../lib/supabase/client';
+import { supabaseAdmin } from '@/lib/supabase/server';
 
 export async function GET(request: Request) {
   console.log('GET /api/chat_history: Received request');
@@ -15,7 +15,7 @@ export async function GET(request: Request) {
 
     console.log('GET /api/chat_history: Querying Supabase...');
     // Fetch all matching rows, order by updated_at descending to get the latest if duplicates exist
-    const { data: historyRows, error } = await supabase
+    const { data: historyRows, error } = await supabaseAdmin
       .from('chat_history')
       .select('messages')
       .eq('well_id', wellId)
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     }
 
     // Fetch existing chat history if exists
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('chat_history')
       .select('messages')
       .eq('well_id', wellId)
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     let updatedMessages = newMessages;
     if (data && data.messages) {
       updatedMessages = [...data.messages, ...newMessages];
-      const { error: updateError } = await supabase
+      const { error: updateError } = await supabaseAdmin
          .from('chat_history')
          .update({ messages: updatedMessages, updated_at: new Date() })
          .eq('well_id', wellId);
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: updateError.message }, { status: 500 });
       }
     } else {
-      const { error: insertError } = await supabase
+      const { error: insertError } = await supabaseAdmin
            .from('chat_history')
            .insert([{ well_id: wellId, messages: updatedMessages }]);
       if (insertError) {

@@ -1,9 +1,21 @@
 import Image from "next/image"; 
 import WellGrid from "@/components/WellGrid";
+import { WellTableView } from '@/components/well-table-view';
 import { Toolbar } from "@/components/toolbar";
 import { Suspense } from "react";
 
-export default function Home() {
+export default function Home({ 
+  searchParams, 
+}: { 
+  searchParams?: { 
+    view?: 'card' | 'table';
+    camp?: string;
+    formation?: string;
+    status?: string;
+   }; 
+}) {
+  const currentView = searchParams?.view === 'table' ? 'table' : 'card';
+
   return (
     <main className="flex flex-col min-h-screen">
       <h1 className="text-3xl font-bold text-navy-900 p-8 text-center">WellSync AI Dashboard</h1>
@@ -12,7 +24,11 @@ export default function Home() {
       </Suspense>
       <div className="flex-1 container mx-auto p-8">
         <Suspense>
-          <WellGrid />
+          {currentView === 'card' ? (
+            <WellGrid />
+          ) : (
+            <WellTableView />
+          )}
         </Suspense>
       </div>
     </main>
