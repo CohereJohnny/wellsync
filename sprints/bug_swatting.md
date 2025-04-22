@@ -215,3 +215,12 @@
   - Passed `messagesToSend` to the API route, ensuring the latest message is always present.
 - **Status**: Resolved
 - **Impact**: Chat API route no longer errors on the first message, and conversation context is correctly maintained.
+
+## Bug Entry: [2024-03-22]
+- **ID**: BUG-017
+- **Description**: Shadcn DialogContent component displayed dark theme background (`--card` variable) in a light theme environment, despite the rest of the page using the light theme.
+- **Discovered**: During UI testing of the "Trigger Fault" modal in the Toolbar.
+- **Context**: Sprint 10 (or general UI refinement), Toolbar Component, Fault Simulation Modal.
+- **Fix**: Explicitly set the background color on the `DialogContent` component using the Tailwind utility class `bg-white` within `components/toolbar.tsx`. Attempts to use theme variables (`bg-card`) or force the theme (`light`) were ineffective, indicating a potential CSS specificity conflict or unexpected theme context inheritance within the Dialog component's rendering.
+- **Status**: Resolved
+- **Impact**: The "Simulate Fault" modal now correctly displays a light background, consistent with the overall application theme.

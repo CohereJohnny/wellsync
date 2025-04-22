@@ -1,75 +1,137 @@
 /** @type {import('tailwindcss').Config} */
+const defaultTheme = require('tailwindcss/defaultTheme');
+
 module.exports = {
     darkMode: ["class"],
     content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}", 
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
   	extend: {
   		colors: {
-  			navy: {
-  				'900': '#1E3A8A'
-  			},
-  			teal: {
-  				'500': '#2DD4BF'
-  			},
-  			green: {
-  				'500': '#22C55E'
-  			},
-  			red: {
-  				'500': '#EF4444'
-  			},
-  			gray: {
-  				'600': '#6B7280'
-  			},
-  			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
-  			card: {
-  				DEFAULT: 'hsl(var(--card))',
-  				foreground: 'hsl(var(--card-foreground))'
-  			},
-  			popover: {
-  				DEFAULT: 'hsl(var(--popover))',
-  				foreground: 'hsl(var(--popover-foreground))'
-  			},
-  			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
-  			},
-  			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
-  			},
-  			muted: {
-  				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
-  			},
-  			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
-  			},
-  			destructive: {
-  				DEFAULT: 'hsl(var(--destructive))',
-  				foreground: 'hsl(var(--destructive-foreground))'
-  			},
-  			border: 'hsl(var(--border))',
-  			input: 'hsl(var(--input))',
-  			ring: 'hsl(var(--ring))',
-  			chart: {
-  				'1': 'hsl(var(--chart-1))',
-  				'2': 'hsl(var(--chart-2))',
-  				'3': 'hsl(var(--chart-3))',
-  				'4': 'hsl(var(--chart-4))',
-  				'5': 'hsl(var(--chart-5))'
-  			}
+         black: '#212121',
+         white: '#FAFAFA',
+         coral: {
+            950: '#FFEAE5',
+            900: '#FFD5CC',
+            800: '#FFAC99',
+            700: '#FF8266',
+            600: '#FF5833',
+            500: '#FF2F00',
+            400: '#CC2500',
+            300: '#991C00',
+            200: '#661300',
+            150: '#330900',
+         },
+         mushroom: {
+            950: '#F4F3F0',
+            900: '#E9E7E2',
+            800: '#D2CDC4',
+            700: '#BDB6A8',
+            600: '#A79E8B',
+            500: '#91856E',
+            400: '#70695C',
+            300: '#575042',
+            200: '#3A352C',
+            150: '#2C2821',
+         },
+         'evolved-mushroom': {
+            500: '#FFAA00',
+            600: '#FFBB33',
+            800: '#FFDC97',
+         },
+         marble: {
+            1000: '#FFFFFF',
+            980: '#F9F9FB',
+            950: '#EFEFF5',
+            900: '#DFDFEC',
+            850: '#D0D0E2',
+            800: '#C4C4C4',
+         },
+         volcanic: {
+            950: '#F2F2F2',
+            900: '#E6E6E6',
+            800: '#CBCBCB',
+            700: '#B3B3B3',
+            600: '#999999',
+            500: '#808080',
+            400: '#666666',
+            300: '#4D4D4D',
+            200: '#333333',
+            150: '#262626',
+            100: '#1A1A1A',
+            60: '#0F0F0F',
+         },
+         green: {
+            950: '#F0F5F3',
+            900: '#E0EBE7',
+            800: '#C0D6CD',
+            700: '#A2C3B6',
+            600: '#84AE9D',
+            500: '#659A84',
+            400: '#517B6A',
+            250: '#324D42',
+            200: '#283E35',
+            150: '#141F1B',
+         },
+         'evolved-green': {
+            500: '#0DF293',
+            700: '#6EF7BE',
+            900: '#CFFCE9',
+         },
+         quartz: {
+            950: '#F7EBFA',
+            900: '#EFD6F5',
+            800: '#DDACEA',
+            700: '#CE85E0',
+            600: '#BD5DD5',
+            500: '#AD34CB',
+            400: '#8A2AA2',
+            300: '#681F7A',
+            200: '#451551',
+            150: '#34103D',
+         },
+         'evolved-quartz': {
+            500: '#C40DF2',
+            700: '#DC6EF7',
+            900: '#F3CFFC',
+         },
+         blue: {
+            950: '#E9EDFC',
+            900: '#D2DBF9',
+            800: '#A4B5F2',
+            700: '#7992EC',
+            600: '#4D6EE5',
+            500: '#204ADF',
+            400: '#193BB2',
+            300: '#132C86',
+            200: '#0D1D59',
+            150: '#0A1643',
+         },
+         'evolved-blue': {
+            500: '#0039FF',
+         },
+         success: {
+            950: '#E7FEE9',
+            500: '#10B981',
+            300: '#089113',
+            200: '#05610C',
+            150: '#044909',
+         },
+         danger: {
+            950: '#FFE5E5',
+            500: '#FF0000',
+            350: '#B30000',
+         },
   		},
   		fontFamily: {
-  			sans: [
-  				'Inter',
-  				'sans-serif'
-  			]
+        body: ['CohereText', 'Arial', ...defaultTheme.fontFamily.sans],
+        variable: ['CohereVariable', 'Arial', ...defaultTheme.fontFamily.serif],
+        code: ['CohereMono', ...defaultTheme.fontFamily.mono],
+        sans: ['Inter', 'Arial', ...defaultTheme.fontFamily.sans],
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
@@ -81,5 +143,6 @@ module.exports = {
   plugins: [
     require("tailwindcss-animate"),
     require("tailwind-scrollbar"),
+    require('@tailwindcss/typography'),
   ],
 }; 

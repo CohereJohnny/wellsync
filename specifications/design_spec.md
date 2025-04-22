@@ -6,7 +6,7 @@ This document outlines the UI/UX design and style guide for the Oil & Gas Genera
 
 ## 2. Design Goals
 
-- **Persona-Centric**: Reflect the Production Supervisor’s need for quick access to well statuses, fault details, inventory, and actionable workflows (e.g., order/dispatch parts).
+- **Persona-Centric**: Reflect the Production Supervisor's need for quick access to well statuses, fault details, inventory, and actionable workflows (e.g., order/dispatch parts).
 - **Clean and Modern**: Adopt a minimalist, professional look inspired by tailwindcss.com, with clear typography, ample whitespace, and intuitive navigation.
 - **Functional**: Ensure data (well cards, fault history, chat) is scannable and actionable, with real-time updates for fault alerts.
 - **Responsive**: Support desktop and tablet views, prioritizing desktop for supervisor workflows.
@@ -21,7 +21,7 @@ This document outlines the UI/UX design and style guide for the Oil & Gas Genera
   - Monitor 30 wells at a glance with status indicators (Operational/Fault).
   - Filter wells by camp, formation, or status.
   - Dive into fault details and history for a well.
-  - Query the GenAI assistant for insights (e.g., “Similar faults?”) and execute workflows.
+  - Query the GenAI assistant for insights (e.g., "Similar faults?") and execute workflows.
   - Check part availability and initiate orders/dispatches.
 - **Pain Points**:
   - Overwhelmed by scattered data across systems.
@@ -38,13 +38,13 @@ This document outlines the UI/UX design and style guide for the Oil & Gas Genera
    - Split layout: left (well info, fault history); right (GenAI chat panel).
    - Well info includes name, status, location, last maintenance, and current fault details.
    - Fault history table lists past faults (part, type, description, timestamp).
-   - Chat panel allows natural language queries (e.g., “What’s wrong?”) and workflows (e.g., “Order pump”).
+   - Chat panel allows natural language queries (e.g., "What's wrong?") and workflows (e.g., "Order pump").
 3. **Real-time Updates**:
    - Well cards update status (e.g., red for fault) via Supabase Realtime subscriptions.
    - Chat panel reflects inventory changes or fault triggers instantly.
 4. **Assistant Interactions**:
    - Query fault details, inventory, or similar faults (semantic search).
-   - Execute workflows (order/dispatch) with confirmation messages (e.g., “Pump dispatched from W01”).
+   - Execute workflows (order/dispatch) with confirmation messages (e.g., "Pump dispatched from W01").
 
 ### 3.3 Wireframe (Text-Based)
 
@@ -74,7 +74,7 @@ This document outlines the UI/UX design and style guide for the Oil & Gas Genera
 | [Well Info]                     | [GenAI Chat Panel]           |
 | Name: Well-01                   | ----------------------------- |
 | Status: Fault                   | [Messages]                  |
-| Camp: Midland                   | User: What’s wrong?         |
+| Camp: Midland                   | User: What's wrong?         |
 | Formation: Wolfcamp             | Assistant: Mechanical fault |
 | Latitude: 31.8075               | User: Order pump            |
 | Longitude: -102.1123            | Assistant: Pump ordered     |
@@ -91,17 +91,17 @@ This document outlines the UI/UX design and style guide for the Oil & Gas Genera
 
 ### 4.1 Design Inspiration: Tailwind CSS Website
 
-- **Minimalist Layout**: Clean grid with generous whitespace, as seen in tailwindcss.com’s component showcases.
+- **Minimalist Layout**: Clean grid with generous whitespace, as seen in tailwindcss.com's component showcases.
 - **Typography**: Sans-serif fonts (e.g., Inter) for readability, with bold headings and subtle text hierarchy.
 - **Color Palette**: Professional, muted tones with high contrast for data visibility.
-- **Components**: Card-based design for wells, sleek buttons, and modern input fields, inspired by tailwindcss.com’s utility-first styling.
-- **Interactivity**: Hover states, subtle animations (e.g., card scaling), and real-time feedback, mirroring tailwindcss.com’s responsive examples.
+- **Components**: Card-based design for wells, sleek buttons, and modern input fields, inspired by tailwindcss.com's utility-first styling.
+- **Interactivity**: Hover states, subtle animations (e.g., card scaling), and real-time feedback, mirroring tailwindcss.com's responsive examples.
 
 ### 4.2 Style Guide
 
 #### 4.2.1 Color Palette
 
-Inspired by tailwindcss.com’s professional and approachable palette, tailored for the oil & gas industry.
+Inspired by tailwindcss.com's professional and approachable palette, tailored for the oil & gas industry.
 
 | Color          | Hex       | Usage                                      |
 |----------------|-----------|--------------------------------------------|
@@ -117,8 +117,8 @@ Inspired by tailwindcss.com’s professional and approachable palette, tailored 
 
 - **Font Family**: Inter (via Tailwind CSS), sans-serif for clarity and modernity.
 - **Sizes**:
-  - Heading 1: 24px, bold (page titles, e.g., “Well Detail”).
-  - Heading 2: 20px, bold (section titles, e.g., “Fault History”).
+  - Heading 1: 24px, bold (page titles, e.g., "Well Detail").
+  - Heading 2: 20px, bold (section titles, e.g., "Fault History").
   - Body: 16px, regular (paragraphs, table content).
   - Small: 14px, regular (timestamps, secondary info).
 - **Line Height**: 1.5 for body text, 1.2 for headings.
@@ -130,7 +130,7 @@ Inspired by tailwindcss.com’s professional and approachable palette, tailored 
 - **Padding**: 16px (cards, buttons), 24px (sections), 32px (page margins).
 - **Margin**: 8px (between elements), 16px (between sections).
 - **Grid Gap**: 16px for well card grid.
-- **Rationale**: Ample spacing ensures scannability, inspired by tailwindcss.com’s airy layouts.
+- **Rationale**: Ample spacing ensures scannability, inspired by tailwindcss.com's airy layouts.
 
 #### 4.2.4 Components (Using Shadcn/UI)
 
@@ -148,6 +148,7 @@ Inspired by tailwindcss.com’s professional and approachable palette, tailored 
 - **Chat Messages**:
   - User: Right-aligned, teal bg, rounded-tr-none.
   - Assistant: Left-aligned, white bg, rounded-tl-none, markdown support.
+  - *Note: Text color inherits default foreground for better contrast.*
 - **Buttons**:
   - Primary: Navy bg, white text, hover: lighten, rounded-md.
   - Secondary: Teal outline, teal text, hover: teal bg.
@@ -190,12 +191,12 @@ Inspired by tailwindcss.com’s professional and approachable palette, tailored 
 - **Desktop (min-width: 1024px)**: Full 5x6 grid, split well detail view.
 - **Tablet (min-width: 768px)**: 3x10 grid, split view with adjusted font sizes (14px body).
 - **Mobile (unsupported)**: Not prioritized, as supervisors use desktops/tablets for operational tasks.
-- **Rationale**: Tailwind’s responsive utilities (e.g., `md:grid-cols-3`) ensure flexibility.
+- **Rationale**: Tailwind's responsive utilities (e.g., `md:grid-cols-3`) ensure flexibility.
 
 ## 6. Design Considerations
 
-- **Supervisor Needs**: Well cards use bold status badges for quick scanning, and the chat panel prioritizes actionable queries (e.g., “Dispatch pump”). Fault history is tabular for clarity.
-- **Tailwind Inspiration**: Mimics tailwindcss.com’s clean typography (Inter), muted palette, and card-based layouts, adapted for oil & gas with navy/teal tones.
+- **Supervisor Needs**: Well cards use bold status badges for quick scanning, and the chat panel prioritizes actionable queries (e.g., "Dispatch pump"). Fault history is tabular for clarity.
+- **Tailwind Inspiration**: Mimics tailwindcss.com's clean typography (Inter), muted palette, and card-based layouts, adapted for oil & gas with navy/teal tones.
 - **Real-time Feedback**: Status changes (e.g., fault trigger) animate (pulse effect) to draw attention, with Realtime subscriptions updating cards instantly.
 - **Accessibility**:
   - High contrast (navy on white, WCAG 2.1 compliant).
@@ -230,12 +231,12 @@ Inspired by tailwindcss.com’s professional and approachable palette, tailored 
 ### Chat Message
 ```html
 <div class="flex justify-end mb-2">
-  <div class="bg-teal-100 text-navy-900 rounded-lg rounded-tr-none p-3 max-w-xs">
-    What’s wrong with Well-12?
+  <div class="bg-teal-100 rounded-lg rounded-tr-none p-3 max-w-xs">
+    What's wrong with Well-12?
   </div>
 </div>
 <div class="flex justify-start mb-2">
-  <div class="bg-white text-navy-900 rounded-lg rounded-tl-none p-3 max-w-xs">
+  <div class="bg-white rounded-lg rounded-tl-none p-3 max-w-xs shadow-sm">
     Mechanical fault in centrifugal pump, detected 2025-04-14.
   </div>
 </div>
@@ -252,9 +253,9 @@ Inspired by tailwindcss.com’s professional and approachable palette, tailored 
 
 - Add dark mode for night-shift supervisors (toggle via Tailwind `dark:` classes).
 - Integrate Mapbox for a geospatial well map on the homescreen.
-- Enhance chat panel with suggested queries (e.g., “Check inventory”).
-- Use Tailwind’s animation utilities for more dynamic fault alerts.
+- Enhance chat panel with suggested queries (e.g., "Check inventory").
+- Use Tailwind's animation utilities for more dynamic fault alerts.
 
 ## 10. Relevant Memories
 
-Your focus on realistic demo data and vibe coding with Cursor (e.g., insurance underwriting demo, April 6, 2025) informs the clean, functional design tailored to the Production Supervisor. The choice of tailwindcss.com as inspiration aligns with your preference for modern, professional aesthetics, similar to your emphasis on impactful, user-centric interfaces in past projects. The design prioritizes the supervisor’s need for efficiency, reflecting your interest in practical AI-driven solutions.
+Your focus on realistic demo data and vibe coding with Cursor (e.g., insurance underwriting demo, April 6, 2025) informs the clean, functional design tailored to the Production Supervisor. The choice of tailwindcss.com as inspiration aligns with your preference for modern, professional aesthetics, similar to your emphasis on impactful, user-centric interfaces in past projects. The design prioritizes the supervisor's need for efficiency, reflecting your interest in practical AI-driven solutions.

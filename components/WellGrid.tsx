@@ -67,17 +67,11 @@ export default function WellGrid() {
 
   // Handle real-time updates
   const handleRealtimeUpdate = useCallback((payload: any) => {
-    console.log('Received real-time update:', payload);
-    
     setWells(currentWells => {
       // Normalize the status for comparison
       const normalizedPayloadStatus = payload.new.status?.toLowerCase();
       const updatedWells = currentWells.map(well => {
         if (well.id === payload.new.id) {
-          console.log('Updating well:', well.name, {
-            old: well.status,
-            new: payload.new.status
-          });
           // Create a new object to ensure React detects the change
           return {
             ...well,
@@ -96,20 +90,17 @@ export default function WellGrid() {
       );
 
       if (!wasUpdated) {
-        console.log('No well was updated - status unchanged');
         return currentWells;
       }
 
-      console.log('Wells updated, returning new array');
       return [...updatedWells];
     });
-  }, []);
+  }, [setWells]);
 
   useEffect(() => {
     let channel: RealtimeChannel;
 
     const setupRealtimeSubscription = () => {
-      console.log('Setting up realtime subscription...');
       // Set up real-time subscription
       channel = supabase
         .channel('wells_channel')
@@ -134,7 +125,6 @@ export default function WellGrid() {
 
     // Cleanup subscription on unmount
     return () => {
-      console.log('Cleaning up realtime subscription');
       if (channel) {
         channel.unsubscribe();
       }

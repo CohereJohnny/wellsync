@@ -51,11 +51,10 @@ export function Toolbar() {
         setIsLoading(true)
         setError(null)
 
-        // Fetch operational wells
+        // Fetch all wells
         const { data: wellsData, error: wellsError } = await supabase
           .from('wells')
           .select('*')
-          .eq('status', 'Operational')
 
         if (wellsError) throw wellsError
 
@@ -66,7 +65,9 @@ export function Toolbar() {
 
         if (partsError) throw partsError
 
-        setWells(wellsData || [])
+        // Sort wells alphabetically by name
+        const sortedWells = wellsData?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+        setWells(sortedWells)
         setParts(partsData || [])
       } catch (err: any) {
         console.error('Error fetching data:', err)
@@ -139,10 +140,10 @@ export function Toolbar() {
   }
 
   return (
-    <div className="flex items-center gap-4 p-4 bg-white border-b">
+    <div className="sticky top-0 z-10 flex items-center gap-4 p-4 bg-white shadow-sm">
       <Select
         onValueChange={(value) => updateFilter('camp', value)}
-        defaultValue="all"
+        defaultValue={searchParams.get('camp') || 'all'}
       >
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="All Camps" />
@@ -156,7 +157,7 @@ export function Toolbar() {
 
       <Select
         onValueChange={(value) => updateFilter('formation', value)}
-        defaultValue="all"
+        defaultValue={searchParams.get('formation') || 'all'}
       >
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="All Formations" />
@@ -171,7 +172,7 @@ export function Toolbar() {
 
       <Select
         onValueChange={(value) => updateFilter('status', value)}
-        defaultValue="all"
+        defaultValue={searchParams.get('status') || 'all'}
       >
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="All Status" />
@@ -184,16 +185,16 @@ export function Toolbar() {
         </SelectContent>
       </Select>
 
-      <div className="flex-1" />
+      <div className="flex-grow" />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <Button variant="destructive" className="gap-2">
+          <Button variant="destructive" className="gap-2 hover:bg-red-600">
             <AlertTriangle className="h-4 w-4" />
             Trigger Fault
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] shadow-lg bg-white">
           <DialogHeader>
             <DialogTitle>Simulate Fault</DialogTitle>
             <DialogDescription>
