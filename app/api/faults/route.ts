@@ -3,7 +3,8 @@ import { supabase } from '@/lib/supabase'
 
 export async function POST(request: Request) {
   try {
-    const { wellId, partId, faultType } = await request.json()
+    // Extract fields, including optional description
+    const { wellId, partId, faultType, description } = await request.json()
 
     // Start a Supabase transaction
     const { data: fault, error: faultError } = await supabase
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
           well_id: wellId,
           part_id: partId,
           fault_type: faultType,
-          description: `${faultType} fault detected`, // Add a basic description
+          description: description || `${faultType} fault detected`, // Use provided description or default
           timestamp: new Date().toISOString(),
         },
       ])
@@ -31,7 +32,8 @@ export async function POST(request: Request) {
         status: 'Fault',
         fault_details: {
           part_id: partId,
-          fault_type: faultType
+          fault_type: faultType,
+          description: description || null // Add description to well's fault_details (or null)
         }
       })
       .eq('id', wellId)

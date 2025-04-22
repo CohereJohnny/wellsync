@@ -10,6 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Well, Part } from '@/lib/types'
 
 // Predefined fault types
@@ -25,18 +27,21 @@ const FAULT_TYPES = [
 interface FaultSimulationFormProps {
   wells?: Well[]
   parts?: Part[]
-  onSubmit: (data: { wellId: string; partId: string; faultType: string }) => Promise<void>
+  onSubmit: (data: { wellId: string; partId: string; faultType: string; description?: string }) => Promise<void>
+  defaultWellId?: string;
 }
 
 export function FaultSimulationForm({
   wells = [],
   parts = [],
   onSubmit,
+  defaultWellId,
 }: FaultSimulationFormProps) {
   const { toast } = useToast()
   const [selectedWell, setSelectedWell] = useState<string>('')
   const [selectedPart, setSelectedPart] = useState<string>('')
   const [selectedFaultType, setSelectedFaultType] = useState<string>('')
+  const [description, setDescription] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async () => {
@@ -55,6 +60,7 @@ export function FaultSimulationForm({
         wellId: selectedWell,
         partId: selectedPart,
         faultType: selectedFaultType,
+        description: description.trim() || undefined,
       })
       toast({
         title: 'Success',
@@ -64,6 +70,7 @@ export function FaultSimulationForm({
       setSelectedWell('')
       setSelectedPart('')
       setSelectedFaultType('')
+      setDescription('')
     } catch (error) {
       toast({
         title: 'Error',
@@ -124,6 +131,17 @@ export function FaultSimulationForm({
           ))}
         </SelectContent>
       </Select>
+
+      <div className="space-y-2">
+        <Label htmlFor="fault-description">Description (Optional)</Label>
+        <Textarea
+          id="fault-description"
+          placeholder="Add any relevant details about the simulated fault..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={3}
+        />
+      </div>
 
       <Button 
         onClick={handleSubmit} 
