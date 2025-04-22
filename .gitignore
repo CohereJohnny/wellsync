@@ -47,4 +47,4 @@ pnpm-debug.log*
 /supabase/temp/
 
 # Python Virtual Environments
-/.venv/
+mcp/.venv/
