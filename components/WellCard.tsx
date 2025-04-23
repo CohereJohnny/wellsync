@@ -1,8 +1,11 @@
+'use client';
+
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"; 
 import { Badge } from "@/components/ui/badge"; 
 import { Well } from '@/lib/types';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 interface WellCardProps {
@@ -23,6 +26,7 @@ const arePropsEqual = (prevProps: WellCardProps, nextProps: WellCardProps) => {
 // TODO: Add React.memo if performance issues arise
 export function WellCard({ well }: WellCardProps) {
   const router = useRouter();
+  const { t } = useTranslation('common');
 
   // Determine badge variant based on status
   // Assign appropriate background colors based on the design spec
@@ -32,6 +36,12 @@ export function WellCard({ well }: WellCardProps) {
   const textSize = "text-sm";
   const fontWeight = "font-medium";
   const badgeShape = "rounded";
+
+  // Helper to generate translation key from status
+  const getStatusTranslationKey = (status: string): string => {
+    const key = status.toLowerCase().replace(/\s+/g, '');
+    return `wellStatus.${key}`;
+  };
 
   const handleClick = () => {
     router.push(`/well/${well.id}`);
@@ -50,15 +60,15 @@ export function WellCard({ well }: WellCardProps) {
           <CardTitle className="text-xl font-bold text-gray-900">{well.name}</CardTitle>
           {/* Badge Style: text-xs based on spec */}
           <Badge className={cn(badgeBgColor, textColor, "px-2 py-0.5", "text-xs", fontWeight, badgeShape)}>
-            {well.status}
+            {t(getStatusTranslationKey(well.status))}
           </Badge>
         </div>
       </CardHeader>
       {/* Content contains Camp and Formation */}
       <CardContent className="p-0"> {/* Remove default padding */} 
         {/* Camp/Formation Style: text-sm (Small), font-normal (Regular) text-gray-600 */}
-        <p className="text-sm font-normal text-gray-600">Camp: {well.camp}</p>
-        <p className="text-sm font-normal text-gray-600">Formation: {well.formation}</p>
+        <p className="text-sm font-normal text-gray-600">{t('wellCard.campLabel')}: {well.camp}</p>
+        <p className="text-sm font-normal text-gray-600">{t('wellCard.formationLabel')}: {well.formation}</p>
       </CardContent>
     </Card>
   );

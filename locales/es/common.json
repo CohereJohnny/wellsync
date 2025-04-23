@@ -1,0 +1,15 @@
+{
+  "greeting": "¡Hola!",
+  "wellDetail": {
+    "title": "Detalle del Pozo"
+  },
+  "wellStatus": {
+    "operational": "Operacional",
+    "fault": "Falla",
+    "pendingrepair": "Reparación Pendiente"
+  },
+  "wellCard": {
+    "campLabel": "Campo",
+    "formationLabel": "Formación"
+  }
+} 

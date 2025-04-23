@@ -1,0 +1,15 @@
+{
+  "greeting": "Hello!",
+  "wellDetail": {
+    "title": "Well Detail"
+  },
+  "wellStatus": {
+    "operational": "Operational",
+    "fault": "Fault",
+    "pendingrepair": "Pending Repair" 
+  },
+  "wellCard": {
+    "campLabel": "Camp",
+    "formationLabel": "Formation"
+  }
+} 
