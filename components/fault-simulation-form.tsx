@@ -24,32 +24,32 @@ const FAULT_TYPES = [
   { name: 'Communication Loss', severity: 'high' },
 ]
 
+// Reverted props to accept currentWell
 interface FaultSimulationFormProps {
-  wells?: Well[]
-  parts?: Part[]
-  onSubmit: (data: { wellId: string; partId: string; faultType: string; description?: string }) => Promise<void>
-  defaultWellId?: string;
+  currentWell: Well;
+  parts?: Part[];
+  onSubmit: (data: { wellId: string; partId: string; faultType: string; description?: string }) => Promise<void>;
 }
 
 export function FaultSimulationForm({
-  wells = [],
+  // Reverted props destructuring
+  currentWell,
   parts = [],
   onSubmit,
-  defaultWellId,
 }: FaultSimulationFormProps) {
   const { toast } = useToast()
-  // Initialize selectedWell state with defaultWellId if provided
-  const [selectedWell, setSelectedWell] = useState<string>(defaultWellId || '')
+  // Removed selectedWellId state
   const [selectedPart, setSelectedPart] = useState<string>('')
   const [selectedFaultType, setSelectedFaultType] = useState<string>('')
   const [description, setDescription] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async () => {
-    if (!selectedWell || !selectedPart || !selectedFaultType) {
+    // Reverted validation
+    if (!currentWell?.id || !selectedPart || !selectedFaultType) {
       toast({
         title: 'Validation Error',
-        description: 'Please select a well, part, and fault type',
+        description: 'Please select a part and fault type for the current well.',
         variant: 'destructive',
       })
       return
@@ -58,7 +58,8 @@ export function FaultSimulationForm({
     setIsLoading(true)
     try {
       await onSubmit({
-        wellId: selectedWell,
+        // Use currentWell.id
+        wellId: currentWell.id,
         partId: selectedPart,
         faultType: selectedFaultType,
         description: description.trim() || undefined,
@@ -67,8 +68,7 @@ export function FaultSimulationForm({
         title: 'Success',
         description: 'Fault has been triggered successfully',
       })
-      // Reset selections after successful submission
-      setSelectedWell('')
+      // Removed selectedWellId reset
       setSelectedPart('')
       setSelectedFaultType('')
       setDescription('')
@@ -83,30 +83,24 @@ export function FaultSimulationForm({
     }
   }
 
-  // If no wells or parts are available, show a message
-  if (!wells?.length || !parts?.length) {
+  // Reverted check (only check for parts)
+  if (!parts?.length) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        No wells or parts available for fault simulation.
+        No parts available for fault simulation.
       </div>
     )
   }
 
   return (
     <div className="space-y-4 pt-4">
-      <Select value={selectedWell} onValueChange={setSelectedWell}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select a well" />
-        </SelectTrigger>
-        <SelectContent className="bg-white">
-          {wells.map((well) => (
-            <SelectItem key={well.id} value={well.id}>
-              {well.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {/* Removed Well Selector, added back Target Well display */}
+      <div className="space-y-1">
+          <Label htmlFor="target-well" className="text-sm font-medium text-gray-700">Target Well</Label>
+          <p id="target-well" className="text-base text-gray-900 font-semibold p-2 border border-gray-200 rounded-md bg-gray-50">{currentWell.name}</p>
+      </div>
 
+      {/* Existing Part Selector */}
       <Select value={selectedPart} onValueChange={setSelectedPart}>
         <SelectTrigger>
           <SelectValue placeholder="Select a part" />
@@ -120,6 +114,7 @@ export function FaultSimulationForm({
         </SelectContent>
       </Select>
 
+      {/* Existing Fault Type Selector */}
       <Select value={selectedFaultType} onValueChange={setSelectedFaultType}>
         <SelectTrigger>
           <SelectValue placeholder="Select a fault type" />
@@ -133,6 +128,7 @@ export function FaultSimulationForm({
         </SelectContent>
       </Select>
 
+      {/* Existing Description */}
       <div className="space-y-2">
         <Label htmlFor="fault-description">Description (Optional)</Label>
         <Textarea
@@ -144,6 +140,7 @@ export function FaultSimulationForm({
         />
       </div>
 
+      {/* Existing Submit Button */}
       <Button 
         onClick={handleSubmit} 
         disabled={isLoading}

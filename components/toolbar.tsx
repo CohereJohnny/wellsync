@@ -43,6 +43,7 @@ export function Toolbar() {
   const [parts, setParts] = useState<Part[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedWellForSimulation, setSelectedWellForSimulation] = useState<Well | null>(null)
   const { toast } = useToast()
   const currentView = searchParams.get('view') || 'card'
 
@@ -190,10 +191,10 @@ export function Toolbar() {
           onValueChange={(value) => updateFilter('camp', value)}
           defaultValue={searchParams.get('camp') || 'all'}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] text-sm">
             <SelectValue placeholder="All Camps" />
           </SelectTrigger>
-          <SelectContent className="bg-white">
+          <SelectContent className="bg-white text-sm">
             <SelectItem value="all">All Camps</SelectItem>
             <SelectItem value="Midland">Midland</SelectItem>
             <SelectItem value="Delaware">Delaware</SelectItem>
@@ -204,14 +205,14 @@ export function Toolbar() {
           onValueChange={(value) => updateFilter('formation', value)}
           defaultValue={searchParams.get('formation') || 'all'}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] text-sm">
             <SelectValue placeholder="All Formations" />
           </SelectTrigger>
-          <SelectContent className="bg-white">
+          <SelectContent className="bg-white text-sm">
             <SelectItem value="all">All Formations</SelectItem>
-            <SelectItem value="Spraberry">Spraberry</SelectItem>
             <SelectItem value="Wolfcamp">Wolfcamp</SelectItem>
             <SelectItem value="Bone Spring">Bone Spring</SelectItem>
+            <SelectItem value="Spraberry">Spraberry</SelectItem>
           </SelectContent>
         </Select>
 
@@ -219,11 +220,11 @@ export function Toolbar() {
           onValueChange={(value) => updateFilter('status', value)}
           defaultValue={searchParams.get('status') || 'all'}
         >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Status" />
+          <SelectTrigger className="w-[180px] text-sm">
+            <SelectValue placeholder="All Statuses" />
           </SelectTrigger>
-          <SelectContent className="bg-white">
-            <SelectItem value="all">All Status</SelectItem>
+          <SelectContent className="bg-white text-sm">
+            <SelectItem value="all">All Statuses</SelectItem>
             <SelectItem value="Operational">Operational</SelectItem>
             <SelectItem value="Fault">Fault</SelectItem>
             <SelectItem value="Pending Repair">Pending Repair</SelectItem>
@@ -265,7 +266,13 @@ export function Toolbar() {
         </Button>
       </div>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={(open) => {
+        setDialogOpen(open);
+        // Reset selected well when dialog closes
+        if (!open) {
+          setSelectedWellForSimulation(null);
+        }
+      }}>
         <DialogTrigger asChild>
           <Button variant="destructive" className="gap-2 hover:bg-red-600 border">
             <AlertTriangle className="h-4 w-4" />
@@ -274,26 +281,49 @@ export function Toolbar() {
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px] shadow-lg bg-white">
           <DialogHeader>
-            <DialogTitle>Simulate Fault</DialogTitle>
+            <DialogTitle>Trigger New Fault Simulation</DialogTitle>
             <DialogDescription>
-              Select a well and fault type to simulate a fault condition.
+              Select a well, part, and fault type to simulate a new fault event.
             </DialogDescription>
           </DialogHeader>
-          {isLoading ? (
-            <div className="p-4 text-center text-muted-foreground">
-              Loading wells and parts...
-            </div>
-          ) : error ? (
-            <div className="p-4 text-center text-red-500">
-              {error}
-            </div>
-          ) : (
-            <FaultSimulationForm
-              wells={wells}
-              parts={parts}
-              onSubmit={handleFaultSubmit}
-            />
-          )}
+          <div className="max-h-[60vh] overflow-y-auto p-1 space-y-4">
+            {isLoading ? (
+              <p>Loading simulation options...</p>
+            ) : error ? (
+              <p className="text-red-500">Error: {error}</p>
+            ) : (
+              <>
+                {/* Well Selector specific to the Toolbar Dialog */}
+                <Select 
+                  value={selectedWellForSimulation?.id || ''} 
+                  onValueChange={(wellId) => {
+                    const selected = wells.find(w => w.id === wellId);
+                    setSelectedWellForSimulation(selected || null);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select target well" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    {wells.map((well) => (
+                      <SelectItem key={well.id} value={well.id}>
+                        {well.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                {/* Conditionally render the form only when a well is selected */}
+                {selectedWellForSimulation && (
+                  <FaultSimulationForm
+                    currentWell={selectedWellForSimulation} // Pass the selected Well object
+                    parts={parts}
+                    onSubmit={handleFaultSubmit}
+                  />
+                )}
+              </>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

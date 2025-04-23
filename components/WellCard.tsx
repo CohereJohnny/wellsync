@@ -46,24 +46,24 @@ export function WellCard({ well }: WellCardProps) {
       {/* Header contains Title and Badge */}
       <CardHeader className="p-0 pb-2"> {/* Remove default padding, add bottom padding */}
         <div className="flex justify-between items-center">
-          {/* Title Style: text-lg, font-bold, text-navy-900 (#1E3A8A -> blue-800) */}
-          <CardTitle className="text-lg font-bold text-blue-800">{well.name}</CardTitle>
-          {/* Badge Style: Specific bg, white text, padding, size, font weight, shape */}
-          <Badge className={cn(badgeBgColor, textColor, badgePadding, textSize, fontWeight, badgeShape)}>
+          {/* Title Style: text-xl (H2), font-bold, text-gray-900 (using darker gray instead of navy for consistency) */}
+          <CardTitle className="text-xl font-bold text-gray-900">{well.name}</CardTitle>
+          {/* Badge Style: text-xs based on spec */}
+          <Badge className={cn(badgeBgColor, textColor, "px-2 py-0.5", "text-xs", fontWeight, badgeShape)}>
             {well.status}
           </Badge>
         </div>
       </CardHeader>
       {/* Content contains Camp and Formation */}
       <CardContent className="p-0"> {/* Remove default padding */} 
-        {/* Camp/Formation Style: text-sm, text-gray-600 (#6B7280) */}
-        <p className="text-sm text-gray-600">Camp: {well.camp}</p>
-        <p className="text-sm text-gray-600">Formation: {well.formation}</p>
+        {/* Camp/Formation Style: text-sm (Small), font-normal (Regular) text-gray-600 */}
+        <p className="text-sm font-normal text-gray-600">Camp: {well.camp}</p>
+        <p className="text-sm font-normal text-gray-600">Formation: {well.formation}</p>
       </CardContent>
     </Card>
   );
 }
 
-WellCard.displayName = 'WellCard';
+// WellCard.displayName = 'WellCard'; // Remove if not using React.memo directly here
 
-export default WellCard; 
+export default WellCard; // Use default export if it's the main export 

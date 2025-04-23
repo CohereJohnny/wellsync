@@ -295,32 +295,26 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
   }
 
   return (
-    <Card className={cn('flex flex-col h-full bg-gray-50 shadow-sm rounded-lg', className)}>
-      <ScrollArea 
-        ref={scrollAreaRef} 
-        className="flex-1 p-4 scrollbar scrollbar-track-background scrollbar-thumb-muted-foreground/50 scrollbar-thumb-rounded scrollbar-w-2 max-h-[600px]"
-      >
+    <Card className={cn('flex flex-col h-full bg-gray-50 shadow-sm rounded-lg p-1', className)}>
+      <ScrollArea className="flex-grow mb-4 pr-4" ref={scrollAreaRef}>
         <div className="space-y-4">
-          {isHistoryLoading && (
+          {isHistoryLoading ? (
             <div className="space-y-4 p-4">
               <Skeleton className="h-16 w-3/4" />
               <Skeleton className="h-16 w-3/4 ml-auto" />
               <Skeleton className="h-16 w-3/4" />
             </div>
-          )}
-          {!isHistoryLoading && wellMessages.length === 0 && (
-            <div className="flex h-full items-center justify-center p-4 text-center text-muted-foreground">
-              <p>No conversation history for this well yet. Start chatting!</p>
-            </div>
-          )}
-          {!isHistoryLoading &&
-            wellMessages.length > 0 &&
-            wellMessages.map((message) => (
-              <div key={message.id} className={getMessageClasses(message.role)}>
-                <div className={getBubbleClasses(message.role)}>
-                  <ReactMarkdown
+          ) : wellMessages.length === 0 ? (
+            <p className="text-center text-muted-foreground text-sm p-4">
+              No conversation history for this well yet. Start chatting!
+            </p>
+          ) : (
+            wellMessages.map((message: Message, index: number) => (
+              <div key={index} className={getMessageClasses(message.role)}>
+                <div className={cn(getBubbleClasses(message.role), "text-base")}>
+                  <ReactMarkdown 
                     components={{
-                      p: ({node, ...props}) => <p {...props} className="mb-0 last:mb-0" />,
+                       p: ({node, ...props}) => <p {...props} className="mb-0 last:mb-0" />,
                     }}
                   >
                     {message.content}
@@ -333,7 +327,7 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
                 </div>
               </div>
             ))
-          }
+          )}
           {isSearching && (
             <div className="flex items-center justify-center p-4">
                 <div className="flex items-center space-x-2 text-muted-foreground">
@@ -343,39 +337,43 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
             </div>
           )}
           {isLoading && (
-            <div className={getMessageClasses('assistant')}>
-               <div className={getBubbleClasses('assistant')}>
-                 <Skeleton className="h-5 w-10" />
-               </div>
-            </div>
+             <div className={getMessageClasses('assistant')}>
+                <div className={cn(getBubbleClasses('assistant'), "text-base")}>
+                  <Skeleton className="h-5 w-10" />
+                </div>
+             </div>
           )}
         </div>
       </ScrollArea>
-      <div className="border-t p-4 flex items-center gap-2 bg-white rounded-b-lg">
-        <Input
-          type="text"
-          placeholder="Type your message or /search ..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              handleSubmit(e as any);
-            }
-          }}
-          disabled={isLoading || isSearching}
-          className="flex-grow h-10 bg-white border border-gray-300 rounded-md focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500"
-        />
+      <form onSubmit={handleSubmit} className="flex items-center gap-2 pt-4 border-t">
+        <div className="relative flex-grow">
+          <Input
+            type="text"
+            placeholder="Type your message or /search ..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={isLoading || isSearching}
+            className="pr-10 text-base"
+          />
+          <button
+              type="button"
+              onClick={handleSearchButtonClick}
+              disabled={isLoading || isSearching || !input.trim()}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700 disabled:opacity-50"
+              aria-label="Search similar faults"
+          >
+              <Search className="h-4 w-4" />
+          </button>
+        </div>
         <Button 
-          type="submit" 
-          size="icon" 
-          disabled={isLoading || isSearching || !input.trim()}
-          onClick={(e) => handleSubmit(e as any)}
-          className="bg-cyan-500 text-white rounded-md hover:bg-cyan-600 disabled:bg-gray-300"
-        >
+            type="submit" 
+            disabled={isLoading || isSearching || !input.trim()}
+            className="px-3"
+            aria-label="Send message"
+         >
           <ArrowRight className="h-5 w-5" />
         </Button>
-      </div>
+      </form>
     </Card>
   )
 } 

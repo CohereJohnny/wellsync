@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { SupabaseProvider } from "@/context/supabase-context";
+import { MainToolbar } from "@/components/layout/main-toolbar";
 
 // Load Inter font with all required subsets and display swap
 const inter = Inter({ 
@@ -33,7 +34,8 @@ export default function RootLayout({
       <head />
       <body className={`${inter.variable} font-sans antialiased`}>
         <SupabaseProvider>
-          <main className="min-h-screen bg-background">
+          <MainToolbar />
+          <main className="min-h-screen bg-background pt-16">
             {children}
           </main>
         </SupabaseProvider>

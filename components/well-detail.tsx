@@ -226,123 +226,112 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
     const bgColor = lowerStatus === 'operational' ? 'bg-green-500' : 
                     lowerStatus === 'fault' ? 'bg-red-500' : 
                     'bg-yellow-500'; // Default/Pending color
-    return cn('text-white px-2 py-1 text-xs font-medium rounded', bgColor); // Use text-xs for smaller badges here
+    return cn('text-white px-2 py-0.5 text-xs font-medium rounded', bgColor); // Use text-xs for smaller badges here
   }
 
   return (
-    // Add max-width, centering, and padding to the container
-    <div className="max-w-screen-xl mx-auto p-6 space-y-6">
-      {/* Maintain grid layout, ensure gap is applied */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Panel - Well Information Card Styling */}
-        <Card className="bg-white shadow-sm rounded-lg p-6">
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              {/* Heading 1 Style */}
-              <h1 className="text-2xl font-bold text-blue-800">{well.name}</h1> {/* Navy -> blue-800 */} 
-              {/* Apply consistent badge styling */}
-              <Badge className={getBadgeClasses(well.status)}>
-                {well.status}
-              </Badge>
-            </div>
-
-            {/* Key-Value Info Styling */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                {/* Label style: text-sm font-medium text-gray-500 */}
-                <h2 className="text-sm font-medium text-gray-500">Camp</h2>
-                {/* Value style: text-lg */} 
-                <p className="text-lg text-gray-800">{well.camp}</p> {/* Added text color */} 
-              </div>
-              <div>
-                <h2 className="text-sm font-medium text-gray-500">Formation</h2>
-                <p className="text-lg text-gray-800">{well.formation}</p>
-              </div>
-              {/* Location display using optional properties */}
-              {well.latitude != null && well.longitude != null && (
-                <div className="col-span-2">
-                  <h2 className="text-sm font-medium text-gray-500">Location</h2>
-                  <p className="text-lg text-gray-800">{`${well.latitude?.toFixed(4)}, ${well.longitude?.toFixed(4)}`}</p>
-                </div>
-              )}
-              {/* Last Maintenance display using optional property */}
-              {well.last_maintenance && (
-                 <div>
-                    <h2 className="text-sm font-medium text-gray-500">Last Maintenance</h2>
-                    <p className="text-lg text-gray-800">
-                    {new Date(well.last_maintenance).toLocaleDateString()}
-                    </p>
-                 </div>
-              )}
-               {/* Display current fault details if status is Fault and details exist */}
-               {well.status === 'Fault' && well.fault_details && (
-                 <div className="col-span-2 border-t pt-4 mt-4">
-                    <h2 className="text-sm font-medium text-red-600">Current Fault</h2>
-                    <p className="text-lg text-gray-800">
-                      Part: {well.fault_details?.part_id || 'N/A'}, Type: {well.fault_details?.fault_type || 'N/A'}
-                    </p>
-                 </div>
-               )}
-            </div>
-
-            {/* Re-add Map Section */}
-            {well.latitude != null && well.longitude != null && (
-              <div className="mt-6 border-t pt-4">
-                <h2 className="text-sm font-medium text-gray-500 mb-2">Map Location</h2>
-                <MapView 
-                  latitude={well.latitude}
-                  longitude={well.longitude}
-                />
-              </div>
-            )}
+    <div className="flex flex-col lg:flex-row gap-6 p-4 max-w-7xl mx-auto">
+      {/* Left Column: Well Info, Map, Fault History */}
+      <div className="lg:w-2/3 space-y-6">
+        {/* Well Info Card */}
+        <Card className="p-6">
+          <div className="flex justify-between items-start mb-4">
+            {/* Well Name (H1) */}
+            <h1 className="text-2xl font-bold text-gray-900">{well.name}</h1>
+            {/* Status Badge */}
+            <Badge className={getBadgeClasses(well.status)}>{well.status}</Badge>
           </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Camp</p>
+              <p className="text-base text-gray-900">{well.camp}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Formation</p>
+              <p className="text-base text-gray-900">{well.formation}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Location</p>
+              <p className="text-base text-gray-900">
+                {well.latitude?.toFixed(4)}, {well.longitude?.toFixed(4)}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Last Maintenance</p>
+              <p className="text-base text-gray-900">
+                {well.last_maintenance ? new Date(well.last_maintenance).toLocaleDateString() : 'N/A'}
+              </p>
+            </div>
+          </div>
+
+          {/* Current Fault Info (only shown if status is Fault) */}
+          {well.status.toLowerCase() === 'fault' && well.fault_details && (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Current Fault</h2>
+              <div className="grid grid-cols-2 gap-x-4">
+                 <div>
+                    <p className="text-sm font-medium text-gray-500">Part:</p>
+                    <p className="text-base text-red-600">{well.fault_details.part_id || 'Unknown'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Type:</p>
+                    <p className="text-base text-red-600">{well.fault_details.fault_type || 'Unknown'}</p>
+                 </div>
+               </div>
+            </div>
+          )}
         </Card>
 
-        {/* Right Panel - Chat */} 
-        {/* Ensure ChatPanel container takes full height */}
-        <div className="h-full min-h-[500px]"> {/* Added min-height */} 
-          <ChatPanel className="h-full" wellId={wellId} />
+        {/* Map View Card */}
+        <Card className="p-0 overflow-hidden"> { /* Remove padding for map */}
+           <h2 className="text-xl font-bold text-gray-900 px-6 pt-4 pb-2">Map Location</h2>
+            <MapView 
+                latitude={well.latitude ?? 0} 
+                longitude={well.longitude ?? 0} 
+            />
+        </Card>
+
+        {/* Fault History Section */}
+        <div className="space-y-4">
+            <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-gray-900">Fault History</h2>
+                {/* Fault Simulation Dialog Trigger */}
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button variant="destructive" size="sm"> 
+                        <AlertTriangle className="mr-2 h-4 w-4" />
+                        Trigger Fault
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px] bg-white">
+                        <DialogHeader>
+                        <DialogTitle>Simulate Fault for {well.name}</DialogTitle>
+                        <DialogDescription>
+                            Select a part and fault type to simulate.
+                        </DialogDescription>
+                        </DialogHeader>
+                        {isLoadingParts && <p>Loading parts...</p>}
+                        {loadingPartsError && <p className="text-red-500">Error loading parts: {loadingPartsError}</p>}
+                        {!isLoadingParts && !loadingPartsError && (
+                        <FaultSimulationModalContent 
+                            currentWell={well}
+                            parts={parts}
+                            onSubmit={handleFaultSubmit}
+                            isLoadingWellsParts={isLoadingParts}
+                            loadingError={loadingPartsError}
+                        />
+                        )}
+                    </DialogContent>
+                 </Dialog>
+            </div>
+            <FaultHistoryTable faults={faults} isLoading={isLoadingFaults} />
         </div>
       </div>
 
-      {/* Fault History Section Card Styling & Dialog Wrapper */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}> 
-        <Card className="bg-white shadow-sm rounded-lg p-6">
-          <div className="space-y-4">
-            {/* Header with Title and Button */}
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-blue-800">Fault History</h2>
-              <DialogTrigger asChild>
-                <Button variant="destructive" className="gap-2 hover:bg-red-600" size="sm">
-                  <AlertTriangle className="h-4 w-4" />
-                  Trigger Fault
-                </Button>
-              </DialogTrigger>
-            </div>
-            <FaultHistoryTable 
-              faults={faults} 
-              isLoading={isLoadingFaults}
-            />
-          </div>
-        </Card>
-        {/* Dialog Content (Modal) */}
-        <DialogContent className="sm:max-w-[425px] shadow-lg bg-white">
-            <DialogHeader>
-              <DialogTitle>Simulate Fault for {well.name}</DialogTitle>
-              <DialogDescription>
-                Select a part and fault type to simulate for this specific well.
-              </DialogDescription>
-            </DialogHeader>
-            <FaultSimulationModalContent 
-              wells={[well]}
-              parts={parts}
-              onSubmit={handleFaultSubmit}
-              isLoadingWellsParts={isLoadingParts}
-              loadingError={loadingPartsError}
-              defaultWellId={well.id}
-            />
-          </DialogContent>
-      </Dialog>
+      {/* Right Column: Chat Panel */}
+      <div className="lg:w-1/3">
+        <ChatPanel wellId={well.id} />
+      </div>
     </div>
-  );
+  )
 } 
