@@ -19,7 +19,7 @@ interface MapViewportState {
   pitch: number;
 }
 
-const MapView: React.FC<MapViewProps> = ({ latitude, longitude, zoom = 13 }) => {
+const MapView: React.FC<MapViewProps> = ({ latitude, longitude, zoom = 8 }) => {
   // Use the simpler interface for useState
   const [viewState, setViewState] = useState<MapViewportState>({
     latitude: latitude,
