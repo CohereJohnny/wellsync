@@ -142,6 +142,19 @@ Inspired by tailwindcss.com's professional and approachable palette, tailored fo
   - Sticky top bar, bg-white, shadow-sm.
   - Filters: Dropdowns (camp, formation, status) with teal accents.
   - Fault Trigger: Button (danger red, hover: darken).
+  - *Note: This refers to the filter/action bar on the Homescreen.*
+- **Main Navigation Toolbar**:
+  - **Position**: Fixed at the top (`fixed top-0 left-0 right-0 z-50`). Ensures visibility during scroll.
+  - **Appearance**: Primary Navy background (`bg-[#1E3A8A]`), white text (`text-white`), subtle bottom shadow (`shadow-md`). Provides a consistent brand header.
+  - **Height**: 64px (`h-16`). Standard toolbar height.
+  - **Layout**: Flex container (`flex items-center justify-between`) spanning full width. Horizontal padding (`px-6` or `px-8`) for content spacing.
+  - **Logo/Title**: Application name "WellSync AI" (e.g., `font-semibold text-white text-lg`), potentially linked to the dashboard ('/').
+  - **Navigation Links**:
+    - Implementation: Use `next/link` for client-side navigation.
+    - Style: Default state (`text-gray-200` or `text-white/80`), Hover state (`text-white` or subtle background highlight), Active state (`text-white font-bold` or `text-teal-300`). Use `usePathname` hook to determine active link.
+    - Content: Dashboard, Settings, Inventory, Documentation.
+    - Spacing: Horizontal gap between links (`gap-6` or `gap-8`).
+    - Font: Inter, size `text-sm` or `text-base`.
 - **Well Detail Panel**:
   - Left: Card with well info (H1, key-value pairs), fault history table (striped rows).
   - Right: Chat panel (bg-gray-50, rounded-lg), with scrollable message list and input field.

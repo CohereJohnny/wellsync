@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useSupabase } from '@/context/supabase-context'
@@ -16,6 +16,123 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Well } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import {
+  ColumnMeta,
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+} from '@tanstack/react-table'
+import { ArrowUpDown } from 'lucide-react'
+
+// Augment TanStack Table types for custom metadata
+declare module '@tanstack/react-table' {
+  interface ColumnMeta<TData extends unknown, TValue extends unknown> {
+    className?: string
+  }
+}
+
+// Helper function for badge classes
+const getBadgeClasses = (status: string | null | undefined) => { // Allow null/undefined
+  const lowerStatus = status?.toLowerCase() || '';
+  const bgColor = lowerStatus === 'operational' ? 'bg-green-500' :
+                  lowerStatus === 'fault' ? 'bg-red-500' :
+                  'bg-yellow-500';
+  return cn('text-white px-2 py-1 text-xs font-medium rounded', bgColor);
+}
+
+// Define columns using ColumnHelper
+const columnHelper = createColumnHelper<Well>()
+
+const columns = [
+  columnHelper.accessor('name', {
+    header: ({ column }) => (
+      <button
+        className="flex items-center hover:text-foreground transition-colors"
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+      >
+        Well Name
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </button>
+    ),
+    cell: info => (
+      <Link href={`/well/${info.row.original.id}`} className="hover:underline text-blue-600">
+        {/* Handle potential null/undefined name */}
+        {info.getValue() ?? 'N/A'}
+      </Link>
+    ),
+    meta: {
+        className: 'w-[150px] font-medium',
+    },
+  }),
+  columnHelper.accessor('camp', {
+    header: ({ column }) => (
+      <button
+        className="flex items-center hover:text-foreground transition-colors"
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+      >
+        Camp
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </button>
+    ),
+    cell: info => info.getValue() ?? 'N/A',
+  }),
+  columnHelper.accessor('formation', {
+    header: ({ column }) => (
+      <button
+        className="flex items-center hover:text-foreground transition-colors"
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+      >
+        Formation
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </button>
+    ),
+    cell: info => info.getValue() ?? 'N/A',
+  }),
+  columnHelper.accessor('status', {
+    header: ({ column }) => (
+      <button
+        className="flex items-center hover:text-foreground transition-colors"
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+      >
+        Status
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </button>
+    ),
+    cell: info => {
+        const status = info.getValue();
+        return (
+            <Badge className={getBadgeClasses(status)}>
+                {/* Handle potential null/undefined */}
+                {status ?? 'N/A'}
+            </Badge>
+        )
+    },
+  }),
+  columnHelper.accessor('last_maintenance', {
+    header: ({ column }) => (
+      <button
+        className="flex items-center hover:text-foreground transition-colors ml-auto"
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+      >
+        Last Maintenance
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </button>
+    ),
+    cell: info => {
+        const value = info.getValue();
+        // Check if value is a valid date string/number before creating Date
+        return value && !isNaN(new Date(value).getTime())
+            ? new Date(value).toLocaleDateString()
+            : 'N/A';
+    },
+    meta: {
+        className: 'text-right',
+    },
+  }),
+]
 
 export function WellTableView() {
   const supabase = useSupabase()
@@ -23,26 +140,33 @@ export function WellTableView() {
   const [wells, setWells] = useState<Well[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [sorting, setSorting] = useState<SortingState>([ { id: 'name', desc: false } ]) // Add sorting state, default sort by name ascending
 
+  // Data Fetching Effect
   useEffect(() => {
     const fetchWells = async () => {
       setIsLoading(true)
       setError(null)
       try {
+        // Fetch all necessary fields used by the table
         let query = supabase.from('wells').select('*').order('name')
 
         const status = searchParams.get('status')
         const camp = searchParams.get('camp')
         const formation = searchParams.get('formation')
 
+        // Filtering logic remains the same
         if (status && status !== 'all') {
-            query = query.eq('status', status)
+            // Assuming status values in DB match the capitalized/spaced versions if needed
+            query = query.eq('status', status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' '))
         }
         if (camp && camp !== 'all') {
-            query = query.eq('camp', camp)
+             // Assuming camp values in DB match the capitalized/spaced versions if needed
+            query = query.eq('camp', camp.charAt(0).toUpperCase() + camp.slice(1).replace('-', ' '))
         }
         if (formation && formation !== 'all') {
-            query = query.eq('formation', formation)
+             // Assuming formation values in DB match the capitalized/spaced versions if needed
+            query = query.eq('formation', formation.charAt(0).toUpperCase() + formation.slice(1).replace('-', ' '))
         }
 
         const { data, error: dbError } = await query
@@ -63,47 +187,64 @@ export function WellTableView() {
     fetchWells()
   }, [searchParams, supabase])
 
-  // *** Add new useEffect for Realtime Updates ***
+  // Define the realtime handler using useCallback
+  const handleRealtimeUpdate = useCallback((payload: any) => {
+      console.log('Well change received!', payload)
+      if (payload.eventType === 'INSERT') {
+          const newWell = payload.new as Well // Assume payload.new has all Well fields
+          setWells((currentWells) => {
+            if (currentWells.some(w => w.id === newWell.id)) {
+              return currentWells;
+            }
+            // Cast the object from payload to Well type
+            return [...currentWells, newWell].sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+          })
+        } else if (payload.eventType === 'UPDATE') {
+          const updatedWellData = payload.new // Keep as any for easier access initially
+          setWells((currentWells) => {
+            // Map and explicitly cast the result array to Well[]
+            const newWells = currentWells.map((well) => {
+              if (well.id === updatedWellData.id) {
+                // Construct a new object conforming to the Well type
+                const updatedWell: Well = {
+                  id: updatedWellData.id ?? well.id, // Should always exist
+                  name: updatedWellData.name ?? well.name,
+                  camp: updatedWellData.camp ?? well.camp,
+                  formation: updatedWellData.formation ?? well.formation,
+                  latitude: updatedWellData.latitude ?? well.latitude,
+                  longitude: updatedWellData.longitude ?? well.longitude,
+                  status: updatedWellData.status ?? well.status,
+                  last_maintenance: updatedWellData.last_maintenance ?? well.last_maintenance,
+                  fault_details: updatedWellData.fault_details ?? well.fault_details,
+                  updated_at: updatedWellData.updated_at, // This field is required
+                };
+                return updatedWell;
+              } else {
+                return well;
+              }
+            }) as Well[]; // Cast the result of map
+            return newWells;
+          })
+        } else if (payload.eventType === 'DELETE') {
+          const oldWellId = payload.old.id
+          setWells((currentWells) =>
+            currentWells.filter((well) => well.id !== oldWellId)
+          )
+        }
+  }, [setWells]);
+
+  // Realtime subscription setup Effect
   useEffect(() => {
     const channel = supabase
-      .channel('well-list-changes') // Unique channel name
+      .channel('well-list-changes-table') // Use a unique channel name for the table view
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen for INSERT, UPDATE, DELETE
+          event: '*',
           schema: 'public',
           table: 'wells',
-          // No filter here initially, handle updates based on current state
         },
-        (payload) => {
-          console.log('Well change received!', payload)
-
-          if (payload.eventType === 'INSERT') {
-            const newWell = payload.new as Well
-            // We might need to re-apply filters here or fetch again
-            // For simplicity now, just add it if it wasn't already somehow there
-            setWells((currentWells) => {
-              if (currentWells.some(w => w.id === newWell.id)) {
-                return currentWells; // Already exists, maybe updated below
-              }
-              // TODO: Re-apply filters before adding?
-              return [...currentWells, newWell].sort((a, b) => a.name.localeCompare(b.name)); // Keep sorted
-            })
-          } else if (payload.eventType === 'UPDATE') {
-            const updatedWell = payload.new as Well
-            setWells((currentWells) =>
-              currentWells.map((well) =>
-                well.id === updatedWell.id ? updatedWell : well
-              )
-            )
-            // TODO: Check if the updated well still matches filters?
-          } else if (payload.eventType === 'DELETE') {
-            const oldWellId = payload.old.id
-            setWells((currentWells) =>
-              currentWells.filter((well) => well.id !== oldWellId)
-            )
-          }
-        }
+        handleRealtimeUpdate // Use the useCallback version here
       )
       .subscribe()
 
@@ -111,63 +252,83 @@ export function WellTableView() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [supabase])
+  }, [supabase, handleRealtimeUpdate]);
 
-  const getBadgeClasses = (status: string) => {
-    const lowerStatus = status?.toLowerCase() || '';
-    const bgColor = lowerStatus === 'operational' ? 'bg-green-500' : 
-                    lowerStatus === 'fault' ? 'bg-red-500' : 
-                    'bg-yellow-500'; // Default/Pending color
-    return cn('text-white px-2 py-1 text-xs font-medium rounded', bgColor);
-  }
+  // Memoize the data
+  const data = useMemo(() => wells, [wells]);
 
+  // Initialize TanStack Table
+  const table = useReactTable({
+    data,
+    columns,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  })
+
+  // Render Loading State
   if (isLoading) {
     return <div className="p-6 text-center text-muted-foreground">Loading wells...</div>;
   }
 
+  // Render Error State
   if (error) {
     return <div className="p-6 text-center text-red-500">Error loading wells: {error}</div>;
   }
 
-  if (!wells || wells.length === 0) {
+  // Render Empty State (after loading and no error)
+  if (!table.getRowModel().rows?.length) {
     return <div className="p-6 text-center text-muted-foreground">No wells found matching your criteria.</div>;
   }
 
+  // Render Table using TanStack Table and Shadcn UI Components
   return (
-    <Table className="bg-white shadow-sm rounded-lg">
-      <TableCaption>A list of wells matching the current filters.</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[150px]">Well Name</TableHead>
-          <TableHead>Camp</TableHead>
-          <TableHead>Formation</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">Last Maintenance</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {wells.map((well) => (
-          <TableRow key={well.id} className="odd:bg-gray-100 hover:bg-muted/50 transition-colors">
-            <TableCell className="font-medium">
-              <Link href={`/well/${well.id}`} className="hover:underline text-blue-600">
-                {well.name}
-              </Link>
-            </TableCell>
-            <TableCell>{well.camp}</TableCell>
-            <TableCell>{well.formation}</TableCell>
-            <TableCell>
-              <Badge className={getBadgeClasses(well.status)}>
-                {well.status}
-              </Badge>
-            </TableCell>
-            <TableCell className="text-right">
-              {well.last_maintenance
-                ? new Date(well.last_maintenance).toLocaleDateString()
-                : 'N/A'}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <div className="border rounded-lg shadow-sm overflow-hidden">
+      <Table className="min-w-full divide-y divide-gray-200">
+        <TableHeader className="bg-gray-50">
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead 
+                    key={header.id} 
+                    className={cn(
+                        "px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider",
+                        header.column.columnDef.meta?.className
+                    )}
+                 >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody className="bg-white divide-y divide-gray-200">
+          {table.getRowModel().rows.map((row) => (
+            <TableRow
+              key={row.id}
+              data-state={row.getIsSelected() && "selected"}
+              className="hover:bg-gray-100 even:bg-slate-50 transition-colors align-middle"
+            >
+              {row.getVisibleCells().map((cell) => (
+                <TableCell 
+                    key={cell.id} 
+                    className={cn("px-4 py-3 whitespace-nowrap text-base text-gray-700 align-middle", cell.column.columnDef.meta?.className)}
+                 >
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 } 

@@ -4,7 +4,7 @@ import { FaultSimulationForm } from './fault-simulation-form'
 import { Well, Part } from '@/lib/types'
 
 interface FaultSimulationModalContentProps {
-  wells: Well[];
+  currentWell: Well;
   parts: Part[];
   onSubmit: (data: { 
     wellId: string; 
@@ -14,16 +14,14 @@ interface FaultSimulationModalContentProps {
   }) => Promise<void>;
   isLoadingWellsParts: boolean; // Prop to indicate if parent is loading data
   loadingError: string | null; // Prop to pass loading error from parent
-  defaultWellId?: string; // Add prop here too
 }
 
 export function FaultSimulationModalContent({
-  wells,
+  currentWell,
   parts,
   onSubmit,
   isLoadingWellsParts,
   loadingError,
-  defaultWellId // Destructure prop
 }: FaultSimulationModalContentProps) {
 
   if (isLoadingWellsParts) {
@@ -42,21 +40,20 @@ export function FaultSimulationModalContent({
     )
   }
 
-  // If no wells or parts are available (after loading), show a message
-  if (!wells?.length || !parts?.length) {
+  // If no parts are available (after loading), show a message
+  if (!currentWell || !parts?.length) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        No wells or parts available for fault simulation.
+        Well data or parts unavailable for fault simulation.
       </div>
     )
   }
 
   return (
     <FaultSimulationForm
-      wells={wells}
+      currentWell={currentWell}
       parts={parts}
-      onSubmit={onSubmit} // Pass the onSubmit handler down
-      defaultWellId={defaultWellId} // Pass prop down to form
+      onSubmit={onSubmit}
     />
   )
 } 

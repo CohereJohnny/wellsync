@@ -193,6 +193,8 @@ export async function POST(request: Request) {
 
           if (toolCall.name === 'order_part') {
             console.log(`Chat API: Calling /api/orders with params:`, toolCall.parameters);
+            // Log the parameters being sent
+            console.log('Stringified order_part parameters:', JSON.stringify(toolCall.parameters, null, 2)); 
             simulationApiResponse = await fetch(`${baseUrl}/api/orders`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -200,6 +202,8 @@ export async function POST(request: Request) {
             });
           } else if (toolCall.name === 'dispatch_part') {
             console.log(`Chat API: Calling /api/dispatches with params:`, toolCall.parameters);
+            // Log the parameters being sent
+            console.log('Stringified dispatch_part parameters:', JSON.stringify(toolCall.parameters, null, 2));
             simulationApiResponse = await fetch(`${baseUrl}/api/dispatches`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
