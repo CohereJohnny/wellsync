@@ -31,6 +31,7 @@ export interface Fault {
   timestamp: string;
   status: 'active' | 'resolved';
   resolved_at?: string;
+  severity?: 'low' | 'medium' | 'high' | 'critical';
 }
 
 export type FaultType = {

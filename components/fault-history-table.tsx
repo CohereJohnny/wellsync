@@ -1,6 +1,7 @@
 'use client'
 
-import * as React from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
+import { Fault } from '@/lib/types'
 import {
   Table,
   TableBody,
@@ -9,126 +10,151 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ChevronDown, ChevronRight, ArrowUpDown } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
   ColumnDef,
-  SortingState,
-  ExpandedState,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
-  getExpandedRowModel,
+  SortingState,
   useReactTable,
-  createColumnHelper,
+  ExpandedState,
+  getExpandedRowModel,
 } from '@tanstack/react-table'
-
-interface Fault {
-  fault_id: string
-  well_id: string
-  part_id: string
-  fault_type: string
-  description: string
-  timestamp: string
-  status: 'active' | 'resolved'
-  resolved_at?: string
-}
+import { ArrowUpDown, ChevronDown, ChevronRight } from 'lucide-react'
 
 interface FaultHistoryTableProps {
   faults: Fault[]
   isLoading?: boolean
 }
 
-const getBadgeClasses = (status: string) => {
-  const lowerStatus = status?.toLowerCase() || '';
-  const bgColor = lowerStatus === 'resolved' ? 'bg-green-500' : 'bg-red-500';
-  return cn('text-white px-2 py-1 text-xs font-medium rounded', bgColor);
-}
-
-const columnHelper = createColumnHelper<Fault>()
-
-const columns: ColumnDef<Fault, any>[] = [
-  columnHelper.display({
-    id: 'expander',
-    header: () => null,
-    cell: ({ row }) => (
-      <button
-        {...{
-          onClick: row.getToggleExpandedHandler(),
-          style: { cursor: 'pointer' },
-        }}
-        className="p-1 rounded hover:bg-gray-200"
-        aria-label={row.getIsExpanded() ? 'Collapse row' : 'Expand row'}
-      >
-        {row.getIsExpanded() ? (
-          <ChevronDown className="h-4 w-4" />
-        ) : (
-          <ChevronRight className="h-4 w-4" />
-        )}
-      </button>
-    ),
-    meta: {
-        className: 'w-[40px]'
-    }
-  }),
-  columnHelper.accessor('timestamp', {
-    header: ({ column }) => (
-      <button
-        className="flex items-center hover:text-foreground transition-colors"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        Timestamp
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </button>
-    ),
-    cell: info => new Date(info.getValue()).toLocaleString(),
-  }),
-  columnHelper.accessor('fault_type', {
-    header: ({ column }) => (
-        <button
-          className="flex items-center hover:text-foreground transition-colors"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Fault Type
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </button>
-      ),
-    cell: info => info.getValue(),
-  }),
-  columnHelper.accessor('part_id', {
-    header: 'Part ID',
-    cell: info => info.getValue(),
-  }),
-  columnHelper.accessor('status', {
-    header: ({ column }) => (
-        <button
-          className="flex items-center hover:text-foreground transition-colors"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Status
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </button>
-      ),
-    cell: info => (
-      <Badge className={getBadgeClasses(info.getValue())}>
-        {info.getValue()}
-      </Badge>
-    ),
-  }),
-]
-
 export function FaultHistoryTable({ faults, isLoading }: FaultHistoryTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([
-    { id: 'timestamp', desc: true },
-  ])
-  const [expanded, setExpanded] = React.useState<ExpandedState>({})
+  const t = useTranslations('faultHistory')
+  const tStatus = useTranslations('wellStatus')
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'timestamp', desc: true }])
+  const [expanded, setExpanded] = useState<ExpandedState>({})
+  const [isClient, setIsClient] = useState(false)
 
-  const data = React.useMemo(() => faults || [], [faults])
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
+  // Format timestamp function for both display and sorting
+  const formatTimestamp = (timestamp: string | null) => {
+    if (!timestamp || !isClient) return 'N/A'
+    try {
+      return new Date(timestamp).toLocaleString()
+    } catch (e) {
+      console.error("Error formatting timestamp:", e)
+      return 'Invalid Date'
+    }
+  }
+
+  // Get translated status text
+  const getTranslatedStatus = (status: string): string => {
+    const lowerStatus = status?.toLowerCase().replace(/\s+/g, '') || ''
+    if (lowerStatus === 'operational' || lowerStatus === 'fault' || lowerStatus === 'pendingrepair' || lowerStatus === 'resolved') {
+      return tStatus(lowerStatus as 'operational' | 'fault' | 'pendingrepair')
+    }
+    return status
+  }
+
+  // Badge styling based on status for consistent colors
+  const getBadgeClasses = (status: string) => {
+    const lowerStatus = status?.toLowerCase() || ''
+    // Make active (fault) status red, resolved status green, default to yellow
+    const bgColor = lowerStatus === 'operational' || lowerStatus === 'resolved' ? 'bg-green-500' :
+                    lowerStatus === 'fault' || lowerStatus === 'active' ? 'bg-red-500' :
+                    'bg-yellow-500' // Default/Pending color
+    return cn('text-white px-2 py-1 text-xs font-medium rounded', bgColor)
+  }
+
+  // Define columns
+  const columns = useMemo<ColumnDef<Fault>[]>(() => [
+    {
+      accessorKey: 'timestamp',
+      header: ({ column }) => (
+        <button
+          className="flex items-center hover:text-foreground transition-colors"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {t('timestampHeader')}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </button>
+      ),
+      cell: ({ row }) => (
+        <div className="flex items-center">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              row.toggleExpanded();
+            }}
+            className="mr-2"
+          >
+            {row.getIsExpanded() ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+          </button>
+          {formatTimestamp(row.getValue('timestamp'))}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'fault_type',
+      header: ({ column }) => (
+        <button
+          className="flex items-center hover:text-foreground transition-colors"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {t('typeHeader')}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </button>
+      ),
+      cell: ({ row }) => row.getValue('fault_type') || '--',
+    },
+    {
+      accessorKey: 'part_id',
+      header: ({ column }) => (
+        <button
+          className="flex items-center hover:text-foreground transition-colors"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {t('partHeader')}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </button>
+      ),
+      cell: ({ row }) => row.getValue('part_id') || '--',
+    },
+    {
+      accessorKey: 'status',
+      header: ({ column }) => (
+        <button
+          className="flex items-center hover:text-foreground transition-colors"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {t('statusHeader')}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </button>
+      ),
+      cell: ({ row }) => {
+        const status = row.getValue('status') as string
+        return (
+          <span className={getBadgeClasses(status)}>
+            {getTranslatedStatus(status)}
+          </span>
+        )
+      },
+    },
+  ], [t, tStatus])
+
+  // Initialize TanStack Table
   const table = useReactTable({
-    data,
+    data: faults,
     columns,
     state: {
       sorting,
@@ -139,43 +165,35 @@ export function FaultHistoryTable({ faults, isLoading }: FaultHistoryTableProps)
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
-    getRowCanExpand: () => true,
-    initialState: {
-    }
   })
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-2">
         <Skeleton className="h-8 w-full" />
-        <Skeleton className="h-8 w-full" />
-        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
       </div>
     )
   }
 
-  if (!data.length) {
+  if (faults.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        No fault history available
+      <div className="text-center text-gray-500 py-8">
+        {t('noFaultHistory')}
       </div>
     )
   }
 
   return (
-    <div className="border rounded-lg shadow-sm overflow-hidden">
-      <Table className="min-w-full divide-y divide-gray-200">
-        <TableHeader className="bg-gray-50">
-          {table.getHeaderGroups().map(headerGroup => (
+    <div className="rounded-md border overflow-hidden">
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map(header => (
-                <TableHead 
-                    key={header.id} 
-                    className={cn(
-                        "px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider",
-                        header.column.columnDef.meta?.className
-                    )}
-                 >
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id} className="px-4 py-2 text-sm font-medium">
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -187,49 +205,33 @@ export function FaultHistoryTable({ faults, isLoading }: FaultHistoryTableProps)
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody className="bg-white divide-y divide-gray-200">
-          {table.getRowModel().rows.map(row => (
+        <TableBody>
+          {table.getRowModel().rows.map((row) => (
             <React.Fragment key={row.id}>
-              <TableRow
-                  data-state={row.getIsSelected() && "selected"}
-                  className={cn(
-                      row.getCanExpand() ? 'cursor-pointer' : '',
-                      'hover:bg-gray-100 even:bg-slate-50 transition-colors align-middle',
-                      row.getIsExpanded() && 'bg-muted/50'
-                  )}
-               >
-                {row.getVisibleCells().map(cell => (
-                  <TableCell 
-                    key={cell.id} 
-                    className={cn("px-4 py-3 whitespace-nowrap text-base text-gray-700 align-middle", cell.column.columnDef.meta?.className)}
-                  >
+              <TableRow 
+                className="cursor-pointer hover:bg-gray-50" 
+                onClick={() => row.toggleExpanded()}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} className="px-4 py-2 text-sm">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
               </TableRow>
-  
               {row.getIsExpanded() && (
-                <TableRow className="bg-muted/50 hover:bg-muted/50">
-                  <TableCell colSpan={columns.length} className="px-4 py-3 text-base">
-                    <div className="space-y-2">
-                      <div>
-                        <span className="font-medium text-gray-900">Description:</span>
-                        <p className="mt-1 text-gray-600">{row.original.description}</p>
-                      </div>
-                      {row.original.resolved_at && (
-                        <div>
-                          <span className="font-medium text-gray-900">Resolved At:</span>
-                          <p className="mt-1 text-sm text-gray-600">
-                            {new Date(row.original.resolved_at).toLocaleString()}
-                          </p>
-                        </div>
-                      )}
-                      <div>
-                        <span className="font-medium text-gray-900">Part Details:</span>
-                        <p className="mt-1 text-gray-600">
-                          Part ID: {row.original.part_id}
-                        </p>
-                      </div>
+                <TableRow className="bg-gray-50 border-t border-b border-gray-200">
+                  <TableCell colSpan={row.getVisibleCells().length} className="px-6 py-3">
+                    <div className="text-sm">
+                      <p className="mb-2">
+                        <span className="font-medium">Description:</span>
+                        <br />
+                        {row.original.description || t('noDescription')}
+                      </p>
+                      <p>
+                        <span className="font-medium">Part Details:</span>
+                        <br />
+                        Part ID: {row.original.part_id}
+                      </p>
                     </div>
                   </TableCell>
                 </TableRow>

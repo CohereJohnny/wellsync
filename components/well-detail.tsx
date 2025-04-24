@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { notFound } from 'next/navigation'
 import { useSupabase } from '@/context/supabase-context'
 import { Badge } from '@/components/ui/badge'
@@ -23,6 +23,7 @@ import type { Well, Fault, Part } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import MapView from '@/components/map-view'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 interface WellDetailProps {
   wellId: string
@@ -31,6 +32,11 @@ interface WellDetailProps {
 }
 
 export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailProps) {
+  const t = useTranslations('wellDetail')
+  const tStatus = useTranslations('wellStatus')
+  const tActions = useTranslations('toolbar.actions')
+  const tToasts = useTranslations('wellDetail')
+  
   console.log(`[WellDetail ${wellId}] Initial status:`, initialWell?.status); // Log initial status
   const supabase = useSupabase()
   const [well, setWell] = useState<Well>(initialWell)
@@ -57,8 +63,8 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
         console.error("Error fetching parts:", err)
         setLoadingPartsError(err.message)
         toast({
-          title: "Error",
-          description: "Failed to load parts for fault simulation.",
+          title: tToasts('toastPartsErrorTitle'),
+          description: tToasts('toastPartsErrorDescription'),
           variant: "destructive",
         })
       } finally {
@@ -66,7 +72,7 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
       }
     }
     fetchParts()
-  }, [toast, supabase])
+  }, [toast, supabase, tToasts])
 
   useEffect(() => {
     const channel = supabase
@@ -140,12 +146,12 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.details || 'Failed to create fault');
+        throw new Error(errorData.details || tToasts('toastFaultErrorDescription'));
       }
 
       toast({
-        title: 'Fault Created',
-        description: 'The fault has been successfully simulated for this well.',
+        title: tToasts('toastFaultCreatedTitle'),
+        description: tToasts('toastFaultCreatedDescription'),
       });
       
       setDialogOpen(false);
@@ -154,8 +160,8 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
     } catch (error: any) {
       console.error('Error creating fault:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to create fault for this well',
+        title: tToasts('toastFaultErrorTitle'),
+        description: error.message || tToasts('toastFaultErrorDescription'),
         variant: 'destructive',
       });
     } finally {
@@ -220,6 +226,16 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
     }
   }, [wellId, supabase, faults])
 
+  // Status text lookup using tStatus
+  const getStatusText = (status: string): string => {
+    const lowerStatus = status?.toLowerCase().replace(/\s+/g, '') || '';
+    // Check if a key exists for the status, otherwise return original status
+    if (lowerStatus === 'operational' || lowerStatus === 'fault' || lowerStatus === 'pendingrepair') {
+      return tStatus(lowerStatus as 'operational' | 'fault' | 'pendingrepair');
+    }
+    return status; 
+  }
+
   // Badge styling based on spec
   const getBadgeClasses = (status: string) => {
     const lowerStatus = status?.toLowerCase() || '';
@@ -230,107 +246,132 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 p-4 max-w-7xl mx-auto">
+    <div className="flex flex-col lg:flex-row gap-6 p-4 max-w-7xl mx-auto min-h-[calc(100vh-6rem)]">
       {/* Left Column: Well Info, Map, Fault History */}
-      <div className="lg:w-2/3 space-y-6">
+      <div className="flex-1 space-y-6">
         {/* Well Info Card */}
-        <Card className="p-6">
-          <div className="flex justify-between items-start mb-4">
-            {/* Well Name (H1) */}
-            <h1 className="text-2xl font-bold text-gray-900">{well.name}</h1>
-            {/* Status Badge */}
-            <Badge className={getBadgeClasses(well.status)}>{well.status}</Badge>
-          </div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Camp</p>
-              <p className="text-base text-gray-900">{well.camp}</p>
+        <Card className="overflow-hidden">
+          <div className="px-6 py-4 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">{well.name}</h2>
+              <span className={getBadgeClasses(well.status)}>
+                {getStatusText(well.status)}
+              </span>
             </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Formation</p>
-              <p className="text-base text-gray-900">{well.formation}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Location</p>
-              <p className="text-base text-gray-900">
-                {well.latitude?.toFixed(4)}, {well.longitude?.toFixed(4)}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500">Last Maintenance</p>
-              <p className="text-base text-gray-900">
-                {well.last_maintenance ? new Date(well.last_maintenance).toLocaleDateString() : 'N/A'}
-              </p>
-            </div>
-          </div>
 
-          {/* Current Fault Info (only shown if status is Fault) */}
-          {well.status.toLowerCase() === 'fault' && well.fault_details && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Current Fault</h2>
-              <div className="grid grid-cols-2 gap-x-4">
-                 <div>
-                    <p className="text-sm font-medium text-gray-500">Part:</p>
-                    <p className="text-base text-red-600">{well.fault_details.part_id || 'Unknown'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Type:</p>
-                    <p className="text-base text-red-600">{well.fault_details.fault_type || 'Unknown'}</p>
-                 </div>
-               </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-600">{t('campLabel')}</p>
+                <p className="font-medium">{well.camp}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">{t('formationLabel')}</p>
+                <p className="font-medium">{well.formation}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">{t('locationLabel')}</p>
+                <p className="font-medium">{well.latitude}, {well.longitude}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">{t('lastMaintenanceLabel')}</p>
+                <p className="font-medium">{well.last_maintenance || t('lastMaintenanceNA')}</p>
+              </div>
             </div>
-          )}
+
+            {/* Current Fault Display */}
+            {well.status === 'Fault' && (
+              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
+                <h3 className="text-red-700 font-semibold flex items-center">
+                  <AlertTriangle className="h-4 w-4 mr-1" /> {t('currentFaultTitle')}
+                </h3>
+                <div className="mt-2 text-sm">
+                  {faults && faults.length > 0 && faults[0].status !== 'resolved' ? (
+                    <>
+                      <p>
+                        <span className="font-medium">{t('partLabel')}</span> {faults[0].part_id}
+                      </p>
+                      <p>
+                        <span className="font-medium">{t('typeLabel')}</span> {faults[0].fault_type}
+                      </p>
+                      {faults[0].description && <p className="mt-1">{faults[0].description}</p>}
+                    </>
+                  ) : (
+                    <p className="italic text-gray-600">Loading fault details...</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </Card>
 
-        {/* Map View Card */}
-        <Card className="p-0 overflow-hidden"> { /* Remove padding for map */}
-           <h2 className="text-xl font-bold text-gray-900 px-6 pt-4 pb-2">Map Location</h2>
-            <MapView 
-                latitude={well.latitude ?? 0} 
-                longitude={well.longitude ?? 0} 
+        {/* Map Card */}
+        <Card className="overflow-hidden">
+          <div className="px-6 pt-4 pb-2">
+            <h3 className="text-lg font-semibold">{t('mapLocationTitle')}</h3>
+          </div>
+          <div className="h-[320px] w-full">
+            <MapView
+              latitude={well.latitude ?? 0}
+              longitude={well.longitude ?? 0}
             />
+          </div>
         </Card>
 
-        {/* Fault History Section */}
-        <div className="space-y-4">
-            <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-900">Fault History</h2>
-                {/* Fault Simulation Dialog Trigger */}
-                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button variant="destructive" size="sm"> 
-                        <AlertTriangle className="mr-2 h-4 w-4" />
-                        Trigger Fault
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px] bg-white">
-                        <DialogHeader>
-                        <DialogTitle>Simulate Fault for {well.name}</DialogTitle>
-                        <DialogDescription>
-                            Select a part and fault type to simulate.
-                        </DialogDescription>
-                        </DialogHeader>
-                        {isLoadingParts && <p>Loading parts...</p>}
-                        {loadingPartsError && <p className="text-red-500">Error loading parts: {loadingPartsError}</p>}
-                        {!isLoadingParts && !loadingPartsError && (
-                        <FaultSimulationModalContent 
-                            currentWell={well}
-                            parts={parts}
-                            onSubmit={handleFaultSubmit}
-                            isLoadingWellsParts={isLoadingParts}
-                            loadingError={loadingPartsError}
-                        />
-                        )}
-                    </DialogContent>
-                 </Dialog>
+        {/* Fault History Card */}
+        <Card>
+          <div className="px-6 py-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">{t('faultHistoryTitle')}</h3>
+              
+              {/* Trigger Fault Button */}
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="destructive" size="sm">
+                    {tActions('triggerFault')}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle>{t('dialogTitlePrefix')}{well.name}</DialogTitle>
+                    <DialogDescription>
+                      {t('dialogDescription')}
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  {isLoadingParts ? (
+                    <div className="p-8 text-center">
+                      <p className="text-muted-foreground">{t('dialogLoadingParts')}</p>
+                    </div>
+                  ) : loadingPartsError ? (
+                    <div className="p-8 text-center text-destructive">
+                      <p>{t('dialogErrorPartsPrefix')}{loadingPartsError}</p>
+                    </div>
+                  ) : (
+                    <FaultSimulationModalContent 
+                      currentWell={well} 
+                      parts={parts}
+                      onSubmit={handleFaultSubmit}
+                      isLoadingWellsParts={isLoadingParts}
+                      loadingError={loadingPartsError}
+                    />
+                  )}
+                </DialogContent>
+              </Dialog>
             </div>
+            
             <FaultHistoryTable faults={faults} isLoading={isLoadingFaults} />
-        </div>
+          </div>
+        </Card>
       </div>
 
-      {/* Right Column: Chat Panel */}
-      <div className="lg:w-1/3">
-        <ChatPanel wellId={well.id} />
+      {/* Right Column: Chat */}
+      <div className="lg:w-1/3 flex flex-col">
+        <Card className="h-auto">
+          <div className="p-4 font-medium border-b">AI Assistant</div>
+          <div className="overflow-hidden" style={{ height: '450px' }}>
+            <ChatPanel wellId={wellId} />
+          </div>
+        </Card>
       </div>
     </div>
   )

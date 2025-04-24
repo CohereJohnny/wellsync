@@ -19,7 +19,7 @@ interface MapViewportState {
   pitch: number;
 }
 
-const MapView: React.FC<MapViewProps> = ({ latitude, longitude, zoom = 8 }) => {
+const MapView: React.FC<MapViewProps> = ({ latitude, longitude, zoom = 7 }) => {
   // Use the simpler interface for useState
   const [viewState, setViewState] = useState<MapViewportState>({
     latitude: latitude,
@@ -27,8 +27,6 @@ const MapView: React.FC<MapViewProps> = ({ latitude, longitude, zoom = 8 }) => {
     zoom: zoom,
     bearing: 0,
     pitch: 0,
-    // No padding needed here if not directly managed
-    // No width/height needed here
   });
 
   const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
@@ -39,11 +37,10 @@ const MapView: React.FC<MapViewProps> = ({ latitude, longitude, zoom = 8 }) => {
   }
 
   return (
-    <div className="w-full h-64 rounded-lg overflow-hidden border">
+    <div className="w-full h-full">
       <Map
-        {...viewState} // Spread the simpler state
+        {...viewState}
         mapboxAccessToken={mapboxAccessToken}
-        // Directly use evt.viewState which matches ViewState type
         onMove={(evt: ViewStateChangeEvent) => setViewState(evt.viewState)} 
         style={{ width: '100%', height: '100%' }}
         mapStyle="mapbox://styles/mapbox/streets-v12"

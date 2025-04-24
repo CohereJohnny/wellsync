@@ -1,7 +1,28 @@
 {
   "greeting": "Hello!",
   "wellDetail": {
-    "title": "Well Detail"
+    "title": "Well Detail",
+    "campLabel": "Camp",
+    "formationLabel": "Formation",
+    "locationLabel": "Location",
+    "lastMaintenanceLabel": "Last Maintenance",
+    "lastMaintenanceNA": "N/A",
+    "currentFaultTitle": "Current Fault",
+    "partLabel": "Part:",
+    "typeLabel": "Type:",
+    "mapLocationTitle": "Map Location",
+    "faultHistoryTitle": "Fault History",
+    "triggerFaultButton": "Trigger Fault",
+    "dialogTitlePrefix": "Simulate Fault for ",
+    "dialogDescription": "Select a part and fault type to simulate.",
+    "dialogLoadingParts": "Loading parts...",
+    "dialogErrorPartsPrefix": "Error loading parts: ",
+    "toastPartsErrorTitle": "Error",
+    "toastPartsErrorDescription": "Failed to load parts for fault simulation.",
+    "toastFaultCreatedTitle": "Fault Created",
+    "toastFaultCreatedDescription": "The fault has been successfully simulated for this well.",
+    "toastFaultErrorTitle": "Error",
+    "toastFaultErrorDescription": "Failed to create fault for this well"
   },
   "wellStatus": {
     "operational": "Operational",
@@ -11,5 +32,131 @@
   "wellCard": {
     "campLabel": "Camp",
     "formationLabel": "Formation"
+  },
+  "wellGrid": {
+    "loading": "Loading wells...",
+    "error": "Error loading wells",
+    "errorFetchingWells": "Failed to load well data. Please try again later.",
+    "fetchError": "Failed to load well data. Please try again later.",
+    "errorOccurred": "An error occurred",
+    "retry": "Retry",
+    "noWellsFound": "No wells found",
+    "tryChangingFilters": "Try adjusting your filters or viewing all wells",
+    "tryAdjustingFilters": "Try adjusting your filters or viewing all wells",
+    "connectingRealtime": "Connecting to real-time updates...",
+    "realtimeError": "Real-time updates unavailable",
+    "realtimeDisconnected": "Real-time updates unavailable. Data may not be current."
+  },
+  "wellTable": {
+    "nameHeader": "Well Name",
+    "campHeader": "Camp",
+    "formationHeader": "Formation",
+    "statusHeader": "Status",
+    "lastMaintenanceHeader": "Last Maintenance",
+    "loading": "Loading wells...",
+    "error": "Error loading wells",
+    "fetchError": "Failed to load well data",
+    "noWellsFound": "No wells found matching your criteria",
+    "notAvailable": "N/A"
+  },
+  "faultSimulationModal": {
+    "loading": "Loading wells and parts...",
+    "unavailable": "Well data or parts unavailable for fault simulation."
+  },
+  "navigation": {
+    "title": "WellSync AI",
+    "dashboard": "Dashboard",
+    "inventory": "Inventory",
+    "settings": "Settings",
+    "documentation": "Documentation"
+  },
+  "toolbar": {
+    "filters": {
+      "allCamps": "All Camps",
+      "allFormations": "All Formations",
+      "allStatuses": "All Statuses",
+      "campMidland": "Midland",
+      "campDelaware": "Delaware",
+      "formationWolfcamp": "Wolfcamp",
+      "formationBoneSpring": "Bone Spring",
+      "formationSpraberry": "Spraberry"
+    },
+    "view": {
+      "card": "Card View",
+      "table": "Table View"
+    },
+    "actions": {
+      "resetDemo": "Reset Demo",
+      "resettingDemo": "Resetting...",
+      "triggerFault": "Trigger Fault"
+    },
+    "simulationDialog": {
+      "title": "Trigger New Fault Simulation",
+      "description": "Select a well, part, and fault type to simulate a new fault event.",
+      "loading": "Loading simulation options...",
+      "errorPrefix": "Error: ",
+      "selectWellPlaceholder": "Select target well"
+    },
+    "toasts": {
+      "fetchErrorTitle": "Error",
+      "fetchErrorDescription": "Failed to load wells and parts",
+      "faultCreatedTitle": "Fault Created",
+      "faultCreatedDescription": "The fault has been successfully simulated.",
+      "faultErrorTitle": "Error",
+      "faultErrorDescription": "Failed to create fault",
+      "resetSuccessTitle": "Demo Reset",
+      "resetSuccessDescription": "The demo data has been successfully reset.",
+      "resetErrorTitle": "Error",
+      "resetErrorDescription": "Failed to reset demo"
+    }
+  },
+  "languageName": "English",
+  "faultSimulationForm": {
+    "targetWell": "Target Well",
+    "partPlaceholder": "Select a part",
+    "faultTypePlaceholder": "Select a fault type",
+    "description": "Description (Optional)",
+    "descriptionPlaceholder": "Add any relevant details about the simulated fault...",
+    "triggerButton": "Trigger Fault",
+    "triggeringButton": "Triggering Fault...",
+    "validationError": {
+      "title": "Validation Error",
+      "description": "Please select a part and fault type for the current well."
+    },
+    "success": {
+      "title": "Success",
+      "description": "Fault has been triggered successfully"
+    },
+    "error": {
+      "title": "Error",
+      "description": "Failed to trigger fault"
+    },
+    "noParts": "No parts available for fault simulation.",
+    "faultTypeWearAndTear": "Wear and Tear",
+    "faultTypeBlockage": "Blockage",
+    "faultTypeLeakage": "Leakage",
+    "faultTypeElectricalFailure": "Electrical Failure",
+    "faultTypeOther": "Other",
+    "severity": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "critical": "Critical"
+    }
+  },
+  "faultHistory": {
+    "timestampHeader": "Timestamp",
+    "typeHeader": "Type",
+    "partHeader": "Part",
+    "descriptionHeader": "Description",
+    "severityHeader": "Severity",
+    "statusHeader": "Status",
+    "noFaultHistory": "No fault history available",
+    "detailsTitle": "Fault Details",
+    "noDescription": "No description provided",
+    "partIdLabel": "Part ID",
+    "severityLabel": "Severity",
+    "faultIdLabel": "Fault ID",
+    "wellIdLabel": "Well ID"
   }
 } 

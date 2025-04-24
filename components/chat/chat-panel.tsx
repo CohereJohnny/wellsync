@@ -296,13 +296,13 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
 
   return (
     <Card className={cn('flex flex-col h-full bg-gray-50 shadow-sm rounded-lg p-1', className)}>
-      <ScrollArea className="flex-grow mb-4 pr-4" ref={scrollAreaRef}>
-        <div className="space-y-4">
+      <ScrollArea className="flex-1 mb-2 pr-4 overflow-y-auto" style={{ height: 'calc(100% - 60px)' }} ref={scrollAreaRef}>
+        <div className="space-y-2 p-2">
           {isHistoryLoading ? (
-            <div className="space-y-4 p-4">
-              <Skeleton className="h-16 w-3/4" />
-              <Skeleton className="h-16 w-3/4 ml-auto" />
-              <Skeleton className="h-16 w-3/4" />
+            <div className="space-y-2 p-2">
+              <Skeleton className="h-12 w-3/4" />
+              <Skeleton className="h-12 w-3/4 ml-auto" />
+              <Skeleton className="h-12 w-3/4" />
             </div>
           ) : wellMessages.length === 0 ? (
             <p className="text-center text-muted-foreground text-sm p-4">
@@ -345,7 +345,7 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
           )}
         </div>
       </ScrollArea>
-      <form onSubmit={handleSubmit} className="flex items-center gap-2 pt-4 border-t">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2 pt-2 border-t">
         <div className="relative flex-grow">
           <Input
             type="text"
@@ -353,7 +353,7 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={isLoading || isSearching}
-            className="pr-10 text-base"
+            className="pr-10 text-sm h-8"
           />
           <button
               type="button"
@@ -362,16 +362,17 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700 disabled:opacity-50"
               aria-label="Search similar faults"
           >
-              <Search className="h-4 w-4" />
+              <Search className="h-3 w-3" />
           </button>
         </div>
         <Button 
             type="submit" 
             disabled={isLoading || isSearching || !input.trim()}
-            className="px-3"
+            className="px-2 h-8"
+            size="sm"
             aria-label="Send message"
          >
-          <ArrowRight className="h-5 w-5" />
+          <ArrowRight className="h-4 w-4" />
         </Button>
       </form>
     </Card>
