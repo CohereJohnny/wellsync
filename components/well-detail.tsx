@@ -367,7 +367,7 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
       {/* Right Column: Chat */}
       <div className="lg:w-1/3 flex flex-col">
         <Card className="h-auto">
-          <div className="p-4 font-medium border-b">AI Assistant</div>
+          <div className="p-4 font-medium border-b">{t('aiAssistantTitle')}</div>
           <div className="overflow-hidden" style={{ height: '450px' }}>
             <ChatPanel wellId={wellId} />
           </div>

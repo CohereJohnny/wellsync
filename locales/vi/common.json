@@ -1,0 +1,175 @@
+{
+  "greeting": "Xin chào!",
+  "wellDetail": {
+    "title": "Chi Tiết Giếng",
+    "campLabel": "Trạm",
+    "formationLabel": "Cấu Tạo",
+    "locationLabel": "Vị Trí",
+    "lastMaintenanceLabel": "Bảo Trì Gần Đây",
+    "lastMaintenanceNA": "N/A",
+    "currentFaultTitle": "Lỗi Hiện Tại",
+    "partLabel": "Bộ Phận:",
+    "typeLabel": "Loại:",
+    "mapLocationTitle": "Vị Trí Trên Bản Đồ",
+    "faultHistoryTitle": "Lịch Sử Lỗi",
+    "triggerFaultButton": "Tạo Lỗi",
+    "dialogTitlePrefix": "Mô Phỏng Lỗi cho ",
+    "dialogDescription": "Chọn bộ phận và loại lỗi để mô phỏng.",
+    "dialogLoadingParts": "Đang tải bộ phận...",
+    "dialogErrorPartsPrefix": "Lỗi khi tải bộ phận: ",
+    "toastPartsErrorTitle": "Lỗi",
+    "toastPartsErrorDescription": "Không thể tải bộ phận cho mô phỏng lỗi.",
+    "toastFaultCreatedTitle": "Đã Tạo Lỗi",
+    "toastFaultCreatedDescription": "Lỗi đã được mô phỏng thành công cho giếng này.",
+    "toastFaultErrorTitle": "Lỗi",
+    "toastFaultErrorDescription": "Không thể tạo lỗi cho giếng này",
+    "aiAssistantTitle": "Trợ Lý AI"
+  },
+  "wellStatus": {
+    "operational": "Hoạt Động",
+    "fault": "Lỗi",
+    "pendingrepair": "Đang Chờ Sửa Chữa" 
+  },
+  "wellCard": {
+    "campLabel": "Trạm",
+    "formationLabel": "Cấu Tạo"
+  },
+  "wellGrid": {
+    "loading": "Đang tải giếng...",
+    "error": "Lỗi khi tải giếng",
+    "errorFetchingWells": "Không thể tải dữ liệu giếng. Vui lòng thử lại sau.",
+    "fetchError": "Không thể tải dữ liệu giếng. Vui lòng thử lại sau.",
+    "errorOccurred": "Đã xảy ra lỗi",
+    "retry": "Thử lại",
+    "noWellsFound": "Không tìm thấy giếng nào",
+    "tryChangingFilters": "Hãy điều chỉnh bộ lọc hoặc xem tất cả giếng",
+    "tryAdjustingFilters": "Hãy điều chỉnh bộ lọc hoặc xem tất cả giếng",
+    "connectingRealtime": "Đang kết nối với cập nhật thời gian thực...",
+    "realtimeError": "Cập nhật thời gian thực không khả dụng",
+    "realtimeDisconnected": "Cập nhật thời gian thực không khả dụng. Dữ liệu có thể không cập nhật."
+  },
+  "wellTable": {
+    "nameHeader": "Tên Giếng",
+    "campHeader": "Trạm",
+    "formationHeader": "Cấu Tạo",
+    "statusHeader": "Trạng Thái",
+    "lastMaintenanceHeader": "Bảo Trì Gần Đây",
+    "loading": "Đang tải giếng...",
+    "error": "Lỗi khi tải giếng",
+    "fetchError": "Không thể tải dữ liệu giếng",
+    "noWellsFound": "Không tìm thấy giếng nào phù hợp với tiêu chí của bạn",
+    "notAvailable": "N/A"
+  },
+  "faultSimulationModal": {
+    "loading": "Đang tải giếng và bộ phận...",
+    "unavailable": "Dữ liệu giếng hoặc bộ phận không khả dụng cho mô phỏng lỗi."
+  },
+  "navigation": {
+    "title": "WellSync AI",
+    "dashboard": "Bảng Điều Khiển",
+    "inventory": "Kho Hàng",
+    "settings": "Cài Đặt",
+    "documentation": "Tài Liệu"
+  },
+  "toolbar": {
+    "filters": {
+      "allCamps": "Tất Cả Trạm",
+      "allFormations": "Tất Cả Cấu Tạo",
+      "allStatuses": "Tất Cả Trạng Thái",
+      "campMidland": "Midland",
+      "campDelaware": "Delaware",
+      "formationWolfcamp": "Wolfcamp",
+      "formationBoneSpring": "Bone Spring",
+      "formationSpraberry": "Spraberry"
+    },
+    "view": {
+      "card": "Xem Dạng Thẻ",
+      "table": "Xem Dạng Bảng"
+    },
+    "actions": {
+      "resetDemo": "Đặt Lại Demo",
+      "resettingDemo": "Đang đặt lại...",
+      "triggerFault": "Tạo Lỗi"
+    },
+    "simulationDialog": {
+      "title": "Tạo Mô Phỏng Lỗi Mới",
+      "description": "Chọn giếng, bộ phận và loại lỗi để mô phỏng sự kiện lỗi mới.",
+      "loading": "Đang tải tùy chọn mô phỏng...",
+      "errorPrefix": "Lỗi: ",
+      "selectWellPlaceholder": "Chọn giếng mục tiêu"
+    },
+    "toasts": {
+      "fetchErrorTitle": "Lỗi",
+      "fetchErrorDescription": "Không thể tải giếng và bộ phận",
+      "faultCreatedTitle": "Đã Tạo Lỗi",
+      "faultCreatedDescription": "Lỗi đã được mô phỏng thành công.",
+      "faultErrorTitle": "Lỗi",
+      "faultErrorDescription": "Không thể tạo lỗi",
+      "resetSuccessTitle": "Đã Đặt Lại Demo",
+      "resetSuccessDescription": "Dữ liệu demo đã được đặt lại thành công.",
+      "resetErrorTitle": "Lỗi",
+      "resetErrorDescription": "Không thể đặt lại demo"
+    }
+  },
+  "languageName": "Tiếng Việt",
+  "faultSimulationForm": {
+    "targetWell": "Giếng Mục Tiêu",
+    "partPlaceholder": "Chọn bộ phận",
+    "faultTypePlaceholder": "Chọn loại lỗi",
+    "description": "Mô Tả (Tùy Chọn)",
+    "descriptionPlaceholder": "Thêm chi tiết liên quan về lỗi mô phỏng...",
+    "triggerButton": "Tạo Lỗi",
+    "triggeringButton": "Đang Tạo Lỗi...",
+    "validationError": {
+      "title": "Lỗi Xác Thực",
+      "description": "Vui lòng chọn bộ phận và loại lỗi cho giếng hiện tại."
+    },
+    "success": {
+      "title": "Thành Công",
+      "description": "Lỗi đã được tạo thành công"
+    },
+    "error": {
+      "title": "Lỗi",
+      "description": "Không thể tạo lỗi"
+    },
+    "noParts": "Không có bộ phận nào khả dụng cho mô phỏng lỗi.",
+    "faultTypeWearAndTear": "Hao Mòn",
+    "faultTypeBlockage": "Tắc Nghẽn",
+    "faultTypeLeakage": "Rò Rỉ",
+    "faultTypeElectricalFailure": "Lỗi Điện",
+    "faultTypeOther": "Khác",
+    "severity": {
+      "low": "Thấp",
+      "medium": "Trung Bình",
+      "high": "Cao",
+      "critical": "Nghiêm Trọng"
+    }
+  },
+  "faultHistory": {
+    "timestampHeader": "Thời Gian",
+    "typeHeader": "Loại",
+    "partHeader": "Bộ Phận",
+    "descriptionHeader": "Mô Tả",
+    "severityHeader": "Mức Độ",
+    "statusHeader": "Trạng Thái",
+    "noFaultHistory": "Không có lịch sử lỗi",
+    "detailsTitle": "Chi Tiết Lỗi",
+    "noDescription": "Không có mô tả",
+    "partIdLabel": "ID Bộ Phận",
+    "severityLabel": "Mức Độ",
+    "faultIdLabel": "ID Lỗi",
+    "wellIdLabel": "ID Giếng"
+  },
+  "chat": {
+    "title": "Trợ Lý AI",
+    "placeholder": "Nhập tin nhắn hoặc /search ...",
+    "noHistory": "Chưa có lịch sử trò chuyện cho giếng này. Bắt đầu trò chuyện!",
+    "searchingFaults": "Đang tìm kiếm lỗi liên quan...",
+    "searchError": "Lỗi Tìm Kiếm",
+    "searchErrorMissingQuery": "Vui lòng cung cấp truy vấn sau /search",
+    "chatError": "Lỗi Trò Chuyện",
+    "failedToSendMessage": "Không thể gửi tin nhắn",
+    "searchButtonAriaLabel": "Tìm kiếm lỗi tương tự",
+    "sendButtonAriaLabel": "Gửi tin nhắn"
+  }
+} 

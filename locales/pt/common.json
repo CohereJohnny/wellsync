@@ -1,0 +1,175 @@
+{
+  "greeting": "Olá!",
+  "wellDetail": {
+    "title": "Detalhes do Poço",
+    "campLabel": "Campo",
+    "formationLabel": "Formação",
+    "locationLabel": "Localização",
+    "lastMaintenanceLabel": "Última Manutenção",
+    "lastMaintenanceNA": "N/A",
+    "currentFaultTitle": "Falha Atual",
+    "partLabel": "Peça:",
+    "typeLabel": "Tipo:",
+    "mapLocationTitle": "Localização no Mapa",
+    "faultHistoryTitle": "Histórico de Falhas",
+    "triggerFaultButton": "Acionar Falha",
+    "dialogTitlePrefix": "Simular Falha para ",
+    "dialogDescription": "Selecione uma peça e tipo de falha para simular.",
+    "dialogLoadingParts": "Carregando peças...",
+    "dialogErrorPartsPrefix": "Erro ao carregar peças: ",
+    "toastPartsErrorTitle": "Erro",
+    "toastPartsErrorDescription": "Falha ao carregar peças para simulação de falha.",
+    "toastFaultCreatedTitle": "Falha Criada",
+    "toastFaultCreatedDescription": "A falha foi simulada com sucesso para este poço.",
+    "toastFaultErrorTitle": "Erro",
+    "toastFaultErrorDescription": "Falha ao criar falha para este poço",
+    "aiAssistantTitle": "Assistente IA"
+  },
+  "wellStatus": {
+    "operational": "Operacional",
+    "fault": "Falha",
+    "pendingrepair": "Aguardando Reparo" 
+  },
+  "wellCard": {
+    "campLabel": "Campo",
+    "formationLabel": "Formação"
+  },
+  "wellGrid": {
+    "loading": "Carregando poços...",
+    "error": "Erro ao carregar poços",
+    "errorFetchingWells": "Falha ao carregar dados do poço. Por favor, tente novamente mais tarde.",
+    "fetchError": "Falha ao carregar dados do poço. Por favor, tente novamente mais tarde.",
+    "errorOccurred": "Ocorreu um erro",
+    "retry": "Tentar novamente",
+    "noWellsFound": "Nenhum poço encontrado",
+    "tryChangingFilters": "Tente ajustar seus filtros ou visualizar todos os poços",
+    "tryAdjustingFilters": "Tente ajustar seus filtros ou visualizar todos os poços",
+    "connectingRealtime": "Conectando às atualizações em tempo real...",
+    "realtimeError": "Atualizações em tempo real indisponíveis",
+    "realtimeDisconnected": "Atualizações em tempo real indisponíveis. Os dados podem não estar atualizados."
+  },
+  "wellTable": {
+    "nameHeader": "Nome do Poço",
+    "campHeader": "Campo",
+    "formationHeader": "Formação",
+    "statusHeader": "Status",
+    "lastMaintenanceHeader": "Última Manutenção",
+    "loading": "Carregando poços...",
+    "error": "Erro ao carregar poços",
+    "fetchError": "Falha ao carregar dados do poço",
+    "noWellsFound": "Nenhum poço encontrado correspondente aos seus critérios",
+    "notAvailable": "N/A"
+  },
+  "faultSimulationModal": {
+    "loading": "Carregando poços e peças...",
+    "unavailable": "Dados do poço ou peças indisponíveis para simulação de falha."
+  },
+  "navigation": {
+    "title": "WellSync AI",
+    "dashboard": "Painel",
+    "inventory": "Inventário",
+    "settings": "Configurações",
+    "documentation": "Documentação"
+  },
+  "toolbar": {
+    "filters": {
+      "allCamps": "Todos os Campos",
+      "allFormations": "Todas as Formações",
+      "allStatuses": "Todos os Status",
+      "campMidland": "Midland",
+      "campDelaware": "Delaware",
+      "formationWolfcamp": "Wolfcamp",
+      "formationBoneSpring": "Bone Spring",
+      "formationSpraberry": "Spraberry"
+    },
+    "view": {
+      "card": "Visualização em Cartão",
+      "table": "Visualização em Tabela"
+    },
+    "actions": {
+      "resetDemo": "Reiniciar Demo",
+      "resettingDemo": "Reiniciando...",
+      "triggerFault": "Acionar Falha"
+    },
+    "simulationDialog": {
+      "title": "Acionar Nova Simulação de Falha",
+      "description": "Selecione um poço, peça e tipo de falha para simular um novo evento de falha.",
+      "loading": "Carregando opções de simulação...",
+      "errorPrefix": "Erro: ",
+      "selectWellPlaceholder": "Selecione o poço alvo"
+    },
+    "toasts": {
+      "fetchErrorTitle": "Erro",
+      "fetchErrorDescription": "Falha ao carregar poços e peças",
+      "faultCreatedTitle": "Falha Criada",
+      "faultCreatedDescription": "A falha foi simulada com sucesso.",
+      "faultErrorTitle": "Erro",
+      "faultErrorDescription": "Falha ao criar falha",
+      "resetSuccessTitle": "Demo Reiniciado",
+      "resetSuccessDescription": "Os dados de demonstração foram reiniciados com sucesso.",
+      "resetErrorTitle": "Erro",
+      "resetErrorDescription": "Falha ao reiniciar demo"
+    }
+  },
+  "languageName": "Português",
+  "faultSimulationForm": {
+    "targetWell": "Poço Alvo",
+    "partPlaceholder": "Selecione uma peça",
+    "faultTypePlaceholder": "Selecione um tipo de falha",
+    "description": "Descrição (Opcional)",
+    "descriptionPlaceholder": "Adicione detalhes relevantes sobre a falha simulada...",
+    "triggerButton": "Acionar Falha",
+    "triggeringButton": "Acionando Falha...",
+    "validationError": {
+      "title": "Erro de Validação",
+      "description": "Por favor, selecione uma peça e tipo de falha para o poço atual."
+    },
+    "success": {
+      "title": "Sucesso",
+      "description": "Falha foi acionada com sucesso"
+    },
+    "error": {
+      "title": "Erro",
+      "description": "Falha ao acionar falha"
+    },
+    "noParts": "Não há peças disponíveis para simulação de falha.",
+    "faultTypeWearAndTear": "Desgaste",
+    "faultTypeBlockage": "Bloqueio",
+    "faultTypeLeakage": "Vazamento",
+    "faultTypeElectricalFailure": "Falha Elétrica",
+    "faultTypeOther": "Outro",
+    "severity": {
+      "low": "Baixa",
+      "medium": "Média",
+      "high": "Alta",
+      "critical": "Crítica"
+    }
+  },
+  "faultHistory": {
+    "timestampHeader": "Data e Hora",
+    "typeHeader": "Tipo",
+    "partHeader": "Peça",
+    "descriptionHeader": "Descrição",
+    "severityHeader": "Severidade",
+    "statusHeader": "Status",
+    "noFaultHistory": "Nenhum histórico de falhas disponível",
+    "detailsTitle": "Detalhes da Falha",
+    "noDescription": "Nenhuma descrição fornecida",
+    "partIdLabel": "ID da Peça",
+    "severityLabel": "Severidade",
+    "faultIdLabel": "ID da Falha",
+    "wellIdLabel": "ID do Poço"
+  },
+  "chat": {
+    "title": "Assistente IA",
+    "placeholder": "Digite sua mensagem ou /search ...",
+    "noHistory": "Ainda não há histórico de conversa para este poço. Comece a conversar!",
+    "searchingFaults": "Buscando falhas relevantes...",
+    "searchError": "Erro de Busca",
+    "searchErrorMissingQuery": "Por favor, forneça uma consulta após /search",
+    "chatError": "Erro de Chat",
+    "failedToSendMessage": "Falha ao enviar mensagem",
+    "searchButtonAriaLabel": "Buscar falhas similares",
+    "sendButtonAriaLabel": "Enviar mensagem"
+  }
+} 

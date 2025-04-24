@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   Select,
@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/use-toast'
 import { useSupabase } from '@/context/supabase-context'
 import { Well, Part } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { useTranslations } from 'next-intl'
 
 export type WellFilters = {
   camp?: string | null
@@ -32,6 +33,8 @@ export type WellFilters = {
 }
 
 export function Toolbar() {
+  const t = useTranslations('toolbar');
+  const tStatus = useTranslations('wellStatus');
   const supabase = useSupabase()
   const router = useRouter()
   const pathname = usePathname()
@@ -78,8 +81,8 @@ export function Toolbar() {
         console.error('Error fetching data:', err)
         setError(err.message)
         toast({
-          title: 'Error',
-          description: 'Failed to load wells and parts',
+          title: t('toasts.fetchErrorTitle'),
+          description: t('toasts.fetchErrorDescription'),
           variant: 'destructive',
         })
       } finally {
@@ -88,20 +91,17 @@ export function Toolbar() {
     }
 
     fetchData()
-  }, [dialogOpen, toast, supabase])
+  }, [dialogOpen, toast, supabase, t])
 
-  const createQueryString = useCallback(
-    (name: string, value: string | null) => {
-      const params = new URLSearchParams(searchParams)
-      if (value) {
-        params.set(name, value)
-      } else {
-        params.delete(name)
-      }
-      return params.toString()
-    },
-    [searchParams]
-  )
+  const createQueryString = (name: string, value: string | null) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (value) {
+      params.set(name, value)
+    } else {
+      params.delete(name)
+    }
+    return params.toString()
+  }
 
   const updateFilter = (name: keyof WellFilters, value: string) => {
     const queryString = createQueryString(name, value === 'all' ? null : value)
@@ -131,12 +131,12 @@ export function Toolbar() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.details || 'Failed to create fault')
+        throw new Error(errorData.details || t('toasts.faultErrorDescription'))
       }
 
       toast({
-        title: 'Fault Created',
-        description: 'The fault has been successfully simulated.',
+        title: t('toasts.faultCreatedTitle'),
+        description: t('toasts.faultCreatedDescription'),
       })
       
       setDialogOpen(false)
@@ -145,8 +145,8 @@ export function Toolbar() {
     } catch (error: any) {
       console.error('Error creating fault:', error)
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to create fault',
+        title: t('toasts.faultErrorTitle'),
+        description: error.message || t('toasts.faultErrorDescription'),
         variant: 'destructive',
       })
     } finally {
@@ -161,12 +161,12 @@ export function Toolbar() {
 
       if (error) {
         console.error('Error resetting demo data:', error);
-        throw new Error(error.message || 'Failed to reset demo data');
+        throw new Error(error.message || t('toasts.resetErrorDescription'));
       }
 
       toast({
-        title: 'Demo Reset',
-        description: 'The demo data has been successfully reset.',
+        title: t('toasts.resetSuccessTitle'),
+        description: t('toasts.resetSuccessDescription'),
       });
 
       // Refresh the page to reflect changes
@@ -175,8 +175,8 @@ export function Toolbar() {
     } catch (error: any) {
       console.error('Error resetting demo:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to reset demo',
+        title: t('toasts.resetErrorTitle'),
+        description: error.message || t('toasts.resetErrorDescription'),
         variant: 'destructive',
       });
     } finally {
@@ -192,12 +192,12 @@ export function Toolbar() {
           defaultValue={searchParams.get('camp') || 'all'}
         >
           <SelectTrigger className="w-[180px] text-sm">
-            <SelectValue placeholder="All Camps" />
+            <SelectValue placeholder={t('filters.allCamps')} />
           </SelectTrigger>
           <SelectContent className="bg-white text-sm">
-            <SelectItem value="all">All Camps</SelectItem>
-            <SelectItem value="Midland">Midland</SelectItem>
-            <SelectItem value="Delaware">Delaware</SelectItem>
+            <SelectItem value="all">{t('filters.allCamps')}</SelectItem>
+            <SelectItem value="Midland">{t('filters.campMidland')}</SelectItem>
+            <SelectItem value="Delaware">{t('filters.campDelaware')}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -206,13 +206,13 @@ export function Toolbar() {
           defaultValue={searchParams.get('formation') || 'all'}
         >
           <SelectTrigger className="w-[180px] text-sm">
-            <SelectValue placeholder="All Formations" />
+            <SelectValue placeholder={t('filters.allFormations')} />
           </SelectTrigger>
           <SelectContent className="bg-white text-sm">
-            <SelectItem value="all">All Formations</SelectItem>
-            <SelectItem value="Wolfcamp">Wolfcamp</SelectItem>
-            <SelectItem value="Bone Spring">Bone Spring</SelectItem>
-            <SelectItem value="Spraberry">Spraberry</SelectItem>
+            <SelectItem value="all">{t('filters.allFormations')}</SelectItem>
+            <SelectItem value="Wolfcamp">{t('filters.formationWolfcamp')}</SelectItem>
+            <SelectItem value="Bone Spring">{t('filters.formationBoneSpring')}</SelectItem>
+            <SelectItem value="Spraberry">{t('filters.formationSpraberry')}</SelectItem>
           </SelectContent>
         </Select>
 
@@ -221,13 +221,13 @@ export function Toolbar() {
           defaultValue={searchParams.get('status') || 'all'}
         >
           <SelectTrigger className="w-[180px] text-sm">
-            <SelectValue placeholder="All Statuses" />
+            <SelectValue placeholder={t('filters.allStatuses')} />
           </SelectTrigger>
           <SelectContent className="bg-white text-sm">
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="Operational">Operational</SelectItem>
-            <SelectItem value="Fault">Fault</SelectItem>
-            <SelectItem value="Pending Repair">Pending Repair</SelectItem>
+            <SelectItem value="all">{t('filters.allStatuses')}</SelectItem>
+            <SelectItem value="Operational">{tStatus('operational')}</SelectItem>
+            <SelectItem value="Fault">{tStatus('fault')}</SelectItem>
+            <SelectItem value="Pending Repair">{tStatus('pendingrepair')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -240,7 +240,7 @@ export function Toolbar() {
           className="gap-2"
         >
           <LayoutGrid className="h-4 w-4" />
-          Card View
+          {t('view.card')}
         </Button>
         <Button
           variant={currentView === 'table' ? 'secondary' : 'ghost'} 
@@ -249,7 +249,7 @@ export function Toolbar() {
           className="gap-2"
         >
           <List className="h-4 w-4" />
-          Table View
+          {t('view.table')}
         </Button>
       </div>
 
@@ -262,7 +262,7 @@ export function Toolbar() {
           className="gap-2"
         >
           <RotateCcw className={cn("h-4 w-4", isResetting && "animate-spin")} />
-          {isResetting ? 'Resetting...' : 'Reset Demo'}
+          {isResetting ? t('actions.resettingDemo') : t('actions.resetDemo')}
         </Button>
       </div>
 
@@ -276,21 +276,21 @@ export function Toolbar() {
         <DialogTrigger asChild>
           <Button variant="destructive" className="gap-2 hover:bg-red-600 border">
             <AlertTriangle className="h-4 w-4" />
-            Trigger Fault
+            {t('actions.triggerFault')}
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px] shadow-lg bg-white">
           <DialogHeader>
-            <DialogTitle>Trigger New Fault Simulation</DialogTitle>
+            <DialogTitle>{t('simulationDialog.title')}</DialogTitle>
             <DialogDescription>
-              Select a well, part, and fault type to simulate a new fault event.
+              {t('simulationDialog.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto p-1 space-y-4">
             {isLoading ? (
-              <p>Loading simulation options...</p>
+              <p>{t('simulationDialog.loading')}</p>
             ) : error ? (
-              <p className="text-red-500">Error: {error}</p>
+              <p className="text-red-500">{t('simulationDialog.errorPrefix')}{error}</p>
             ) : (
               <>
                 {/* Well Selector specific to the Toolbar Dialog */}
@@ -302,7 +302,7 @@ export function Toolbar() {
                   }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select target well" />
+                    <SelectValue placeholder={t('simulationDialog.selectWellPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
                     {wells.map((well) => (

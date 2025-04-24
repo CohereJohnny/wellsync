@@ -22,7 +22,8 @@
     "toastFaultCreatedTitle": "Fault Created",
     "toastFaultCreatedDescription": "The fault has been successfully simulated for this well.",
     "toastFaultErrorTitle": "Error",
-    "toastFaultErrorDescription": "Failed to create fault for this well"
+    "toastFaultErrorDescription": "Failed to create fault for this well",
+    "aiAssistantTitle": "AI Assistant"
   },
   "wellStatus": {
     "operational": "Operational",
@@ -158,5 +159,17 @@
     "severityLabel": "Severity",
     "faultIdLabel": "Fault ID",
     "wellIdLabel": "Well ID"
+  },
+  "chat": {
+    "title": "AI Assistant",
+    "placeholder": "Type your message or /search ...",
+    "noHistory": "No conversation history for this well yet. Start chatting!",
+    "searchingFaults": "Searching relevant faults...",
+    "searchError": "Search Error",
+    "searchErrorMissingQuery": "Please provide a query after /search",
+    "chatError": "Chat Error",
+    "failedToSendMessage": "Failed to send message",
+    "searchButtonAriaLabel": "Search similar faults",
+    "sendButtonAriaLabel": "Send message"
   }
 } 

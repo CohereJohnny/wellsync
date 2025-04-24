@@ -18,8 +18,11 @@ export default function I18nClientProvider({ children }: I18nClientProviderProps
 
   useEffect(() => {
     if (i18n.language !== locale) {
-      i18n.changeLanguage(locale).catch(err => {
-        console.error(`[I18nClientProvider Effect] Error changing language:`, err);
+      console.log(`[I18nClientProvider] Changing language from ${i18n.language} to ${locale}`);
+      i18n.changeLanguage(locale).then(() => {
+        console.log(`[I18nClientProvider] Successfully changed language to ${i18n.language}`);
+      }).catch(err => {
+        console.error(`[I18nClientProvider] Error changing language:`, err);
       });
     }
   }, [locale]);

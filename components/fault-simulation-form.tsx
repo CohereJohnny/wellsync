@@ -124,17 +124,19 @@ export function FaultSimulationForm({
         </SelectTrigger>
         <SelectContent className="bg-white">
           {FAULT_TYPES.map((faultType) => {
-            // Construct the translation key dynamically
-            const translationKey = `faultType${faultType.key.charAt(0).toUpperCase() + faultType.key.slice(1)}`
+            // Convert snake_case to camelCase for translation key
+            const camelCaseKey = faultType.key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+            // Construct the translation key with camelCase
+            const translationKey = `faultType${camelCaseKey.charAt(0).toUpperCase() + camelCaseKey.slice(1)}`;
             // Get the translated name
-            const translatedName = t(translationKey)
+            const translatedName = t(translationKey);
             // Get the translated severity
-            const translatedSeverity = t(`severity.${faultType.severity}`)
+            const translatedSeverity = t(`severity.${faultType.severity}`);
             return (
               <SelectItem key={faultType.key} value={faultType.key}>
                 {translatedName} ({translatedSeverity})
               </SelectItem>
-            )
+            );
           })}
         </SelectContent>
       </Select>

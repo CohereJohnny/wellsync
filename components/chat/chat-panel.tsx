@@ -14,6 +14,7 @@ import type { Message } from '@/lib/stores/chat-store'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useSupabase } from '@/context/supabase-context'
 import type { RealtimeChannel } from '@supabase/supabase-js'
+import { useTranslations } from 'next-intl'
 
 interface ChatPanelProps {
   className?: string
@@ -21,6 +22,7 @@ interface ChatPanelProps {
 }
 
 export function ChatPanel({ className, wellId }: ChatPanelProps) {
+  const t = useTranslations('chat') // Initialize translation hook with namespace
   const {
     messages,
     isLoading,
@@ -165,12 +167,12 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
 
     } catch (error) {
       console.error('handleSearch: Error:', error);
-      const message = error instanceof Error ? error.message : 'Search failed';
-      setError(message);
+      const errorMessage = error instanceof Error ? error.message : 'Search failed';
+      setError(errorMessage);
       toast({
         variant: 'destructive',
-        title: 'Search Error',
-        description: message,
+        title: t('searchError'),
+        description: errorMessage,
       });
     } finally {
       setIsSearching(false);
@@ -194,7 +196,11 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
         handleSearch(searchQuery); // Call the search handler
       } else {
         // Show toast or message indicating search query is missing
-        toast({ title: "Search Error", description: "Please provide a query after /search", variant: "destructive" });
+        toast({ 
+          title: t('searchError'), 
+          description: t('searchErrorMissingQuery'), 
+          variant: "destructive" 
+        });
       }
     } else {
       // --- Existing Chat Completion Logic ---
@@ -248,12 +254,12 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
         addMessage(wellId, { role: 'assistant', content: data.content, wellId });
       } catch (error) {
         console.error('handleSubmit: Failed to send message:', error);
-        const message = error instanceof Error ? error.message : 'Failed to send message';
-        setError(message);
+        const errorMessage = error instanceof Error ? error.message : t('failedToSendMessage');
+        setError(errorMessage);
         toast({
             variant: 'destructive',
-            title: 'Chat Error',
-            description: message,
+            title: t('chatError'),
+            description: errorMessage,
         });
          // Optional: Remove the user message if the API call failed?
         // Consider state management implications here.
@@ -306,7 +312,7 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
             </div>
           ) : wellMessages.length === 0 ? (
             <p className="text-center text-muted-foreground text-sm p-4">
-              No conversation history for this well yet. Start chatting!
+              {t('noHistory')}
             </p>
           ) : (
             wellMessages.map((message: Message, index: number) => (
@@ -332,7 +338,7 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
             <div className="flex items-center justify-center p-4">
                 <div className="flex items-center space-x-2 text-muted-foreground">
                     <Search className="h-4 w-4 animate-spin" />
-                    <span>Searching relevant faults...</span>
+                    <span>{t('searchingFaults')}</span>
                 </div>
             </div>
           )}
@@ -349,7 +355,7 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
         <div className="relative flex-grow">
           <Input
             type="text"
-            placeholder="Type your message or /search ..."
+            placeholder={t('placeholder')}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={isLoading || isSearching}
@@ -360,7 +366,7 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
               onClick={handleSearchButtonClick}
               disabled={isLoading || isSearching || !input.trim()}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700 disabled:opacity-50"
-              aria-label="Search similar faults"
+              aria-label={t('searchButtonAriaLabel')}
           >
               <Search className="h-3 w-3" />
           </button>
@@ -370,7 +376,7 @@ export function ChatPanel({ className, wellId }: ChatPanelProps) {
             disabled={isLoading || isSearching || !input.trim()}
             className="px-2 h-8"
             size="sm"
-            aria-label="Send message"
+            aria-label={t('sendButtonAriaLabel')}
          >
           <ArrowRight className="h-4 w-4" />
         </Button>

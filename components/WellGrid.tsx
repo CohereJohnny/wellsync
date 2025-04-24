@@ -1,14 +1,18 @@
 "use client"; // Required for fetching data client-side with useEffect
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import WellCard from './WellCard';
 import { useSupabase } from '@/context/supabase-context'; // Import the hook
 import { Well } from '@/lib/types'; // Import Well type
 import type { WellFilters } from './toolbar';
-import { RealtimeChannel, RealtimeChannelSendResponse } from '@supabase/supabase-js';
+import { RealtimeChannel } from '@supabase/supabase-js';
 import { useTranslations } from 'next-intl';
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { RefreshCcw, Wifi, WifiOff } from 'lucide-react';
 
 // Define subscription status types
 type SubscriptionStatus = 'initializing' | 'connected' | 'error' | null;
@@ -25,13 +29,29 @@ export default function WellGrid() {
   const searchParams = useSearchParams();
   const t = useTranslations('wellGrid');
   const tStatus = useTranslations('wellStatus');
+  const { toast } = useToast();
 
   // State for subscription management
   const [retryCount, setRetryCount] = useState(0);
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus>('initializing');
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  const initialLoadRef = useRef(true);
+
+  // Get individual filter values to avoid recreating filters object on every render
+  const campFilter = searchParams.get('camp');
+  const formationFilter = searchParams.get('formation');
+  const statusFilter = searchParams.get('status');
+
+  // Memoize the filters object 
+  const filters = useMemo<WellFilters>(() => ({
+    camp: campFilter,
+    formation: formationFilter,
+    status: statusFilter,
+  }), [campFilter, formationFilter, statusFilter]);
 
   // Function to fetch wells with filters
   const fetchWells = useCallback(async () => {
+    console.log('Fetching wells with filters:', filters);
     setIsLoading(true);
     setError(null);
     try {
@@ -41,26 +61,22 @@ export default function WellGrid() {
         .order('name', { ascending: true });
 
       // Apply filters if they exist and are not 'all'
-      const camp = searchParams.get('camp');
-      const formation = searchParams.get('formation');
-      const status = searchParams.get('status');
-
-      if (camp && camp !== 'all') {
+      if (filters.camp && filters.camp !== 'all') {
         // Capitalize first letter for database query
-        query = query.eq('camp', camp.charAt(0).toUpperCase() + camp.slice(1));
+        query = query.eq('camp', filters.camp.charAt(0).toUpperCase() + filters.camp.slice(1));
       }
-      if (formation && formation !== 'all') {
+      if (filters.formation && filters.formation !== 'all') {
         // Handle hyphenated values and capitalize first letter
-        const formattedFormation = formation === 'bone-spring'
+        const formattedFormation = filters.formation === 'bone-spring'
           ? 'Bone Spring'
-          : formation.charAt(0).toUpperCase() + formation.slice(1);
+          : filters.formation.charAt(0).toUpperCase() + filters.formation.slice(1);
         query = query.eq('formation', formattedFormation);
       }
-      if (status && status !== 'all') {
+      if (filters.status && filters.status !== 'all') {
         // Handle hyphenated values and capitalize first letter
-        const formattedStatus = status === 'pending-repair'
+        const formattedStatus = filters.status === 'pending-repair'
           ? 'Pending Repair'
-          : status.charAt(0).toUpperCase() + status.slice(1);
+          : filters.status.charAt(0).toUpperCase() + filters.status.slice(1);
         query = query.eq('status', formattedStatus);
       }
 
@@ -79,8 +95,9 @@ export default function WellGrid() {
       setWells([]);
     } finally {
       setIsLoading(false);
+      initialLoadRef.current = false;
     }
-  }, [searchParams, supabase, t]);
+  }, [supabase, filters.camp, filters.formation, filters.status, t]);
 
   // Handle real-time updates
   const handleRealtimeUpdate = useCallback((payload: any) => {
@@ -113,10 +130,17 @@ export default function WellGrid() {
   }, []);
 
   // Set up realtime subscription with retry logic
-  const setupRealtimeSubscription = useCallback(async () => {
+  const setupRealtimeSubscription = useCallback(() => {
+    console.log('Setting up realtime subscription');
+    setSubscriptionStatus('initializing');
+    
     try {
-      setSubscriptionStatus('initializing');
+      // Clean up any existing channel
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+      }
       
+      // Create new channel
       const channel = supabase
         .channel('wells-grid-changes')
         .on(
@@ -138,42 +162,55 @@ export default function WellGrid() {
               console.log(`Retrying subscription (${retryCount + 1}/${MAX_RETRIES})...`);
               setTimeout(() => {
                 setRetryCount(prev => prev + 1);
-                supabase.removeChannel(channel);
+                if (channelRef.current) {
+                  supabase.removeChannel(channelRef.current);
+                  channelRef.current = null;
+                }
                 setupRealtimeSubscription();
               }, RETRY_DELAY);
+            } else {
+              console.error(`Max retry attempts (${MAX_RETRIES}) reached. Giving up.`);
+              toast({
+                title: t('realtimeError'),
+                description: t('realtimeDisconnected'),
+                variant: 'destructive',
+              });
             }
           }
         });
-
-      // Cleanup function to remove the channel subscription
-      return () => {
-        supabase.removeChannel(channel);
-      };
+      
+      // Store channel reference for later cleanup
+      channelRef.current = channel;
     } catch (err) {
       console.error('Error setting up realtime subscription:', err);
       setSubscriptionStatus('error');
-      return () => {}; // Return empty cleanup function
     }
-  }, [supabase, handleRealtimeUpdate, retryCount]);
+  }, [supabase, handleRealtimeUpdate, retryCount, t, toast]);
 
-  // Main effect for fetching data and managing subscription lifecycle
+  // Effect for initial data load and subscription setup - runs once
   useEffect(() => {
-    // Initial fetch
+    console.log("Initializing WellGrid");
     fetchWells();
-
-    // Initial subscription setup
     setupRealtimeSubscription();
 
-    // Cleanup function
+    // Cleanup function for subscription
     return () => {
-      console.log("Cleaning up WellGrid subscription...");
-      // Remove the channel if it exists
-      if (supabase.channel('wells-grid-changes')) {
-        supabase.removeChannel(supabase.channel('wells-grid-changes'));
+      console.log("Cleaning up WellGrid subscription");
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
       }
-      setSubscriptionStatus('error'); // Explicitly set status on unmount
     };
-  }, [fetchWells, supabase]); // Only fetchWells and supabase now
+  }, []);  // Empty dependency array intentional - these only run on mount/unmount
+
+  // Separate effect to handle filter changes
+  useEffect(() => {
+    // Skip the initial render since fetchWells is already called in the mount effect
+    if (!initialLoadRef.current) {
+      console.log('Filters changed, re-fetching wells');
+      fetchWells();
+    }
+  }, [filters.camp, filters.formation, filters.status, fetchWells]);
 
   // Loading state
   if (isLoading) {
@@ -189,9 +226,13 @@ export default function WellGrid() {
   // Error state
   if (error) {
     return (
-      <div className="p-4 bg-red-50 text-red-600 rounded-lg">
-        <p className="font-medium">{t('errorOccurred')}</p>
-        <p>{error}</p>
+      <div className="flex flex-col items-center justify-center p-8 space-y-4">
+        <h3 className="text-xl font-semibold text-destructive">{t('errorOccurred')}</h3>
+        <p className="text-muted-foreground">{error}</p>
+        <Button onClick={fetchWells} variant="outline" className="mt-4">
+          <RefreshCcw className="mr-2 h-4 w-4" />
+          {t('retry')}
+        </Button>
       </div>
     );
   }
@@ -223,7 +264,7 @@ export default function WellGrid() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
         {wells.map((well) => (
           <WellCard
-            key={`${well.id}-${well.status}-${well.name}`} // Key strategy unchanged for now
+            key={`${well.id}-${well.status}-${well.name}`}
             well={well}
           />
         ))}

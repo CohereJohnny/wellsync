@@ -22,7 +22,8 @@
     "toastFaultCreatedTitle": "Falla Creada",
     "toastFaultCreatedDescription": "La falla ha sido simulada exitosamente para este pozo.",
     "toastFaultErrorTitle": "Error",
-    "toastFaultErrorDescription": "Error al crear falla para este pozo"
+    "toastFaultErrorDescription": "Error al crear falla para este pozo",
+    "aiAssistantTitle": "Asistente IA"
   },
   "wellStatus": {
     "operational": "Operacional",
@@ -152,5 +153,17 @@
     "severityHeader": "Severidad",
     "statusHeader": "Estado",
     "noFaultHistory": "No hay historial de fallas disponible"
+  },
+  "chat": {
+    "title": "Asistente IA",
+    "placeholder": "Escribe tu mensaje o /search ...",
+    "noHistory": "No hay historial de conversación para este pozo. ¡Comienza a chatear!",
+    "searchingFaults": "Buscando fallas relevantes...",
+    "searchError": "Error de Búsqueda",
+    "searchErrorMissingQuery": "Por favor, proporciona una consulta después de /search",
+    "chatError": "Error de Chat",
+    "failedToSendMessage": "No se pudo enviar el mensaje",
+    "searchButtonAriaLabel": "Buscar fallas similares",
+    "sendButtonAriaLabel": "Enviar mensaje"
   }
 } 
