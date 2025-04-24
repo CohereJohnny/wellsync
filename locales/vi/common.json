@@ -171,5 +171,46 @@
     "failedToSendMessage": "Không thể gửi tin nhắn",
     "searchButtonAriaLabel": "Tìm kiếm lỗi tương tự",
     "sendButtonAriaLabel": "Gửi tin nhắn"
+  },
+  "documentation": {
+    "search": {
+      "placeholder": "Tìm kiếm tài liệu...",
+      "noResults": "Không tìm thấy kết quả",
+      "typeToSearch": "Nhập để tìm kiếm tài liệu",
+      "searching": "Đang tìm kiếm...",
+      "keyboardShortcut": "⌘K"
+    },
+    "themes": {
+      "switchToLight": "Chuyển sang chế độ sáng",
+      "switchToDark": "Chuyển sang chế độ tối"
+    },
+    "tableOfContents": {
+      "title": "Trong Trang Này"
+    },
+    "editPage": {
+      "text": "Chỉnh sửa trang này"
+    },
+    "notFound": {
+      "title": "Không tìm thấy trang",
+      "description": "Xin lỗi, chúng tôi không thể tìm thấy trang tài liệu bạn đang tìm kiếm.",
+      "backToHome": "Quay lại Trang Chủ Tài Liệu"
+    },
+    "navigation": {
+      "title": "Tài Liệu",
+      "gettingStarted": "Bắt Đầu",
+      "introduction": "Giới Thiệu",
+      "components": "Các Thành Phần",
+      "apiReference": "Tham Khảo API",
+      "chatApi": "API Trò Chuyện",
+      "ordersApi": "API Đặt Hàng",
+      "dispatchesApi": "API Gửi Hàng",
+      "searchFaultsApi": "API Tìm Kiếm Lỗi",
+      "searchFaultsRpc": "RPC Tìm Kiếm Lỗi",
+      "backendSystems": "Hệ Thống Backend",
+      "semanticSearch": "Tìm Kiếm Ngữ Nghĩa",
+      "toolSchemas": "Sơ Đồ Công Cụ",
+      "resources": "Tài Nguyên",
+      "demoScript": "Kịch Bản Demo"
+    }
   }
 } 

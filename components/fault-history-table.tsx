@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { Fault } from '@/lib/types'
 import {
   Table,
@@ -42,8 +42,8 @@ export function FaultHistoryTable({ faults, isLoading }: FaultHistoryTableProps)
     setIsClient(true)
   }, [])
 
-  // Format timestamp function for both display and sorting
-  const formatTimestamp = (timestamp: string | null) => {
+  // Format timestamp for display
+  const formatTimestamp = useCallback((timestamp: string | null) => {
     if (!timestamp || !isClient) return 'N/A'
     try {
       return new Date(timestamp).toLocaleString()
@@ -51,16 +51,16 @@ export function FaultHistoryTable({ faults, isLoading }: FaultHistoryTableProps)
       console.error("Error formatting timestamp:", e)
       return 'Invalid Date'
     }
-  }
+  }, [isClient])
 
   // Get translated status text
-  const getTranslatedStatus = (status: string): string => {
+  const getTranslatedStatus = useCallback((status: string): string => {
     const lowerStatus = status?.toLowerCase().replace(/\s+/g, '') || ''
     if (lowerStatus === 'operational' || lowerStatus === 'fault' || lowerStatus === 'pendingrepair' || lowerStatus === 'resolved') {
       return tStatus(lowerStatus as 'operational' | 'fault' | 'pendingrepair')
     }
     return status
-  }
+  }, [tStatus])
 
   // Badge styling based on status for consistent colors
   const getBadgeClasses = (status: string) => {
@@ -150,7 +150,7 @@ export function FaultHistoryTable({ faults, isLoading }: FaultHistoryTableProps)
         )
       },
     },
-  ], [t, tStatus])
+  ], [t, formatTimestamp, getTranslatedStatus])
 
   // Initialize TanStack Table
   const table = useReactTable({

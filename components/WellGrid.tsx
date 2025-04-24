@@ -97,7 +97,7 @@ export default function WellGrid() {
       setIsLoading(false);
       initialLoadRef.current = false;
     }
-  }, [supabase, filters.camp, filters.formation, filters.status, t]);
+  }, [supabase, filters, t]);
 
   // Handle real-time updates
   const handleRealtimeUpdate = useCallback((payload: any) => {
@@ -201,7 +201,7 @@ export default function WellGrid() {
         channelRef.current = null;
       }
     };
-  }, []);  // Empty dependency array intentional - these only run on mount/unmount
+  }, [fetchWells, setupRealtimeSubscription, supabase]);
 
   // Separate effect to handle filter changes
   useEffect(() => {

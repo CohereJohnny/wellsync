@@ -71,6 +71,47 @@
     "settings": "Settings",
     "documentation": "Documentation"
   },
+  "documentation": {
+    "search": {
+      "placeholder": "Search documentation...",
+      "noResults": "No results found",
+      "typeToSearch": "Type to search documentation",
+      "searching": "Searching...",
+      "keyboardShortcut": "⌘K"
+    },
+    "themes": {
+      "switchToLight": "Switch to light mode",
+      "switchToDark": "Switch to dark mode"
+    },
+    "tableOfContents": {
+      "title": "On This Page"
+    },
+    "editPage": {
+      "text": "Edit this page"
+    },
+    "notFound": {
+      "title": "Page not found",
+      "description": "Sorry, we couldn't find the documentation page you're looking for.",
+      "backToHome": "Back to Documentation Home"
+    },
+    "navigation": {
+      "title": "Documentation",
+      "gettingStarted": "Getting Started",
+      "introduction": "Introduction",
+      "components": "Components",
+      "apiReference": "API Reference",
+      "chatApi": "Chat API",
+      "ordersApi": "Orders API",
+      "dispatchesApi": "Dispatches API",
+      "searchFaultsApi": "Search Faults API",
+      "searchFaultsRpc": "Search Faults RPC",
+      "backendSystems": "Backend Systems",
+      "semanticSearch": "Semantic Search",
+      "toolSchemas": "Tool Schemas",
+      "resources": "Resources",
+      "demoScript": "Demo Script"
+    }
+  },
   "toolbar": {
     "filters": {
       "allCamps": "All Camps",

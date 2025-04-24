@@ -246,7 +246,7 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 p-4 max-w-7xl mx-auto min-h-[calc(100vh-6rem)]">
+    <div className="flex flex-col lg:flex-row gap-6 p-4 pt-16 max-w-7xl mx-auto min-h-[calc(100vh-6rem)]">
       {/* Left Column: Well Info, Map, Fault History */}
       <div className="flex-1 space-y-6">
         {/* Well Info Card */}
