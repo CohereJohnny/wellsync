@@ -71,6 +71,47 @@
     "settings": "Configurações",
     "documentation": "Documentação"
   },
+  "documentation": {
+    "search": {
+      "placeholder": "Pesquisar documentação...",
+      "noResults": "Nenhum resultado encontrado",
+      "typeToSearch": "Digite para pesquisar documentação",
+      "searching": "Pesquisando...",
+      "keyboardShortcut": "⌘K"
+    },
+    "themes": {
+      "switchToLight": "Mudar para modo claro",
+      "switchToDark": "Mudar para modo escuro"
+    },
+    "tableOfContents": {
+      "title": "Nesta Página"
+    },
+    "editPage": {
+      "text": "Editar esta página"
+    },
+    "notFound": {
+      "title": "Página não encontrada",
+      "description": "Desculpe, não conseguimos encontrar a página de documentação que você está procurando.",
+      "backToHome": "Voltar para a Página Inicial da Documentação"
+    },
+    "navigation": {
+      "title": "Documentação",
+      "gettingStarted": "Começando",
+      "introduction": "Introdução",
+      "components": "Componentes",
+      "apiReference": "Referência de API",
+      "chatApi": "API de Chat",
+      "ordersApi": "API de Pedidos",
+      "dispatchesApi": "API de Despachos",
+      "searchFaultsApi": "API de Busca de Falhas",
+      "searchFaultsRpc": "RPC de Busca de Falhas",
+      "backendSystems": "Sistemas de Backend",
+      "semanticSearch": "Busca Semântica",
+      "toolSchemas": "Esquemas de Ferramentas",
+      "resources": "Recursos",
+      "demoScript": "Script de Demonstração"
+    }
+  },
   "toolbar": {
     "filters": {
       "allCamps": "Todos os Campos",

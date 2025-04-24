@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { Fuel } from 'lucide-react'
 import { LanguageSwitcher } from '../language-switcher'
 import { Toolbar } from "../toolbar" // Import the Toolbar component
+import { ThemeSwitcher } from '@/components/docs/theme-switcher'
 
 const navigationItems = [
   { key: 'dashboard', href: '/' },
@@ -29,6 +30,12 @@ export function MainToolbar() {
   };
 
   const localePrefix = getActiveLocalePrefix();
+  
+  // Check if the current path is the dashboard/home page
+  const isDashboardPage = () => {
+    // Match paths like /en/, /es/, /pt/, etc.
+    return pathname === `${localePrefix}/` || pathname === localePrefix;
+  };
 
   return (
     <>
@@ -63,14 +70,19 @@ export function MainToolbar() {
               })}
             </nav>
 
-            <LanguageSwitcher />
+            <div className="flex items-center space-x-3">
+              <LanguageSwitcher />
+              <ThemeSwitcher />
+            </div>
           </div>
         </div>
       </header>
-      {/* Add the Toolbar component below the navigation */}
-      <div className="pt-16">
-        <Toolbar />
-      </div>
+      {/* Only render the Toolbar on the dashboard/home page */}
+      {isDashboardPage() && (
+        <div className="pt-16">
+          <Toolbar />
+        </div>
+      )}
     </>
   )
 } 

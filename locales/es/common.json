@@ -165,5 +165,46 @@
     "failedToSendMessage": "No se pudo enviar el mensaje",
     "searchButtonAriaLabel": "Buscar fallas similares",
     "sendButtonAriaLabel": "Enviar mensaje"
+  },
+  "documentation": {
+    "search": {
+      "placeholder": "Buscar documentación...",
+      "noResults": "No se encontraron resultados",
+      "typeToSearch": "Escriba para buscar documentación",
+      "searching": "Buscando...",
+      "keyboardShortcut": "⌘K"
+    },
+    "themes": {
+      "switchToLight": "Cambiar a modo claro",
+      "switchToDark": "Cambiar a modo oscuro"
+    },
+    "tableOfContents": {
+      "title": "En Esta Página"
+    },
+    "editPage": {
+      "text": "Editar esta página"
+    },
+    "notFound": {
+      "title": "Página no encontrada",
+      "description": "Lo sentimos, no pudimos encontrar la página de documentación que está buscando.",
+      "backToHome": "Volver a la Página Principal de Documentación"
+    },
+    "navigation": {
+      "title": "Documentación",
+      "gettingStarted": "Comenzar",
+      "introduction": "Introducción",
+      "components": "Componentes",
+      "apiReference": "Referencia de API",
+      "chatApi": "API de Chat",
+      "ordersApi": "API de Pedidos",
+      "dispatchesApi": "API de Despachos",
+      "searchFaultsApi": "API de Búsqueda de Fallas",
+      "searchFaultsRpc": "RPC de Búsqueda de Fallas",
+      "backendSystems": "Sistemas Backend",
+      "semanticSearch": "Búsqueda Semántica",
+      "toolSchemas": "Esquemas de Herramientas",
+      "resources": "Recursos",
+      "demoScript": "Script de Demo"
+    }
   }
 } 

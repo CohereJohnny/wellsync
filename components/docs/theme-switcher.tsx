@@ -23,14 +23,15 @@ export function ThemeSwitcher() {
   return (
     <Button
       variant="ghost"
-      size="icon"
+      size="sm"
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       title={theme === 'dark' ? t('switchToLight') : t('switchToDark')}
+      className="h-8 w-8 p-0"
     >
       {theme === 'dark' ? (
-        <Sun className="h-5 w-5" />
+        <Sun className="h-3.5 w-3.5" />
       ) : (
-        <Moon className="h-5 w-5" />
+        <Moon className="h-3.5 w-3.5" />
       )}
       <span className="sr-only">
         {theme === 'dark' ? t('switchToLight') : t('switchToDark')}

@@ -130,12 +130,16 @@ export function SearchDocs() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full md:w-60 justify-between text-gray-500">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full justify-between text-xs text-gray-500 h-8"
+        >
           <div className="flex items-center">
-            <Search className="mr-2 h-4 w-4" />
+            <Search className="mr-1.5 h-3 w-3" />
             <span>{t('placeholder')}</span>
           </div>
-          <kbd className="hidden md:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground ml-2">
+          <kbd className="hidden md:inline-flex h-4 select-none items-center gap-1 rounded border bg-muted px-1 font-mono text-[9px] font-medium text-muted-foreground">
             {t('keyboardShortcut')}
           </kbd>
         </Button>
@@ -184,7 +188,7 @@ export function SearchDocs() {
             </div>
           ) : query ? (
             <div className="py-8 text-center text-gray-500">
-              <p>{t('noResults')} "{query}"</p>
+              <p>{t('noResults')} &quot;{query}&quot;</p>
             </div>
           ) : (
             <div className="py-8 text-center text-gray-500">

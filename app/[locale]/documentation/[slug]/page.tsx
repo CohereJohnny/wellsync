@@ -7,10 +7,9 @@ import rehypeRaw from 'rehype-raw';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
-import { ChevronLeft, ChevronRight, Edit } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { TableOfContents } from '@/components/docs/table-of-contents';
-import { Button } from '@/components/ui/button';
 
 interface DocPageParams {
   params: {
@@ -55,27 +54,6 @@ async function getDocContent(slug: string): Promise<string | null> {
   }
 }
 
-// Function to generate the GitHub edit URL
-function getEditUrl(slug: string): string {
-  const fileMappings: Record<string, string> = {
-    'components': 'components.md',
-    'api-chat': 'api_chat.md',
-    'api-orders': 'api_orders.md',
-    'api-dispatches': 'api_dispatches.md',
-    'api-search-faults': 'api_search_faults.md',
-    'rpc-search-faults': 'rpc_search_faults.md',
-    'semantic-search-backend': 'semantic_search_backend.md',
-    'tool-schemas': 'tool_schemas.md',
-    'demo-script': 'demo_script.md',
-  };
-
-  const fileName = fileMappings[slug];
-  if (!fileName) return '#';
-
-  // Replace this with your actual GitHub repo URL
-  return `https://github.com/yourusername/wellsync/edit/main/docs/${fileName}`;
-}
-
 // Navigation data for next/previous page links
 const navigationOrder = [
   'components',
@@ -109,9 +87,6 @@ export default async function DocPage({ params }: DocPageParams) {
   const prevTitle = prevSlug ? toTitleCase(prevSlug) : '';
   const nextTitle = nextSlug ? toTitleCase(nextSlug) : '';
 
-  // Get the edit URL
-  const editUrl = getEditUrl(slug);
-
   return (
     <div className="flex flex-col md:flex-row">
       {/* Main content area with markdown */}
@@ -119,19 +94,6 @@ export default async function DocPage({ params }: DocPageParams) {
         <div className="prose prose-blue dark:prose-invert max-w-none">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold mb-6">{toTitleCase(slug)}</h1>
-            
-            {/* Edit this page button */}
-            <a 
-              href={editUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="hidden md:inline-flex"
-            >
-              <Button variant="outline" size="sm" className="gap-2">
-                <Edit className="h-4 w-4" />
-                {t('documentation.editPage.text')}
-              </Button>
-            </a>
           </div>
           
           <div className="markdown-content">

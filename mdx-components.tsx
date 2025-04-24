@@ -1,6 +1,7 @@
 import type { MDXComponents } from 'mdx/types';
 import Image, { ImageProps } from 'next/image';
 import Link from 'next/link';
+import { CodeBlock } from '@/components/docs/code-block';
 
 // This file allows you to provide custom React components
 // to be used in MDX files.
@@ -53,23 +54,26 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       );
     },
     code: ({ children, className }) => {
-      // Handle inline code blocks
+      // Handle inline code blocks - apply specific styles
       if (!className) {
         return <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded font-mono text-sm">{children}</code>;
       }
       
-      // Larger code blocks are handled by rehype-highlight
+      // Block code (has className like language-*) is handled by the `pre` override.
+      // Pass className and children through so rehype-highlight styles apply.
       return (
         <code className={className}>
           {children}
         </code>
       );
     },
-    pre: (props) => (
-      <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md overflow-auto my-4 text-sm">
-        {props.children}
-      </pre>
-    ),
+    pre: ({ children, ...props }) => {
+      // Directly render CodeBlock. It handles its own isolation with not-prose.
+      // Pass only the children prop to CodeBlock, as it's the only one defined in CodeBlockProps.
+      // The 'children' prop here contains the actual <code className="language-..."> element.
+      if (!children) return null; // Handle case where pre might be empty
+      return <CodeBlock>{children}</CodeBlock>;
+    },
     // Add your custom components
     ...components,
   };
