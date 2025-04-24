@@ -49,4 +49,4 @@ Create the well detail page structure and display fundamental well information.
 - Added placeholder for chat panel (to be implemented in future sprint)
 - Used Shadcn UI components (Card, Badge) for consistent styling
 - Added navigation from well cards to detail page
-- Added back button for improved user experience 
+- Added back button for improved user experience
