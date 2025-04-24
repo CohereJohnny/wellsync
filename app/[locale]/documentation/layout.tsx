@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Menu, X, ChevronDown, ChevronRight, FileText, Book } from 'lucide-react';
+import { SearchDocs } from '@/components/docs/search-docs';
+import { ThemeSwitcher } from '@/components/docs/theme-switcher';
 
 interface DocumentationLayoutProps {
   children: React.ReactNode;
@@ -89,9 +91,17 @@ export default function DocumentationLayout({ children }: DocumentationLayoutPro
         }`}
       >
         <div className="h-full px-4 py-6 overflow-y-auto">
-          <div className="flex items-center mb-8 px-2">
-            <Book className="h-6 w-6 text-blue-500 mr-2" />
-            <h1 className="text-xl font-bold text-gray-800 dark:text-white">{t('documentation')}</h1>
+          <div className="flex items-center justify-between mb-6 px-2">
+            <div className="flex items-center">
+              <Book className="h-6 w-6 text-blue-500 mr-2" />
+              <h1 className="text-xl font-bold text-gray-800 dark:text-white">{t('documentation')}</h1>
+            </div>
+            <ThemeSwitcher />
+          </div>
+          
+          {/* Search component */}
+          <div className="mb-6 px-2">
+            <SearchDocs />
           </div>
 
           <nav className="space-y-1">

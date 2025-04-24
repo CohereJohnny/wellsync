@@ -71,6 +71,30 @@
     "settings": "Settings",
     "documentation": "Documentation"
   },
+  "documentation": {
+    "search": {
+      "placeholder": "Search documentation...",
+      "noResults": "No results found",
+      "typeToSearch": "Type to search documentation",
+      "searching": "Searching...",
+      "keyboardShortcut": "⌘K"
+    },
+    "themes": {
+      "switchToLight": "Switch to light mode",
+      "switchToDark": "Switch to dark mode"
+    },
+    "tableOfContents": {
+      "title": "On This Page"
+    },
+    "editPage": {
+      "text": "Edit this page"
+    },
+    "notFound": {
+      "title": "Page not found",
+      "description": "Sorry, we couldn't find the documentation page you're looking for.",
+      "backToHome": "Back to Documentation Home"
+    }
+  },
   "toolbar": {
     "filters": {
       "allCamps": "All Camps",
