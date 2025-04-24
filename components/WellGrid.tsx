@@ -7,34 +7,32 @@ import { useSupabase } from '@/context/supabase-context'; // Import the hook
 import { Well } from '@/lib/types'; // Import Well type
 import type { WellFilters } from './toolbar';
 import { RealtimeChannel, RealtimeChannelSendResponse } from '@supabase/supabase-js';
+import { useTranslations } from 'next-intl';
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Define subscription status types
-type SubscriptionStatus = 'SUBSCRIBED' | 'CONNECTING' | 'RETRYING' | 'FAILED' | 'CLOSED' | 'TIMED_OUT' | 'CHANNEL_ERROR';
+type SubscriptionStatus = 'initializing' | 'connected' | 'error' | null;
 
 // Constants for retry logic
-const MAX_RETRIES = 5;
-const INITIAL_RETRY_DELAY_MS = 2000;
-const BACKOFF_FACTOR = 2;
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 2000; // 2 seconds
 
 export default function WellGrid() {
   const supabase = useSupabase(); // Get client from context
   const [wells, setWells] = useState<Well[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
+  const t = useTranslations('wellGrid');
+  const tStatus = useTranslations('wellStatus');
 
   // State for subscription management
-  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus>('CONNECTING');
-  const retryAttemptRef = useRef<number>(0);
-  const retryTimerIdRef = useRef<NodeJS.Timeout | null>(null);
-  const channelRef = useRef<RealtimeChannel | null>(null);
-
-  // Forward declare setup function ref for attemptResubscribe dependency
-  const setupRealtimeSubscriptionRef = useRef<() => void>(() => {});
+  const [retryCount, setRetryCount] = useState(0);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus>('initializing');
 
   // Function to fetch wells with filters
   const fetchWells = useCallback(async () => {
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
     try {
       let query = supabase
@@ -77,108 +75,86 @@ export default function WellGrid() {
       }
     } catch (err: any) {
       console.error("Error fetching wells:", err);
-      setError("Failed to load well data. Please try again later.");
+      setError(t('errorFetchingWells'));
+      setWells([]);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }, [searchParams, supabase]);
+  }, [searchParams, supabase, t]);
 
   // Handle real-time updates
   const handleRealtimeUpdate = useCallback((payload: any) => {
-    // console.log('Realtime payload received:', payload); // Keep for debugging if needed
-    if (payload.eventType === 'DELETE') {
-        setWells(currentWells => currentWells.filter(well => well.id !== payload.old.id));
-    } else {
-        setWells(currentWells => {
-            const isExisting = currentWells.some(well => well.id === payload.new.id);
-            if (isExisting) {
-                // Update existing well
-                return currentWells.map(well => {
-                    if (well.id === payload.new.id) {
-                        return { ...well, ...payload.new }; // Update with new data
-                    }
-                    return well;
-                });
-            } else {
-                // Add new well (and sort to maintain order)
-                const newWells = [...currentWells, payload.new as Well];
-                newWells.sort((a, b) => a.name.localeCompare(b.name));
-                return newWells;
-            }
-        });
-    }
-  }, [setWells]); // Dependency only on setWells
-
-  // Define attemptResubscribe FIRST
-  const attemptResubscribe = useCallback(() => {
-    if (retryTimerIdRef.current) {
-      clearTimeout(retryTimerIdRef.current);
-      retryTimerIdRef.current = null;
-    }
-
-    retryAttemptRef.current += 1;
-
-    if (retryAttemptRef.current <= MAX_RETRIES) {
-      const delay = INITIAL_RETRY_DELAY_MS * (BACKOFF_FACTOR ** (retryAttemptRef.current - 1));
-      console.warn(`Realtime subscription failed. Retrying attempt ${retryAttemptRef.current}/${MAX_RETRIES} in ${delay}ms...`);
-      setSubscriptionStatus('RETRYING');
-
-      retryTimerIdRef.current = setTimeout(() => {
-        // Call the setup function via its ref
-        setupRealtimeSubscriptionRef.current();
-      }, delay);
-    } else {
-      console.error(`Realtime subscription failed after ${MAX_RETRIES} retries. Giving up.`);
-      setSubscriptionStatus('FAILED');
-    }
-  }, []); // No dependencies needed now
-
-  // Define setupRealtimeSubscription SECOND
-  const setupRealtimeSubscription = useCallback(() => {
-    if (channelRef.current) {
-      supabase.removeChannel(channelRef.current)
-        .catch(err => console.error("Error removing previous channel:", err));
-      channelRef.current = null;
-    }
-
-    setSubscriptionStatus('CONNECTING');
-    const newChannel = supabase.channel('wells_channel');
-
-    newChannel
-      .on(
-        'postgres_changes',
-        {
-          event: '*', // Listen for all events (INSERT, UPDATE, DELETE)
-          schema: 'public',
-          table: 'wells'
-        },
-        handleRealtimeUpdate // Use the stable callback
-      )
-      .subscribe((status, err) => {
-        console.log('Realtime subscription status:', status, err || '');
-        if (status === 'SUBSCRIBED') {
-          setSubscriptionStatus('SUBSCRIBED');
-          retryAttemptRef.current = 0;
-          if (retryTimerIdRef.current) {
-            clearTimeout(retryTimerIdRef.current);
-            retryTimerIdRef.current = null;
-          }
-        } else if (status === 'TIMED_OUT') {
-          setSubscriptionStatus('TIMED_OUT');
-          attemptResubscribe();
-        } else if (status === 'CHANNEL_ERROR') {
-          setSubscriptionStatus('CHANNEL_ERROR');
-          console.error('Realtime channel error:', err);
-          attemptResubscribe();
-        } else if (status === 'CLOSED') {
-          setSubscriptionStatus('CLOSED');
+    console.log('Realtime well change received:', payload);
+    
+    // Handle new well added
+    if (payload.eventType === 'INSERT') {
+      setWells(currentWells => {
+        if (currentWells.some(w => w.id === payload.new.id)) {
+          return currentWells;
         }
+        return [...currentWells, payload.new].sort((a, b) => 
+          (a.name || '').localeCompare(b.name || ''));
       });
-    channelRef.current = newChannel;
-  }, [supabase, handleRealtimeUpdate, attemptResubscribe]); // Now depends on attemptResubscribe
+    } 
+    // Handle well updated
+    else if (payload.eventType === 'UPDATE') {
+      setWells(currentWells => 
+        currentWells.map(well => 
+          well.id === payload.new.id ? { ...well, ...payload.new } : well
+        )
+      );
+    } 
+    // Handle well deleted
+    else if (payload.eventType === 'DELETE') {
+      setWells(currentWells => 
+        currentWells.filter(well => well.id !== payload.old.id)
+      );
+    }
+  }, []);
 
-  // Update the ref AFTER setupRealtimeSubscription is defined
-  setupRealtimeSubscriptionRef.current = setupRealtimeSubscription;
+  // Set up realtime subscription with retry logic
+  const setupRealtimeSubscription = useCallback(async () => {
+    try {
+      setSubscriptionStatus('initializing');
+      
+      const channel = supabase
+        .channel('wells-grid-changes')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'wells' },
+          handleRealtimeUpdate
+        )
+        .subscribe((status, err) => {
+          if (status === 'SUBSCRIBED') {
+            console.log('Successfully subscribed to wells changes');
+            setSubscriptionStatus('connected');
+            setRetryCount(0); // Reset retry count on success
+          } else if (status === 'CHANNEL_ERROR' || err) {
+            console.error('Subscription error:', status, err);
+            setSubscriptionStatus('error');
+            
+            // Implement retry logic
+            if (retryCount < MAX_RETRIES) {
+              console.log(`Retrying subscription (${retryCount + 1}/${MAX_RETRIES})...`);
+              setTimeout(() => {
+                setRetryCount(prev => prev + 1);
+                supabase.removeChannel(channel);
+                setupRealtimeSubscription();
+              }, RETRY_DELAY);
+            }
+          }
+        });
+
+      // Cleanup function to remove the channel subscription
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    } catch (err) {
+      console.error('Error setting up realtime subscription:', err);
+      setSubscriptionStatus('error');
+      return () => {}; // Return empty cleanup function
+    }
+  }, [supabase, handleRealtimeUpdate, retryCount]);
 
   // Main effect for fetching data and managing subscription lifecycle
   useEffect(() => {
@@ -186,75 +162,72 @@ export default function WellGrid() {
     fetchWells();
 
     // Initial subscription setup
-    setupRealtimeSubscriptionRef.current();
+    setupRealtimeSubscription();
 
     // Cleanup function
     return () => {
       console.log("Cleaning up WellGrid subscription...");
-      // Clear any pending retry timer
-      if (retryTimerIdRef.current) {
-        clearTimeout(retryTimerIdRef.current);
-        retryTimerIdRef.current = null;
-      }
       // Remove the channel if it exists
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current)
-            .then((status: RealtimeChannelSendResponse) => console.log("Channel removal status:", status))
-            .catch(err => console.error("Error removing channel on cleanup:", err));
-        channelRef.current = null;
+      if (supabase.channel('wells-grid-changes')) {
+        supabase.removeChannel(supabase.channel('wells-grid-changes'));
       }
-      setSubscriptionStatus('CLOSED'); // Explicitly set status on unmount
+      setSubscriptionStatus('error'); // Explicitly set status on unmount
     };
   }, [fetchWells, supabase]); // Only fetchWells and supabase now
 
-  // Render loading state
-  if (loading) {
+  // Loading state
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-10">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-        {/* Optional: Indicate connecting status */}
-        {subscriptionStatus === 'CONNECTING' && <span className="ml-2 text-sm text-gray-500">Connecting...</span>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Skeleton key={i} className="h-36 rounded-lg" />
+        ))}
       </div>
     );
   }
 
-  // Render error state
+  // Error state
   if (error) {
     return (
-      <div className="text-center p-10">
-        <div className="text-red-600 mb-2">⚠️ Error</div>
-        <div className="text-sm text-gray-600">{error}</div>
-        {/* Indicate failed subscription status */}
-        {subscriptionStatus === 'FAILED' && <div className="text-xs text-orange-500 mt-1">Real-time updates failed.</div>}
+      <div className="p-4 bg-red-50 text-red-600 rounded-lg">
+        <p className="font-medium">{t('errorOccurred')}</p>
+        <p>{error}</p>
       </div>
     );
   }
 
-  // Render empty state
+  // Empty state
   if (wells.length === 0) {
     return (
-      <div className="text-center p-10">
-        <div className="text-gray-600 mb-2">No wells found</div>
-        <div className="text-sm text-gray-500">
-          Try adjusting your filters or viewing all wells
-        </div>
+      <div className="p-8 text-center">
+        <p className="text-lg font-medium text-gray-600">{t('noWellsFound')}</p>
+        <p className="text-gray-500">{t('tryAdjustingFilters')}</p>
+      </div>
+    );
+  }
+
+  // Subscription status indicator
+  let subscriptionIndicator = null;
+  if (subscriptionStatus === 'error') {
+    subscriptionIndicator = (
+      <div className="bg-yellow-50 p-2 rounded-lg mb-4 text-sm text-yellow-800">
+        {t('realtimeDisconnected')}
       </div>
     );
   }
 
   // Render grid
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-      {/* Optional: Subtle indicator for subscription issues */}
-      {subscriptionStatus === 'RETRYING' && <div className="col-span-full text-center text-xs text-orange-500 p-2">Real-time connection issues. Retrying...</div>}
-      {subscriptionStatus === 'FAILED' && <div className="col-span-full text-center text-xs text-red-500 p-2">Real-time connection failed. Data may be stale.</div>}
-
-      {wells.map((well) => (
-        <WellCard
-          key={`${well.id}-${well.status}-${well.name}`} // Key strategy unchanged for now
-          well={well}
-        />
-      ))}
-    </div>
+    <>
+      {subscriptionIndicator}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+        {wells.map((well) => (
+          <WellCard
+            key={`${well.id}-${well.status}-${well.name}`} // Key strategy unchanged for now
+            well={well}
+          />
+        ))}
+      </div>
+    </>
   );
 } 

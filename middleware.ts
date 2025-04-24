@@ -1,32 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { defaultLng, supportedLngs } from '@/lib/i18n'; // Import config
+import createMiddleware from 'next-intl/middleware';
+import {locales, defaultLocale} from './i18n';
 
-// Basic middleware for locale handling via path prefix
-export function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
+export default createMiddleware({
+  locales,
+  defaultLocale
+});
 
-  // Check if there is any supported locale in the pathname
-  const pathnameIsMissingLocale = supportedLngs.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-  );
-
-  // Redirect if there is no locale
-  if (pathnameIsMissingLocale) {
-    const locale = defaultLng;
-
-    // Prepend the default locale and redirect
-    // e.g. incoming request is /dashboard -> /en/dashboard
-    const newUrl = new URL(`/${locale}${pathname}`, request.url);
-    return NextResponse.redirect(newUrl);
-  }
-
-  return NextResponse.next();
-}
-
-// See "Matching Paths" below to learn more
 export const config = {
+  // Match only internationalized pathnames
+  // Skip internal paths, API routes, and static assets
   matcher: [
-    // Skip all internal paths (_next, assets, api)
+    '/', // Match the root path
+    '/(en|es)/:path*', // Match locale-prefixed paths
+    // Avoid matching internal Next.js paths, API routes, and static files
     '/((?!api|_next/static|_next/image|assets|favicon.ico|sw.js).*)'
-  ],
+  ]
 }; 

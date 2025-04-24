@@ -13,15 +13,16 @@ import {
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Well, Part } from '@/lib/types'
+import { useTranslations } from 'next-intl'
 
-// Predefined fault types
+// TODO: Consider moving predefined fault types to a config or fetching from DB
+// For now, define with keys for translation
 const FAULT_TYPES = [
-  { name: 'Pressure Loss', severity: 'high' },
-  { name: 'Temperature Spike', severity: 'critical' },
-  { name: 'Flow Rate Drop', severity: 'medium' },
-  { name: 'Vibration', severity: 'low' },
-  { name: 'Power Failure', severity: 'critical' },
-  { name: 'Communication Loss', severity: 'high' },
+  { key: 'wear_and_tear', severity: 'high' },
+  { key: 'blockage', severity: 'medium' },
+  { key: 'leakage', severity: 'medium' },
+  { key: 'electrical_failure', severity: 'critical' },
+  { key: 'other', severity: 'low' },
 ]
 
 // Reverted props to accept currentWell
@@ -43,13 +44,15 @@ export function FaultSimulationForm({
   const [selectedFaultType, setSelectedFaultType] = useState<string>('')
   const [description, setDescription] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
+  const t = useTranslations('faultSimulationForm')
+  const tCommon = useTranslations('common')
 
   const handleSubmit = async () => {
     // Reverted validation
     if (!currentWell?.id || !selectedPart || !selectedFaultType) {
       toast({
-        title: 'Validation Error',
-        description: 'Please select a part and fault type for the current well.',
+        title: t('validationError.title'),
+        description: t('validationError.description'),
         variant: 'destructive',
       })
       return
@@ -65,8 +68,8 @@ export function FaultSimulationForm({
         description: description.trim() || undefined,
       })
       toast({
-        title: 'Success',
-        description: 'Fault has been triggered successfully',
+        title: t('success.title'),
+        description: t('success.description'),
       })
       // Removed selectedWellId reset
       setSelectedPart('')
@@ -74,8 +77,8 @@ export function FaultSimulationForm({
       setDescription('')
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to trigger fault',
+        title: t('error.title'),
+        description: t('error.description'),
         variant: 'destructive',
       })
     } finally {
@@ -87,7 +90,7 @@ export function FaultSimulationForm({
   if (!parts?.length) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        No parts available for fault simulation.
+        {t('noParts')}
       </div>
     )
   }
@@ -96,14 +99,14 @@ export function FaultSimulationForm({
     <div className="space-y-4 pt-4">
       {/* Removed Well Selector, added back Target Well display */}
       <div className="space-y-1">
-          <Label htmlFor="target-well" className="text-sm font-medium text-gray-700">Target Well</Label>
+          <Label htmlFor="target-well" className="text-sm font-medium text-gray-700">{t('targetWell')}</Label>
           <p id="target-well" className="text-base text-gray-900 font-semibold p-2 border border-gray-200 rounded-md bg-gray-50">{currentWell.name}</p>
       </div>
 
       {/* Existing Part Selector */}
       <Select value={selectedPart} onValueChange={setSelectedPart}>
         <SelectTrigger>
-          <SelectValue placeholder="Select a part" />
+          <SelectValue placeholder={t('partPlaceholder')} />
         </SelectTrigger>
         <SelectContent className="bg-white">
           {parts.map((part) => (
@@ -114,26 +117,34 @@ export function FaultSimulationForm({
         </SelectContent>
       </Select>
 
-      {/* Existing Fault Type Selector */}
-      <Select value={selectedFaultType} onValueChange={setSelectedFaultType}>
+      {/* Fault Type Selector */}
+      <Select value={selectedFaultType} onValueChange={setSelectedFaultType} disabled={isLoading}>
         <SelectTrigger>
-          <SelectValue placeholder="Select a fault type" />
+          <SelectValue placeholder={t('faultTypePlaceholder')} />
         </SelectTrigger>
         <SelectContent className="bg-white">
-          {FAULT_TYPES.map((faultType) => (
-            <SelectItem key={faultType.name} value={faultType.name}>
-              {faultType.name} ({faultType.severity})
-            </SelectItem>
-          ))}
+          {FAULT_TYPES.map((faultType) => {
+            // Construct the translation key dynamically
+            const translationKey = `faultType${faultType.key.charAt(0).toUpperCase() + faultType.key.slice(1)}`
+            // Get the translated name
+            const translatedName = t(translationKey)
+            // Get the translated severity
+            const translatedSeverity = t(`severity.${faultType.severity}`)
+            return (
+              <SelectItem key={faultType.key} value={faultType.key}>
+                {translatedName} ({translatedSeverity})
+              </SelectItem>
+            )
+          })}
         </SelectContent>
       </Select>
 
       {/* Existing Description */}
       <div className="space-y-2">
-        <Label htmlFor="fault-description">Description (Optional)</Label>
+        <Label htmlFor="fault-description">{t('description')}</Label>
         <Textarea
           id="fault-description"
-          placeholder="Add any relevant details about the simulated fault..."
+          placeholder={t('descriptionPlaceholder')}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
@@ -146,7 +157,7 @@ export function FaultSimulationForm({
         disabled={isLoading}
         className="w-full bg-blue-500 text-primary-foreground hover:bg-blue-600"
       >
-        {isLoading ? 'Triggering Fault...' : 'Trigger Fault'}
+        {isLoading ? t('triggeringButton') : t('triggerButton')}
       </Button>
     </div>
   )

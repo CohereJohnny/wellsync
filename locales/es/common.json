@@ -1,7 +1,28 @@
 {
   "greeting": "¡Hola!",
   "wellDetail": {
-    "title": "Detalle del Pozo"
+    "title": "Detalle del Pozo",
+    "campLabel": "Campo",
+    "formationLabel": "Formación",
+    "locationLabel": "Ubicación",
+    "lastMaintenanceLabel": "Último Mantenimiento",
+    "lastMaintenanceNA": "N/A",
+    "currentFaultTitle": "Falla Actual",
+    "partLabel": "Parte:",
+    "typeLabel": "Tipo:",
+    "mapLocationTitle": "Ubicación en Mapa",
+    "faultHistoryTitle": "Historial de Fallas",
+    "triggerFaultButton": "Provocar Falla",
+    "dialogTitlePrefix": "Simular Falla para ",
+    "dialogDescription": "Seleccione una parte y tipo de falla para simular.",
+    "dialogLoadingParts": "Cargando partes...",
+    "dialogErrorPartsPrefix": "Error cargando partes: ",
+    "toastPartsErrorTitle": "Error",
+    "toastPartsErrorDescription": "Error al cargar partes para simulación de falla.",
+    "toastFaultCreatedTitle": "Falla Creada",
+    "toastFaultCreatedDescription": "La falla ha sido simulada exitosamente para este pozo.",
+    "toastFaultErrorTitle": "Error",
+    "toastFaultErrorDescription": "Error al crear falla para este pozo"
   },
   "wellStatus": {
     "operational": "Operacional",
@@ -11,5 +32,125 @@
   "wellCard": {
     "campLabel": "Campo",
     "formationLabel": "Formación"
+  },
+  "wellGrid": {
+    "loading": "Cargando pozos...",
+    "error": "Error al cargar pozos",
+    "errorFetchingWells": "Error al cargar datos de pozos. Por favor, inténtelo más tarde.",
+    "fetchError": "Error al cargar datos de pozos. Por favor, inténtelo más tarde.",
+    "errorOccurred": "Ha ocurrido un error",
+    "retry": "Reintentar",
+    "noWellsFound": "No se encontraron pozos",
+    "tryChangingFilters": "Intente ajustar sus filtros o ver todos los pozos",
+    "tryAdjustingFilters": "Intente ajustar sus filtros o ver todos los pozos",
+    "connectingRealtime": "Conectando a actualizaciones en tiempo real...",
+    "realtimeError": "Actualizaciones en tiempo real no disponibles",
+    "realtimeDisconnected": "Actualizaciones en tiempo real no disponibles. Los datos pueden no estar actualizados."
+  },
+  "wellTable": {
+    "nameHeader": "Nombre del Pozo",
+    "campHeader": "Campo",
+    "formationHeader": "Formación",
+    "statusHeader": "Estado",
+    "lastMaintenanceHeader": "Último Mantenimiento",
+    "loading": "Cargando pozos...",
+    "error": "Error al cargar pozos",
+    "fetchError": "Error al cargar datos de pozos",
+    "noWellsFound": "No se encontraron pozos que coincidan con sus criterios",
+    "notAvailable": "N/A"
+  },
+  "faultSimulationModal": {
+    "loading": "Cargando pozos y partes...",
+    "unavailable": "Datos de pozo o partes no disponibles para simulación de falla."
+  },
+  "navigation": {
+    "title": "WellSync AI",
+    "dashboard": "Tablero",
+    "inventory": "Inventario",
+    "settings": "Ajustes",
+    "documentation": "Documentación"
+  },
+  "toolbar": {
+    "filters": {
+      "allCamps": "Todos los Campos",
+      "allFormations": "Todas las Formaciones",
+      "allStatuses": "Todos los Estados",
+      "campMidland": "Midland",
+      "campDelaware": "Delaware",
+      "formationWolfcamp": "Wolfcamp",
+      "formationBoneSpring": "Bone Spring",
+      "formationSpraberry": "Spraberry"
+    },
+    "view": {
+      "card": "Vista Tarjeta",
+      "table": "Vista Tabla"
+    },
+    "actions": {
+      "resetDemo": "Reiniciar Demo",
+      "resettingDemo": "Reiniciando...",
+      "triggerFault": "Provocar Falla"
+    },
+    "simulationDialog": {
+      "title": "Provocar Nueva Simulación de Falla",
+      "description": "Seleccione un pozo, parte y tipo de falla para simular un nuevo evento de falla.",
+      "loading": "Cargando opciones de simulación...",
+      "errorPrefix": "Error: ",
+      "selectWellPlaceholder": "Seleccione el pozo objetivo"
+    },
+    "toasts": {
+      "fetchErrorTitle": "Error",
+      "fetchErrorDescription": "Error al cargar pozos y partes",
+      "faultCreatedTitle": "Falla Creada",
+      "faultCreatedDescription": "La falla ha sido simulada exitosamente.",
+      "faultErrorTitle": "Error",
+      "faultErrorDescription": "Error al crear la falla",
+      "resetSuccessTitle": "Demo Reiniciado",
+      "resetSuccessDescription": "Los datos de demostración se han reiniciado exitosamente.",
+      "resetErrorTitle": "Error",
+      "resetErrorDescription": "Error al reiniciar la demo"
+    }
+  },
+  "languageName": "Español",
+  "faultSimulationForm": {
+    "targetWell": "Pozo Objetivo",
+    "partPlaceholder": "Seleccionar una pieza",
+    "faultTypePlaceholder": "Seleccionar un tipo de fallo",
+    "description": "Descripción (Opcional)",
+    "descriptionPlaceholder": "Añade cualquier detalle relevante sobre el fallo simulado...",
+    "triggerButton": "Activar Fallo",
+    "triggeringButton": "Activando Fallo...",
+    "validationError": {
+      "title": "Error de Validación",
+      "description": "Por favor, selecciona una pieza y un tipo de fallo para el pozo actual."
+    },
+    "success": {
+      "title": "Éxito",
+      "description": "El fallo se ha activado correctamente"
+    },
+    "error": {
+      "title": "Error",
+      "description": "No se pudo activar el fallo"
+    },
+    "noParts": "No hay piezas disponibles para la simulación de fallos.",
+    "faultTypeWearAndTear": "Desgaste",
+    "faultTypeBlockage": "Bloqueo",
+    "faultTypeLeakage": "Fuga",
+    "faultTypeElectricalFailure": "Fallo Eléctrico",
+    "faultTypeOther": "Otro",
+    "severity": {
+      "low": "Bajo",
+      "medium": "Medio",
+      "high": "Alto",
+      "critical": "Crítico"
+    }
+  },
+  "faultHistory": {
+    "timestampHeader": "Fecha y Hora",
+    "typeHeader": "Tipo",
+    "partHeader": "Parte",
+    "descriptionHeader": "Descripción",
+    "severityHeader": "Severidad",
+    "statusHeader": "Estado",
+    "noFaultHistory": "No hay historial de fallas disponible"
   }
 } 

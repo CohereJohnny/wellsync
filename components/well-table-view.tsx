@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useSupabase } from '@/context/supabase-context'
 import {
@@ -26,6 +26,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { ArrowUpDown } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 // Augment TanStack Table types for custom metadata
 declare module '@tanstack/react-table' {
@@ -43,104 +44,120 @@ const getBadgeClasses = (status: string | null | undefined) => { // Allow null/u
   return cn('text-white px-2 py-1 text-xs font-medium rounded', bgColor);
 }
 
-// Define columns using ColumnHelper
-const columnHelper = createColumnHelper<Well>()
+export function WellTableView() {
+  const t = useTranslations('wellTable');
+  const tStatus = useTranslations('wellStatus');
+  const supabase = useSupabase();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  
+  const [wells, setWells] = useState<Well[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'name', desc: false }]);
+  
+  // Extract the locale from the pathname
+  const locale = pathname.split('/')[1]; // Pathname format is "/en/..." or "/es/..."
 
-const columns = [
-  columnHelper.accessor('name', {
-    header: ({ column }) => (
-      <button
-        className="flex items-center hover:text-foreground transition-colors"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        Well Name
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </button>
-    ),
-    cell: info => (
-      <Link href={`/well/${info.row.original.id}`} className="hover:underline text-blue-600">
-        {/* Handle potential null/undefined name */}
-        {info.getValue() ?? 'N/A'}
-      </Link>
-    ),
-    meta: {
+  // Define columns using ColumnHelper - moved inside component to access translations
+  const columnHelper = createColumnHelper<Well>();
+  
+  const columns = useMemo(() => [
+    columnHelper.accessor('name', {
+      header: ({ column }) => (
+        <button
+          className="flex items-center hover:text-foreground transition-colors"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {t('nameHeader')}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </button>
+      ),
+      cell: info => (
+        <Link href={`/${locale}/well/${info.row.original.id}`} className="hover:underline text-blue-600">
+          {info.getValue() ?? t('notAvailable')}
+        </Link>
+      ),
+      meta: {
         className: 'w-[150px] font-medium',
-    },
-  }),
-  columnHelper.accessor('camp', {
-    header: ({ column }) => (
-      <button
-        className="flex items-center hover:text-foreground transition-colors"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        Camp
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </button>
-    ),
-    cell: info => info.getValue() ?? 'N/A',
-  }),
-  columnHelper.accessor('formation', {
-    header: ({ column }) => (
-      <button
-        className="flex items-center hover:text-foreground transition-colors"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        Formation
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </button>
-    ),
-    cell: info => info.getValue() ?? 'N/A',
-  }),
-  columnHelper.accessor('status', {
-    header: ({ column }) => (
-      <button
-        className="flex items-center hover:text-foreground transition-colors"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        Status
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </button>
-    ),
-    cell: info => {
+      },
+    }),
+    columnHelper.accessor('camp', {
+      header: ({ column }) => (
+        <button
+          className="flex items-center hover:text-foreground transition-colors"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {t('campHeader')}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </button>
+      ),
+      cell: info => info.getValue() ?? t('notAvailable'),
+    }),
+    columnHelper.accessor('formation', {
+      header: ({ column }) => (
+        <button
+          className="flex items-center hover:text-foreground transition-colors"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {t('formationHeader')}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </button>
+      ),
+      cell: info => info.getValue() ?? t('notAvailable'),
+    }),
+    columnHelper.accessor('status', {
+      header: ({ column }) => (
+        <button
+          className="flex items-center hover:text-foreground transition-colors"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {t('statusHeader')}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </button>
+      ),
+      cell: info => {
         const status = info.getValue();
+        // Transform status text to use translations
+        let displayStatus = status ?? t('notAvailable');
+        
+        // If status is one of the known statuses, use translation
+        if (status) {
+          const lowerStatus = status.toLowerCase().replace(/\s+/g, '');
+          if (lowerStatus === 'operational' || lowerStatus === 'fault' || lowerStatus === 'pendingrepair') {
+            displayStatus = tStatus(lowerStatus as 'operational' | 'fault' | 'pendingrepair');
+          }
+        }
+        
         return (
-            <Badge className={getBadgeClasses(status)}>
-                {/* Handle potential null/undefined */}
-                {status ?? 'N/A'}
-            </Badge>
-        )
-    },
-  }),
-  columnHelper.accessor('last_maintenance', {
-    header: ({ column }) => (
-      <button
-        className="flex items-center hover:text-foreground transition-colors ml-auto"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        Last Maintenance
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </button>
-    ),
-    cell: info => {
+          <Badge className={getBadgeClasses(status)}>
+            {displayStatus}
+          </Badge>
+        );
+      },
+    }),
+    columnHelper.accessor('last_maintenance', {
+      header: ({ column }) => (
+        <button
+          className="flex items-center hover:text-foreground transition-colors ml-auto"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {t('lastMaintenanceHeader')}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </button>
+      ),
+      cell: info => {
         const value = info.getValue();
         // Check if value is a valid date string/number before creating Date
         return value && !isNaN(new Date(value).getTime())
-            ? new Date(value).toLocaleDateString()
-            : 'N/A';
-    },
-    meta: {
+          ? new Date(value).toLocaleDateString()
+          : t('notAvailable');
+      },
+      meta: {
         className: 'text-right',
-    },
-  }),
-]
-
-export function WellTableView() {
-  const supabase = useSupabase()
-  const searchParams = useSearchParams()
-  const [wells, setWells] = useState<Well[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [sorting, setSorting] = useState<SortingState>([ { id: 'name', desc: false } ]) // Add sorting state, default sort by name ascending
+      },
+    }),
+  ], [t, tStatus, columnHelper, locale]);
 
   // Data Fetching Effect
   useEffect(() => {
@@ -177,7 +194,7 @@ export function WellTableView() {
         setWells(data || [])
       } catch (err: any) {
         console.error("Error fetching wells for table view:", err)
-        setError(err.message || 'Failed to load wells')
+        setError(err.message || t('fetchError'))
         setWells([])
       } finally {
         setIsLoading(false)
@@ -185,7 +202,7 @@ export function WellTableView() {
     }
 
     fetchWells()
-  }, [searchParams, supabase])
+  }, [searchParams, supabase, t])
 
   // Define the realtime handler using useCallback
   const handleRealtimeUpdate = useCallback((payload: any) => {
@@ -271,17 +288,17 @@ export function WellTableView() {
 
   // Render Loading State
   if (isLoading) {
-    return <div className="p-6 text-center text-muted-foreground">Loading wells...</div>;
+    return <div className="p-6 text-center text-muted-foreground">{t('loading')}</div>;
   }
 
   // Render Error State
   if (error) {
-    return <div className="p-6 text-center text-red-500">Error loading wells: {error}</div>;
+    return <div className="p-6 text-center text-red-500">{t('error')}: {error}</div>;
   }
 
   // Render Empty State (after loading and no error)
   if (!table.getRowModel().rows?.length) {
-    return <div className="p-6 text-center text-muted-foreground">No wells found matching your criteria.</div>;
+    return <div className="p-6 text-center text-muted-foreground">{t('noWellsFound')}</div>;
   }
 
   // Render Table using TanStack Table and Shadcn UI Components

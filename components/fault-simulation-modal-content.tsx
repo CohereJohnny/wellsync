@@ -2,6 +2,7 @@
 
 import { FaultSimulationForm } from './fault-simulation-form'
 import { Well, Part } from '@/lib/types'
+import { useTranslations } from 'next-intl'
 
 interface FaultSimulationModalContentProps {
   currentWell: Well;
@@ -23,11 +24,12 @@ export function FaultSimulationModalContent({
   isLoadingWellsParts,
   loadingError,
 }: FaultSimulationModalContentProps) {
+  const t = useTranslations('faultSimulationModal');
 
   if (isLoadingWellsParts) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        Loading wells and parts...
+        {t('loading')}
       </div>
     )
   }
@@ -44,7 +46,7 @@ export function FaultSimulationModalContent({
   if (!currentWell || !parts?.length) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        Well data or parts unavailable for fault simulation.
+        {t('unavailable')}
       </div>
     )
   }

@@ -2,18 +2,21 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+// import { useTranslation } from 'react-i18next' // Remove old hook
+import { useTranslations } from 'next-intl'; // Import next-intl hook
 import { cn } from '@/lib/utils'
 import { Fuel } from 'lucide-react'
 import { LanguageSwitcher } from '../language-switcher'
 
-const navigation = [
-  { name: 'Dashboard', href: '/' },
-  { name: 'Inventory', href: '/inventory' },
-  { name: 'Settings', href: '/settings' },
-  { name: 'Documentation', href: '/documentation' },
+const navigationItems = [
+  { key: 'dashboard', href: '/' },
+  { key: 'inventory', href: '/inventory' },
+  { key: 'settings', href: '/settings' },
+  { key: 'documentation', href: '/documentation' },
 ]
 
 export function MainToolbar() {
+  const t = useTranslations('navigation'); // Initialize translation hook with namespace
   const pathname = usePathname()
 
   const getActiveLocalePrefix = () => {
@@ -31,17 +34,18 @@ export function MainToolbar() {
       <div className="container mx-auto flex h-full items-center justify-between px-6">
         <Link href={`${localePrefix}/`} className="flex items-center gap-2 text-lg font-semibold">
           <Fuel className="h-5 w-5" />
-          WellSync AI
+          {t('title')}
         </Link>
 
         <div className="flex items-center space-x-6">
           <nav className="flex items-center space-x-4">
-            {navigation.map((item) => {
+            {navigationItems.map((item) => {
               const localizedHref = item.href === '/' ? `${localePrefix}/` : `${localePrefix}${item.href}`;
               const isActive = pathname === localizedHref;
+              const itemName = t(item.key);
               return (
                 <Link
-                  key={item.name}
+                  key={item.key}
                   href={localizedHref}
                   className={cn(
                     'text-sm font-medium transition-colors hover:text-white',
@@ -51,7 +55,7 @@ export function MainToolbar() {
                   )}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  {item.name}
+                  {itemName}
                 </Link>
               );
             })}
