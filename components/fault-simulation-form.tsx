@@ -30,6 +30,7 @@ interface FaultSimulationFormProps {
   currentWell: Well;
   parts?: Part[];
   onSubmit: (data: { wellId: string; partId: string; faultType: string; description?: string }) => Promise<void>;
+  isSubmitting: boolean;
 }
 
 export function FaultSimulationForm({
@@ -37,15 +38,14 @@ export function FaultSimulationForm({
   currentWell,
   parts = [],
   onSubmit,
+  isSubmitting,
 }: FaultSimulationFormProps) {
   const { toast } = useToast()
   // Removed selectedWellId state
   const [selectedPart, setSelectedPart] = useState<string>('')
   const [selectedFaultType, setSelectedFaultType] = useState<string>('')
   const [description, setDescription] = useState<string>('')
-  const [isLoading, setIsLoading] = useState(false)
   const t = useTranslations('faultSimulationForm')
-  const tCommon = useTranslations('common')
 
   const handleSubmit = async () => {
     // Reverted validation
@@ -58,7 +58,6 @@ export function FaultSimulationForm({
       return
     }
 
-    setIsLoading(true)
     try {
       await onSubmit({
         // Use currentWell.id
@@ -67,22 +66,14 @@ export function FaultSimulationForm({
         faultType: selectedFaultType,
         description: description.trim() || undefined,
       })
-      toast({
-        title: t('success.title'),
-        description: t('success.description'),
-      })
-      // Removed selectedWellId reset
+      // Success toast is handled by the dialog component after onSubmit resolves
+      // Reset form fields
       setSelectedPart('')
       setSelectedFaultType('')
       setDescription('')
     } catch (error) {
-      toast({
-        title: t('error.title'),
-        description: t('error.description'),
-        variant: 'destructive',
-      })
-    } finally {
-      setIsLoading(false)
+      // Error toast is handled by the dialog component if onSubmit rejects
+      console.error("FaultSimulationForm submission error caught (should be handled by parent):", error);
     }
   }
 
@@ -104,7 +95,7 @@ export function FaultSimulationForm({
       </div>
 
       {/* Existing Part Selector */}
-      <Select value={selectedPart} onValueChange={setSelectedPart}>
+      <Select value={selectedPart} onValueChange={setSelectedPart} disabled={isSubmitting}>
         <SelectTrigger>
           <SelectValue placeholder={t('partPlaceholder')} />
         </SelectTrigger>
@@ -118,7 +109,7 @@ export function FaultSimulationForm({
       </Select>
 
       {/* Fault Type Selector */}
-      <Select value={selectedFaultType} onValueChange={setSelectedFaultType} disabled={isLoading}>
+      <Select value={selectedFaultType} onValueChange={setSelectedFaultType} disabled={isSubmitting}>
         <SelectTrigger>
           <SelectValue placeholder={t('faultTypePlaceholder')} />
         </SelectTrigger>
@@ -150,16 +141,17 @@ export function FaultSimulationForm({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
+          disabled={isSubmitting}
         />
       </div>
 
       {/* Existing Submit Button */}
       <Button 
         onClick={handleSubmit} 
-        disabled={isLoading}
+        disabled={isSubmitting}
         className="w-full bg-blue-500 text-primary-foreground hover:bg-blue-600"
       >
-        {isLoading ? t('triggeringButton') : t('triggerButton')}
+        {isSubmitting ? t('triggeringButton') : t('triggerButton')}
       </Button>
     </div>
   )

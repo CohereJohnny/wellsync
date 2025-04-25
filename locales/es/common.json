@@ -53,12 +53,16 @@
     "campHeader": "Campo",
     "formationHeader": "Formación",
     "statusHeader": "Estado",
-    "lastMaintenanceHeader": "Último Mantenimiento",
+    "lastMaintenanceHeader": "Último Mant.",
     "loading": "Cargando pozos...",
     "error": "Error al cargar pozos",
     "fetchError": "Error al cargar datos de pozos",
-    "noWellsFound": "No se encontraron pozos que coincidan con sus criterios",
-    "notAvailable": "N/A"
+    "noWellsFound": "No se encontraron pozos con sus criterios",
+    "notAvailable": "N/D",
+    "actionsHeader": "Acciones",
+    "viewDetailsTooltip": "Ver detalles del pozo",
+    "triggerFaultTooltip": "Simular falla",
+    "createSRTooltip": "Crear solicitud de servicio"
   },
   "faultSimulationModal": {
     "loading": "Cargando pozos y partes...",
@@ -84,7 +88,8 @@
     },
     "view": {
       "card": "Vista Tarjeta",
-      "table": "Vista Tabla"
+      "table": "Vista Tabla",
+      "map": "Vista Mapa"
     },
     "actions": {
       "resetDemo": "Reiniciar Demo",
@@ -206,5 +211,14 @@
       "resources": "Recursos",
       "demoScript": "Script de Demo"
     }
+  },
+  "wellCardContextMenu": {
+    "viewDetails": "Ver Detalles",
+    "triggerFault": "Simular Falla",
+    "createSR": "Crear Solicitud de Servicio",
+    "zoomToWell": "Acercar al Pozo"
+  },
+  "mapView": {
+    "searchPlaceholder": "Buscar por nombre, campo, formación..."
   }
 } 

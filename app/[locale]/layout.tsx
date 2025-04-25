@@ -6,6 +6,9 @@ import { getMessages } from 'next-intl/server';
 import I18nClientProvider from "@/components/i18n-client-provider";
 import { MainToolbar } from "@/components/layout/main-toolbar";
 import { Providers } from './providers';
+import { GeistMono } from 'geist/font/mono'
+import { GeistSans } from 'geist/font/sans'
+import { SiteFooter } from "@/components/layout/site-footer";
 
 // Params are passed to layouts in the app router
 interface LocaleLayoutProps {
@@ -23,10 +26,16 @@ export default async function LocaleLayout({ children, params: { locale } }: Loc
     <NextIntlClientProvider locale={locale} messages={messages}>
       <I18nClientProvider>
         <Providers>
+          {/* Site Header */}
           <MainToolbar />
-          <main className="min-h-screen bg-background">
+
+          {/* Main Content Area - Removed horizontal padding, only top padding remains */}
+          <main className="flex-1 pt-16">
             {children}
           </main>
+
+          {/* Site Footer */}
+          <SiteFooter />
           <Toaster />
         </Providers>
       </I18nClientProvider>

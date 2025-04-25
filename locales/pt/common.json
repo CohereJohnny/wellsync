@@ -58,7 +58,11 @@
     "error": "Erro ao carregar poços",
     "fetchError": "Falha ao carregar dados do poço",
     "noWellsFound": "Nenhum poço encontrado correspondente aos seus critérios",
-    "notAvailable": "N/A"
+    "notAvailable": "N/A",
+    "actionsHeader": "Ações",
+    "viewDetailsTooltip": "Ver detalhes do pozo",
+    "triggerFaultTooltip": "Simular falha",
+    "createSRTooltip": "Criar solicitação de serviço"
   },
   "faultSimulationModal": {
     "loading": "Carregando poços e peças...",
@@ -124,8 +128,9 @@
       "formationSpraberry": "Spraberry"
     },
     "view": {
-      "card": "Visualização em Cartão",
-      "table": "Visualização em Tabela"
+      "card": "Visualização Cartão",
+      "table": "Visualização Tabela",
+      "map": "Visualização Mapa"
     },
     "actions": {
       "resetDemo": "Reiniciar Demo",
@@ -140,15 +145,15 @@
       "selectWellPlaceholder": "Selecione o poço alvo"
     },
     "toasts": {
-      "fetchErrorTitle": "Erro",
-      "fetchErrorDescription": "Falha ao carregar poços e peças",
-      "faultCreatedTitle": "Falha Criada",
+      "fetchErrorTitle": "Erro ao Carregar Dados",
+      "fetchErrorDescription": "Falha ao carregar poços e peças para o diálogo.",
+      "faultCreatedTitle": "Falha Simulada",
       "faultCreatedDescription": "A falha foi simulada com sucesso.",
-      "faultErrorTitle": "Erro",
-      "faultErrorDescription": "Falha ao criar falha",
+      "faultErrorTitle": "Erro ao Simular Falha",
+      "faultErrorDescription": "Ocorreu um erro ao tentar simular a falha.",
       "resetSuccessTitle": "Demo Reiniciado",
       "resetSuccessDescription": "Os dados de demonstração foram reiniciados com sucesso.",
-      "resetErrorTitle": "Erro",
+      "resetErrorTitle": "Erro ao Reiniciar",
       "resetErrorDescription": "Falha ao reiniciar demo"
     }
   },
@@ -212,5 +217,8 @@
     "failedToSendMessage": "Falha ao enviar mensagem",
     "searchButtonAriaLabel": "Buscar falhas similares",
     "sendButtonAriaLabel": "Enviar mensagem"
+  },
+  "mapView": {
+    "searchPlaceholder": "Buscar por nome, campo, formação..."
   }
 } 

@@ -58,7 +58,11 @@
     "error": "Error loading wells",
     "fetchError": "Failed to load well data",
     "noWellsFound": "No wells found matching your criteria",
-    "notAvailable": "N/A"
+    "notAvailable": "N/A",
+    "actionsHeader": "Actions",
+    "viewDetailsTooltip": "View well details",
+    "triggerFaultTooltip": "Trigger simulated fault",
+    "createSRTooltip": "Create service request"
   },
   "faultSimulationModal": {
     "loading": "Loading wells and parts...",
@@ -125,7 +129,8 @@
     },
     "view": {
       "card": "Card View",
-      "table": "Table View"
+      "table": "Table View",
+      "map": "Map View"
     },
     "actions": {
       "resetDemo": "Reset Demo",
@@ -212,5 +217,14 @@
     "failedToSendMessage": "Failed to send message",
     "searchButtonAriaLabel": "Search similar faults",
     "sendButtonAriaLabel": "Send message"
+  },
+  "wellCardContextMenu": {
+    "viewDetails": "View Details",
+    "triggerFault": "Trigger Fault",
+    "createSR": "Create Service Request",
+    "zoomToWell": "Zoom to Well"
+  },
+  "mapView": {
+    "searchPlaceholder": "Search wells by name, camp, formation..."
   }
 } 

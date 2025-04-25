@@ -1,29 +1,19 @@
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
-import { notFound } from 'next/navigation'
 import { useSupabase } from '@/context/supabase-context'
 import { Badge } from '@/components/ui/badge'
-import { Card } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { FaultHistoryTable } from '@/components/fault-history-table'
 import { ChatPanel } from '@/components/chat/chat-panel'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog'
 import { AlertTriangle } from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
-import { FaultSimulationModalContent } from './fault-simulation-modal-content'
+import { FaultSimulationDialog } from './fault-simulation-dialog'
 import type { Well, Fault, Part } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import MapView from '@/components/map-view'
-import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import Map, { Marker } from 'react-map-gl/mapbox'
 
 interface WellDetailProps {
   wellId: string
@@ -34,10 +24,8 @@ interface WellDetailProps {
 export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailProps) {
   const t = useTranslations('wellDetail')
   const tStatus = useTranslations('wellStatus')
-  const tActions = useTranslations('toolbar.actions')
-  const tToasts = useTranslations('wellDetail')
   
-  console.log(`[WellDetail ${wellId}] Initial status:`, initialWell?.status); // Log initial status
+  console.log(`[WellDetail ${wellId}] Initial status:`, initialWell?.status);
   const supabase = useSupabase()
   const [well, setWell] = useState<Well>(initialWell)
   const [faults, setFaults] = useState<Fault[]>(initialFaults)
@@ -45,12 +33,8 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
   const [parts, setParts] = useState<Part[]>([])
   const [isLoadingParts, setIsLoadingParts] = useState(true)
   const [loadingPartsError, setLoadingPartsError] = useState<string | null>(null)
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [isSubmittingFault, setIsSubmittingFault] = useState(false)
+  const [isFaultDialogOpen, setIsFaultDialogOpen] = useState(false)
   
-  const { toast } = useToast()
-  const router = useRouter()
-
   useEffect(() => {
     async function fetchParts() {
       setIsLoadingParts(true)
@@ -62,21 +46,16 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
       } catch (err: any) {
         console.error("Error fetching parts:", err)
         setLoadingPartsError(err.message)
-        toast({
-          title: tToasts('toastPartsErrorTitle'),
-          description: tToasts('toastPartsErrorDescription'),
-          variant: "destructive",
-        })
       } finally {
         setIsLoadingParts(false)
       }
     }
     fetchParts()
-  }, [toast, supabase, tToasts])
+  }, [supabase])
 
   useEffect(() => {
     const channel = supabase
-      .channel('fault-updates')
+      .channel(`fault-updates-${wellId}`)
       .on(
         'postgres_changes',
         {
@@ -87,24 +66,21 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
         },
         async (payload) => {
           console.log('Received fault update:', payload)
-          
-          if (payload.eventType === 'INSERT') {
-            // Add new fault to the list
-            setFaults((current) => [payload.new as Fault, ...current])
-          } else if (payload.eventType === 'UPDATE') {
-            // Update existing fault
-            setFaults((current) =>
-              current.map((fault) =>
-                fault.fault_id === payload.new.fault_id
-                  ? { ...fault, ...payload.new }
-                  : fault
-              )
-            )
-          } else if (payload.eventType === 'DELETE') {
-            // Remove fault from list
-            setFaults((current) =>
-              current.filter((fault) => fault.fault_id !== payload.old.fault_id)
-            )
+          setIsLoadingFaults(true)
+          try {
+            const { data: updatedFaults, error: fetchError } = await supabase
+              .from('faults')
+              .select('*')
+              .eq('well_id', wellId)
+              .order('timestamp', { ascending: false })
+
+            if (fetchError) throw fetchError
+            setFaults(updatedFaults || [])
+            console.log('[WellDetail] Faults state updated after realtime event.')
+          } catch (error) {
+            console.error('[WellDetail] Error refetching faults after realtime event:', error)
+          } finally {
+            setIsLoadingFaults(false)
           }
         }
       )
@@ -115,64 +91,9 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
     }
   }, [wellId, supabase])
 
-  // Re-add Handle fault submission specific to this well
-  const handleFaultSubmit = async (data: { 
-    wellId: string; // Although we know the wellId, the form sends it
-    partId: string; 
-    faultType: string; 
-    description?: string; 
-  }) => {
-    // Use the wellId from the component's context/props if needed, 
-    // but the form data includes it, so we can use data.wellId
-    if (data.wellId !== wellId) {
-      console.warn('Submitting fault for a different well than the current detail page?');
-      // Decide how to handle this - maybe use props wellId instead? For now, use form data.
-    }
-    
-    try {
-      setIsSubmittingFault(true);
-      const response = await fetch('/api/faults', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          wellId: data.wellId, // Use ID from form data
-          partId: data.partId,
-          faultType: data.faultType,
-          description: data.description,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || tToasts('toastFaultErrorDescription'));
-      }
-
-      toast({
-        title: tToasts('toastFaultCreatedTitle'),
-        description: tToasts('toastFaultCreatedDescription'),
-      });
-      
-      setDialogOpen(false);
-      // No router.refresh() needed, rely on realtime updates handled by existing useEffect
-
-    } catch (error: any) {
-      console.error('Error creating fault:', error);
-      toast({
-        title: tToasts('toastFaultErrorTitle'),
-        description: error.message || tToasts('toastFaultErrorDescription'),
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSubmittingFault(false);
-    }
-  };
-
-  // useEffect to subscribe to well updates (e.g., status changes)
   useEffect(() => {
     const wellChannel = supabase
-      .channel('well-detail-updates')
+      .channel(`well-detail-updates-${wellId}`)
       .on(
         'postgres_changes',
         {
@@ -181,41 +102,13 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
           table: 'wells',
           filter: `id=eq.${wellId}`,
         },
-        async (payload) => {
+        (payload) => {
           console.log('Received well update:', payload)
-          
-          const newWellData = payload.new as Partial<Well>; // Type assertion
-          const incomingStatus = newWellData?.status;
-          
-          if (incomingStatus) { 
-             console.log(`[WellDetail ${wellId}] Realtime status update received:`, incomingStatus);
-          } else if (payload.new && typeof payload.new === 'object' && 'status' in payload.new) { 
-             console.log(`[WellDetail ${wellId}] Realtime status update received but status is:`, (payload.new as any).status);
-          } 
 
           if (payload.eventType === 'UPDATE') {
-            // Check if the update tries to set status to Operational while active faults exist
-            const hasActiveFaults = faults.some(fault => fault.status !== 'resolved'); // Use lowercase 'resolved'
-
-            // Add detailed logging for debugging
-            console.log(
-              `[WellDetail ${wellId}] Checking status update. ` +
-              `Incoming: ${incomingStatus}, HasActiveFaults: ${hasActiveFaults}, ` +
-              `FaultsState: ${JSON.stringify(faults)}`
-            );
-
-            if (incomingStatus === 'Operational' && hasActiveFaults) {
-              console.warn(`[WellDetail ${wellId}] Ignored realtime update setting status to 'Operational' because active faults exist.`);
-              // Optionally update other fields but keep the status derived from faults
-              setWell((current) => ({ 
-                  ...current, 
-                  ...newWellData, // Apply other updates from payload
-                  status: current.status // Keep existing status (likely 'Fault')
-              }));
-            } else {
-              // Apply the update as usual (including the status)
-              setWell((current) => ({ ...current, ...newWellData }));
-            }
+            const newWellData = payload.new as Partial<Well>
+            setWell((current) => ({ ...current, ...newWellData }))
+            console.log('[WellDetail] Well state updated after realtime event.')
           }
         }
       )
@@ -224,155 +117,124 @@ export function WellDetail({ wellId, initialWell, initialFaults }: WellDetailPro
     return () => {
       supabase.removeChannel(wellChannel)
     }
-  }, [wellId, supabase, faults])
+  }, [wellId, supabase])
 
-  // Status text lookup using tStatus
   const getStatusText = (status: string): string => {
-    const lowerStatus = status?.toLowerCase().replace(/\s+/g, '') || '';
-    // Check if a key exists for the status, otherwise return original status
+    const lowerStatus = status?.toLowerCase().replace(/\s+/g, '') || ''
     if (lowerStatus === 'operational' || lowerStatus === 'fault' || lowerStatus === 'pendingrepair') {
-      return tStatus(lowerStatus as 'operational' | 'fault' | 'pendingrepair');
+      return tStatus(lowerStatus as 'operational' | 'fault' | 'pendingrepair')
     }
-    return status; 
+    return status
   }
 
-  // Badge styling based on spec
   const getBadgeClasses = (status: string) => {
-    const lowerStatus = status?.toLowerCase() || '';
+    const lowerStatus = status?.toLowerCase() || ''
     const bgColor = lowerStatus === 'operational' ? 'bg-green-500' : 
                     lowerStatus === 'fault' ? 'bg-red-500' : 
-                    'bg-yellow-500'; // Default/Pending color
-    return cn('text-white px-2 py-0.5 text-xs font-medium rounded', bgColor); // Use text-xs for smaller badges here
+                    'bg-yellow-500'
+    return cn('text-white px-2 py-0.5 text-xs font-medium rounded', bgColor)
+  }
+
+  const getMarkerColor = (status: string): string => {
+    const lowerStatus = status?.toLowerCase() || ''
+    if (lowerStatus === 'operational') return 'bg-green-500'
+    if (lowerStatus === 'fault') return 'bg-red-500'
+    if (lowerStatus === 'pending repair' || lowerStatus === 'pendingrepair') return 'bg-yellow-500'
+    return 'bg-gray-400'
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 p-4 pt-16 max-w-7xl mx-auto min-h-[calc(100vh-6rem)]">
-      {/* Left Column: Well Info, Map, Fault History */}
-      <div className="flex-1 space-y-6">
-        {/* Well Info Card */}
-        <Card className="overflow-hidden">
-          <div className="px-6 py-4 flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">{well.name}</h2>
-              <span className={getBadgeClasses(well.status)}>
-                {getStatusText(well.status)}
-              </span>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="lg:col-span-2 space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold flex justify-between items-center">
+              <span>{well.name}</span>
+              <Badge className={getBadgeClasses(well.status)}>{getStatusText(well.status)}</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div><span className="font-medium">{t('campLabel')}:</span> {well.camp || 'N/A'}</div>
+              <div><span className="font-medium">{t('formationLabel')}:</span> {well.formation || 'N/A'}</div>
+              <div><span className="font-medium">{t('locationLabel')}:</span> {well.latitude?.toFixed(4)}, {well.longitude?.toFixed(4)}</div>
+              <div><span className="font-medium">{t('lastMaintenanceLabel')}:</span> {well.last_maintenance ? new Date(well.last_maintenance).toLocaleDateString() : t('lastMaintenanceNA')}</div>
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-600">{t('campLabel')}</p>
-                <p className="font-medium">{well.camp}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">{t('formationLabel')}</p>
-                <p className="font-medium">{well.formation}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">{t('locationLabel')}</p>
-                <p className="font-medium">{well.latitude}, {well.longitude}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">{t('lastMaintenanceLabel')}</p>
-                <p className="font-medium">{well.last_maintenance || t('lastMaintenanceNA')}</p>
-              </div>
-            </div>
-
-            {/* Current Fault Display */}
-            {well.status === 'Fault' && (
-              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
-                <h3 className="text-red-700 font-semibold flex items-center">
-                  <AlertTriangle className="h-4 w-4 mr-1" /> {t('currentFaultTitle')}
-                </h3>
-                <div className="mt-2 text-sm">
-                  {faults && faults.length > 0 && faults[0].status !== 'resolved' ? (
-                    <>
-                      <p>
-                        <span className="font-medium">{t('partLabel')}</span> {faults[0].part_id}
-                      </p>
-                      <p>
-                        <span className="font-medium">{t('typeLabel')}</span> {faults[0].fault_type}
-                      </p>
-                      {faults[0].description && <p className="mt-1">{faults[0].description}</p>}
-                    </>
-                  ) : (
-                    <p className="italic text-gray-600">Loading fault details...</p>
-                  )}
-                </div>
+            {well.status === 'Fault' && well.fault_details && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm">
+                <h4 className="font-semibold text-red-700 mb-1">{t('currentFaultTitle')}</h4>
+                <p><span className="font-medium">{t('partLabel')}</span> {well.fault_details.part_id || 'Unknown Part'}</p>
+                <p><span className="font-medium">{t('typeLabel')}</span> {well.fault_details.fault_type || 'Unknown Type'}</p>
               </div>
             )}
-          </div>
+          </CardContent>
         </Card>
 
-        {/* Map Card */}
-        <Card className="overflow-hidden">
-          <div className="px-6 pt-4 pb-2">
-            <h3 className="text-lg font-semibold">{t('mapLocationTitle')}</h3>
-          </div>
-          <div className="h-[320px] w-full">
-            <MapView
-              latitude={well.latitude ?? 0}
-              longitude={well.longitude ?? 0}
-            />
-          </div>
-        </Card>
-
-        {/* Fault History Card */}
         <Card>
-          <div className="px-6 py-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">{t('faultHistoryTitle')}</h3>
-              
-              {/* Trigger Fault Button */}
-              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="destructive" size="sm">
-                    {tActions('triggerFault')}
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px]">
-                  <DialogHeader>
-                    <DialogTitle>{t('dialogTitlePrefix')}{well.name}</DialogTitle>
-                    <DialogDescription>
-                      {t('dialogDescription')}
-                    </DialogDescription>
-                  </DialogHeader>
-                  
-                  {isLoadingParts ? (
-                    <div className="p-8 text-center">
-                      <p className="text-muted-foreground">{t('dialogLoadingParts')}</p>
-                    </div>
-                  ) : loadingPartsError ? (
-                    <div className="p-8 text-center text-destructive">
-                      <p>{t('dialogErrorPartsPrefix')}{loadingPartsError}</p>
-                    </div>
-                  ) : (
-                    <FaultSimulationModalContent 
-                      currentWell={well} 
-                      parts={parts}
-                      onSubmit={handleFaultSubmit}
-                      isLoadingWellsParts={isLoadingParts}
-                      loadingError={loadingPartsError}
-                    />
-                  )}
-                </DialogContent>
-              </Dialog>
-            </div>
-            
+          <CardHeader>
+            <CardTitle>{t('mapLocationTitle')}</CardTitle>
+          </CardHeader>
+          <CardContent className="h-64 md:h-80 lg:h-96">
+            <Map
+              initialViewState={{
+                longitude: well.longitude || -98.5795,
+                latitude: well.latitude || 39.8283,
+                zoom: well.latitude && well.longitude ? 13 : 3
+              }}
+              style={{ width: '100%', height: '100%' }}
+              mapStyle="mapbox://styles/mapbox/streets-v11"
+              mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
+            >
+              {well.latitude && well.longitude && (
+                <Marker longitude={well.longitude} latitude={well.latitude} anchor="center">
+                   <div 
+                      className={cn(
+                          "w-3 h-3 rounded-full border-2 border-white shadow cursor-pointer", 
+                          getMarkerColor(well.status)
+                      )}
+                      title={well.name}
+                  />
+                </Marker>
+              )}
+            </Map>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>{t('faultHistoryTitle')}</CardTitle>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              className="gap-1.5"
+              onClick={() => setIsFaultDialogOpen(true)}
+            >
+               <AlertTriangle className="h-4 w-4" />
+              {t('triggerFaultButton')}
+            </Button>
+          </CardHeader>
+          <CardContent>
             <FaultHistoryTable faults={faults} isLoading={isLoadingFaults} />
-          </div>
+          </CardContent>
         </Card>
       </div>
 
-      {/* Right Column: Chat */}
-      <div className="lg:w-1/3 flex flex-col">
-        <Card className="h-auto">
-          <div className="p-4 font-medium border-b">{t('aiAssistantTitle')}</div>
-          <div className="overflow-hidden" style={{ height: '450px' }}>
-            <ChatPanel wellId={wellId} />
-          </div>
-        </Card>
-      </div>
+      <div className="lg:col-span-1">
+         <Card className="h-[calc(100vh-12rem)] flex flex-col">
+            <CardHeader>
+               <CardTitle>{t('aiAssistantTitle')}</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow overflow-hidden p-0">
+              <ChatPanel wellId={wellId} />
+            </CardContent>
+          </Card>
+        </div>
+
+      <FaultSimulationDialog 
+        isOpen={isFaultDialogOpen}
+        onOpenChange={setIsFaultDialogOpen}
+        initialWell={well}
+      />
     </div>
-  )
+  );
 } 
