@@ -1,7 +1,6 @@
 import Image from "next/image"; 
 import WellGrid from "@/components/WellGrid";
 import { WellTableView } from '@/components/well-table-view';
-import { Toolbar } from "@/components/toolbar";
 import { Suspense } from "react";
 
 export default function Home({ 
@@ -18,17 +17,20 @@ export default function Home({
 
   return (
     <main className="flex flex-col min-h-screen">
-      <Suspense>
+      {/* Toolbar removed to fix build error - Functionality moved to [locale]/page.tsx */}
+      {/* <Suspense>
         <Toolbar />
-      </Suspense>
+      </Suspense> */}
       <div className="flex-1 container mx-auto p-8">
-        <Suspense>
+        {/* Content commented out - Functionality moved to [locale]/page.tsx */}
+        {/* <Suspense>
           {currentView === 'card' ? (
             <WellGrid />
           ) : (
             <WellTableView />
           )}
-        </Suspense>
+        </Suspense> */}
+        <p>Root page - should redirect to locale.</p>
       </div>
     </main>
   );

@@ -58,7 +58,8 @@
     "error": "Lỗi khi tải giếng",
     "fetchError": "Không thể tải dữ liệu giếng",
     "noWellsFound": "Không tìm thấy giếng nào phù hợp với tiêu chí của bạn",
-    "notAvailable": "N/A"
+    "notAvailable": "N/A",
+    "actionsHeader": "Hành Động"
   },
   "faultSimulationModal": {
     "loading": "Đang tải giếng và bộ phận...",
@@ -84,7 +85,8 @@
     },
     "view": {
       "card": "Xem Dạng Thẻ",
-      "table": "Xem Dạng Bảng"
+      "table": "Xem Dạng Bảng",
+      "map": "Xem Dạng Bản Đồ"
     },
     "actions": {
       "resetDemo": "Đặt Lại Demo",
@@ -99,15 +101,15 @@
       "selectWellPlaceholder": "Chọn giếng mục tiêu"
     },
     "toasts": {
-      "fetchErrorTitle": "Lỗi",
-      "fetchErrorDescription": "Không thể tải giếng và bộ phận",
-      "faultCreatedTitle": "Đã Tạo Lỗi",
+      "fetchErrorTitle": "Lỗi Tải Dữ Liệu",
+      "fetchErrorDescription": "Không thể tải giếng và bộ phận cho hộp thoại.",
+      "faultCreatedTitle": "Đã Mô Phỏng Lỗi",
       "faultCreatedDescription": "Lỗi đã được mô phỏng thành công.",
-      "faultErrorTitle": "Lỗi",
-      "faultErrorDescription": "Không thể tạo lỗi",
+      "faultErrorTitle": "Lỗi Mô Phỏng Lỗi",
+      "faultErrorDescription": "Đã xảy ra lỗi khi cố gắng mô phỏng lỗi.",
       "resetSuccessTitle": "Đã Đặt Lại Demo",
       "resetSuccessDescription": "Dữ liệu demo đã được đặt lại thành công.",
-      "resetErrorTitle": "Lỗi",
+      "resetErrorTitle": "Lỗi Đặt Lại",
       "resetErrorDescription": "Không thể đặt lại demo"
     }
   },
@@ -212,5 +214,8 @@
       "resources": "Tài Nguyên",
       "demoScript": "Kịch Bản Demo"
     }
+  },
+  "mapView": {
+    "searchPlaceholder": "Tìm theo tên, trạm, cấu tạo..."
   }
 } 

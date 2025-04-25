@@ -31,7 +31,10 @@ interface FaultHistoryTableProps {
   isLoading?: boolean
 }
 
-export function FaultHistoryTable({ faults, isLoading }: FaultHistoryTableProps) {
+export function FaultHistoryTable({
+  faults, 
+  isLoading
+}: FaultHistoryTableProps) {
   const t = useTranslations('faultHistory')
   const tStatus = useTranslations('wellStatus')
   const [sorting, setSorting] = useState<SortingState>([{ id: 'timestamp', desc: true }])

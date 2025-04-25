@@ -21,7 +21,12 @@ type SubscriptionStatus = 'initializing' | 'connected' | 'error' | null;
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 2000; // 2 seconds
 
-export default function WellGrid() {
+// Define props for WellGrid
+interface WellGridProps {
+  openFaultDialog: (well: Well) => void;
+}
+
+export default function WellGrid({ openFaultDialog }: WellGridProps) {
   const supabase = useSupabase(); // Get client from context
   const [wells, setWells] = useState<Well[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,23 +62,21 @@ export default function WellGrid() {
     try {
       let query = supabase
         .from('wells')
-        .select('id, name, camp, formation, status')
+        // Select ALL columns now as WellCard needs the full object for the dialog
+        .select('*') 
         .order('name', { ascending: true });
 
-      // Apply filters if they exist and are not 'all'
+      // Apply filters
       if (filters.camp && filters.camp !== 'all') {
-        // Capitalize first letter for database query
         query = query.eq('camp', filters.camp.charAt(0).toUpperCase() + filters.camp.slice(1));
       }
       if (filters.formation && filters.formation !== 'all') {
-        // Handle hyphenated values and capitalize first letter
         const formattedFormation = filters.formation === 'bone-spring'
           ? 'Bone Spring'
           : filters.formation.charAt(0).toUpperCase() + filters.formation.slice(1);
         query = query.eq('formation', formattedFormation);
       }
       if (filters.status && filters.status !== 'all') {
-        // Handle hyphenated values and capitalize first letter
         const formattedStatus = filters.status === 'pending-repair'
           ? 'Pending Repair'
           : filters.status.charAt(0).toUpperCase() + filters.status.slice(1);
@@ -87,7 +90,7 @@ export default function WellGrid() {
       }
 
       if (data) {
-        setWells(data as Well[]);
+        setWells(data as Well[]); // Cast to Well[]
       }
     } catch (err: any) {
       console.error("Error fetching wells:", err);
@@ -103,25 +106,24 @@ export default function WellGrid() {
   const handleRealtimeUpdate = useCallback((payload: any) => {
     console.log('Realtime well change received:', payload);
     
-    // Handle new well added
     if (payload.eventType === 'INSERT') {
       setWells(currentWells => {
         if (currentWells.some(w => w.id === payload.new.id)) {
           return currentWells;
         }
-        return [...currentWells, payload.new].sort((a, b) => 
+        // Ensure the new object conforms to Well type before adding
+        const newWell = payload.new as Well;
+        return [...currentWells, newWell].sort((a, b) => 
           (a.name || '').localeCompare(b.name || ''));
       });
     } 
-    // Handle well updated
     else if (payload.eventType === 'UPDATE') {
-      setWells(currentWells => 
+       setWells(currentWells => 
         currentWells.map(well => 
-          well.id === payload.new.id ? { ...well, ...payload.new } : well
+          well.id === payload.new.id ? { ...well, ...(payload.new as Partial<Well>) } : well
         )
       );
     } 
-    // Handle well deleted
     else if (payload.eventType === 'DELETE') {
       setWells(currentWells => 
         currentWells.filter(well => well.id !== payload.old.id)
@@ -135,12 +137,10 @@ export default function WellGrid() {
     setSubscriptionStatus('initializing');
     
     try {
-      // Clean up any existing channel
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
       }
       
-      // Create new channel
       const channel = supabase
         .channel('wells-grid-changes')
         .on(
@@ -152,12 +152,11 @@ export default function WellGrid() {
           if (status === 'SUBSCRIBED') {
             console.log('Successfully subscribed to wells changes');
             setSubscriptionStatus('connected');
-            setRetryCount(0); // Reset retry count on success
+            setRetryCount(0); 
           } else if (status === 'CHANNEL_ERROR' || err) {
             console.error('Subscription error:', status, err);
             setSubscriptionStatus('error');
             
-            // Implement retry logic
             if (retryCount < MAX_RETRIES) {
               console.log(`Retrying subscription (${retryCount + 1}/${MAX_RETRIES})...`);
               setTimeout(() => {
@@ -179,7 +178,6 @@ export default function WellGrid() {
           }
         });
       
-      // Store channel reference for later cleanup
       channelRef.current = channel;
     } catch (err) {
       console.error('Error setting up realtime subscription:', err);
@@ -215,8 +213,8 @@ export default function WellGrid() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {Array.from({ length: 8 }).map((_, i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {Array.from({ length: 10 }).map((_, i) => (
           <Skeleton key={i} className="h-36 rounded-lg" />
         ))}
       </div>
@@ -247,28 +245,46 @@ export default function WellGrid() {
     );
   }
 
-  // Subscription status indicator
-  let subscriptionIndicator = null;
-  if (subscriptionStatus === 'error') {
-    subscriptionIndicator = (
-      <div className="bg-yellow-50 p-2 rounded-lg mb-4 text-sm text-yellow-800">
-        {t('realtimeDisconnected')}
-      </div>
-    );
+  // Subscription status indicator logic
+  let subscriptionIndicator = null; // Declare outside the blocks
+  if (subscriptionStatus === 'initializing') {
+      subscriptionIndicator = <div className="text-xs text-muted-foreground">{t('connectingRealtime')}</div>;
+  } else if (subscriptionStatus === 'error') {
+      subscriptionIndicator = (
+          <Badge variant="destructive" className="flex items-center gap-1.5">
+              <WifiOff className="h-3 w-3" />
+              {t('realtimeError')}
+          </Badge>
+      );
+  } else if (subscriptionStatus === 'connected') {
+       subscriptionIndicator = (
+          <Badge variant="outline" className="flex items-center gap-1.5 border-green-500 text-green-600">
+              <Wifi className="h-3 w-3" />
+              Connected
+          </Badge>
+      );
   }
 
-  // Render grid
+  // Grid layout
   return (
-    <>
+    <div className="flex flex-col space-y-4">
+      {/* Use the declared variable */} 
       {subscriptionIndicator}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-        {wells.map((well) => (
-          <WellCard
-            key={`${well.id}-${well.status}-${well.name}`}
-            well={well}
+
+      {/* Main Well Grid - Adjusted for 5 columns on large screens */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {wells.map(well => (
+          <WellCard 
+            key={well.id} 
+            well={well} 
+            openFaultDialog={() => openFaultDialog(well)}
+            onCreateSR={(id) => toast({ 
+              title: "Action Needed", 
+              description: `Create SR action for well ${id} needs implementation.` 
+            })} 
           />
         ))}
       </div>
-    </>
+    </div>
   );
 } 

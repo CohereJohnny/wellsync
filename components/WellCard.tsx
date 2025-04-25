@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"; 
 import { Badge } from "@/components/ui/badge"; 
 import { Well } from '@/lib/types';
@@ -8,9 +8,20 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { useSupabase } from "@/context/supabase-context";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { AlertTriangle, FileText, PlusCircle, ZoomIn } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface WellCardProps {
   well: Well;
+  openFaultDialog: (well: Well) => void;
+  onCreateSR: (wellId: string) => void;
+  onZoomToWell?: (wellId: string) => void;
 }
 
 // Custom comparison function for React.memo
@@ -34,12 +45,19 @@ const getBadgeClasses = (status: string) => {
 };
 
 // TODO: Add React.memo if performance issues arise
-export function WellCard({ well }: WellCardProps) {
+export function WellCard({ 
+  well, 
+  openFaultDialog, 
+  onCreateSR, 
+  onZoomToWell 
+}: WellCardProps): JSX.Element {
   const tStatus = useTranslations('wellStatus');
   const tCard = useTranslations('wellCard');
+  const tContextMenu = useTranslations('wellCardContextMenu');
   const supabase = useSupabase();
   const router = useRouter();
   const pathname = usePathname();
+  const { toast } = useToast();
   const [currentStatus, setCurrentStatus] = useState(well.status);
 
   useEffect(() => {
@@ -84,38 +102,80 @@ export function WellCard({ well }: WellCardProps) {
     return status;
   };
 
-  const handleClick = () => {
-    // Extract the locale from the pathname
-    const locale = pathname.split('/')[1]; // Pathname format is "/en/..." or "/es/..."
+  // Get locale once
+  const locale = pathname.split('/')[1];
+
+  // Main card click handler (already navigates)
+  const handleClick = useCallback(() => {
     router.push(`/${locale}/well/${well.id}`);
-  };
+  }, [router, locale, well.id]);
+
+  // Context menu handlers
+  const handleContextMenuViewDetails = useCallback(() => {
+    // Navigate directly using router
+    router.push(`/${locale}/well/${well.id}`);
+  }, [router, locale, well.id]);
+
+  // Trigger Fault: Calls the prop passed from WellGrid
+  const handleContextMenuTriggerFault = useCallback(() => {
+    openFaultDialog(well);
+  }, [openFaultDialog, well]);
+
+  // Create SR: Calls the prop passed from WellGrid
+  const handleContextMenuCreateSR = useCallback(() => {
+    onCreateSR(well.id);
+  }, [onCreateSR, well.id]);
+
+  // Zoom To Well: Calls the prop passed from WellGrid (optional)
+  const handleContextMenuZoomToWell = useCallback(() => {
+    onZoomToWell?.(well.id); 
+  }, [onZoomToWell, well.id]);
 
   return (
-    <Card 
-      // Apply design spec styles: bg-white (default for Card), shadow-sm, rounded-lg, p-4, hover effect
-      className="bg-white shadow-sm rounded-lg p-4 hover:scale-105 transition-transform cursor-pointer"
-      onClick={handleClick}
-    >
-      {/* Header contains Title and Badge */}
-      <CardHeader className="p-0 pb-2"> {/* Remove default padding, add bottom padding */}
-        <div className="flex justify-between items-center">
-          {/* Title Style: text-xl (H2), font-bold, text-gray-900 (using darker gray instead of navy for consistency) */}
-          <CardTitle className="text-xl font-bold text-gray-900">{well.name}</CardTitle>
-          <span className={cn(getBadgeClasses(currentStatus), "ml-auto")}>
-            {getStatusText(currentStatus)}
-          </span>
-        </div>
-      </CardHeader>
-      {/* Content contains Camp and Formation */}
-      <CardContent className="p-0"> {/* Remove default padding */} 
-        {/* Camp/Formation Style: text-sm (Small), font-normal (Regular) text-gray-600 */}
-        <p className="text-sm font-normal text-gray-600">{tCard('campLabel')}: {well.camp}</p>
-        <p className="text-sm font-normal text-gray-600">{tCard('formationLabel')}: {well.formation}</p>
-      </CardContent>
-    </Card>
+    <ContextMenu>
+      <ContextMenuTrigger>
+        <Card 
+          className="bg-white shadow-sm rounded-lg p-4 hover:scale-105 transition-transform cursor-pointer h-full flex flex-col"
+          onClick={handleClick}
+        >
+          <CardHeader className="p-0 pb-2">
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-xl font-bold text-gray-900 truncate" title={well.name}>{well.name}</CardTitle>
+              <span className={cn(getBadgeClasses(currentStatus), "ml-2 flex-shrink-0")}>
+                {getStatusText(currentStatus)}
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0 flex-grow">
+            <p className="text-sm font-normal text-gray-600">{tCard('campLabel')}: {well.camp || 'N/A'}</p>
+            <p className="text-sm font-normal text-gray-600">{tCard('formationLabel')}: {well.formation || 'N/A'}</p>
+          </CardContent>
+        </Card>
+      </ContextMenuTrigger>
+      <ContextMenuContent className="w-48 bg-white dark:bg-gray-800">
+        <ContextMenuItem onClick={handleContextMenuViewDetails} className="cursor-pointer">
+          <FileText className="mr-2 h-4 w-4" />
+          <span>{tContextMenu('viewDetails')}</span>
+        </ContextMenuItem>
+        <ContextMenuItem onClick={handleContextMenuTriggerFault} className="cursor-pointer">
+          <AlertTriangle className="mr-2 h-4 w-4 text-red-500" />
+          <span>{tContextMenu('triggerFault')}</span>
+        </ContextMenuItem>
+        {onZoomToWell && (
+          <ContextMenuItem onClick={handleContextMenuZoomToWell} className="cursor-pointer">
+            <ZoomIn className="mr-2 h-4 w-4" />
+            <span>{tContextMenu('zoomToWell')}</span>
+          </ContextMenuItem>
+        )}
+        <ContextMenuItem onClick={handleContextMenuCreateSR} className="cursor-pointer">
+          <PlusCircle className="mr-2 h-4 w-4 text-blue-500" />
+          <span>{tContextMenu('createSR')}</span>
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }
 
-// WellCard.displayName = 'WellCard'; // Remove if not using React.memo directly here
+// WellCard.displayName = 'WellCard';
 
-export default WellCard; // Use default export if it's the main export 
+export default WellCard; 
