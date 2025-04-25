@@ -128,9 +128,9 @@
       "formationSpraberry": "Spraberry"
     },
     "view": {
-      "card": "Card View",
-      "table": "Table View",
-      "map": "Map View"
+      "card": "Card",
+      "table": "Table",
+      "map": "Map"
     },
     "actions": {
       "resetDemo": "Reset Demo",

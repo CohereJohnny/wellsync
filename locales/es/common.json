@@ -87,9 +87,9 @@
       "formationSpraberry": "Spraberry"
     },
     "view": {
-      "card": "Vista Tarjeta",
-      "table": "Vista Tabla",
-      "map": "Vista Mapa"
+      "card": "Tarjeta",
+      "table": "Tabla",
+      "map": "Mapa"
     },
     "actions": {
       "resetDemo": "Reiniciar Demo",

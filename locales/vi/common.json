@@ -84,9 +84,9 @@
       "formationSpraberry": "Spraberry"
     },
     "view": {
-      "card": "Xem Dạng Thẻ",
-      "table": "Xem Dạng Bảng",
-      "map": "Xem Dạng Bản Đồ"
+      "card": "Thẻ",
+      "table": "Bảng",
+      "map": "Bản đồ"
     },
     "actions": {
       "resetDemo": "Đặt Lại Demo",
