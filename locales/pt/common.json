@@ -28,7 +28,38 @@
   "wellStatus": {
     "operational": "Operacional",
     "fault": "Falha",
-    "pendingrepair": "Aguardando Reparo" 
+    "pendingrepair": "Aguardando Reparo"
+  },
+  "transformerStatus": {
+    "operational": "Operacional",
+    "fault": "Falha",
+    "pendingrepair": "Reparação Pendente"
+  },
+  "transformerDetail": {
+    "title": "Detalhes do Transformador",
+    "substationLabel": "Subestação",
+    "typeLabel": "Tipo",
+    "locationLabel": "Localização",
+    "lastMaintenanceLabel": "Última Manutenção",
+    "lastMaintenanceNA": "N/D",
+    "currentFaultTitle": "Falha Atual",
+    "partLabel": "Peça:",
+    "typeLabel": "Tipo:",
+    "serialNumberLabel": "Número de Série",
+    "mapLocationTitle": "Localização no Mapa",
+    "faultHistoryTitle": "Histórico de Falhas",
+    "triggerFaultButton": "Acionar Falha",
+    "dialogTitlePrefix": "Simular Falha para ",
+    "dialogDescription": "Selecione uma peça e tipo de falha para simular.",
+    "dialogLoadingParts": "Carregando peças...",
+    "dialogErrorPartsPrefix": "Erro ao carregar peças: ",
+    "toastPartsErrorTitle": "Erro",
+    "toastPartsErrorDescription": "Falha ao carregar peças para simulação de falha.",
+    "toastFaultCreatedTitle": "Falha Criada",
+    "toastFaultCreatedDescription": "A falha foi simulada com sucesso para este transformador.",
+    "toastFaultErrorTitle": "Erro",
+    "toastFaultErrorDescription": "Falha ao criar falha para este transformador",
+    "aiAssistantTitle": "Assistente IA"
   },
   "wellCard": {
     "campLabel": "Campo",
@@ -69,8 +100,8 @@
     "unavailable": "Dados do poço ou peças indisponíveis para simulação de falha."
   },
   "navigation": {
-    "title": "WellSync AI",
-    "dashboard": "Painel",
+    "title": "GridSync AI",
+    "dashboard": "Painel de Controle",
     "inventory": "Inventário",
     "settings": "Configurações",
     "documentation": "Documentação"
@@ -220,5 +251,6 @@
   },
   "mapView": {
     "searchPlaceholder": "Buscar por nome, campo, formação..."
-  }
+  },
+  "allRightsReserved": "Todos os Direitos Reservados"
 } 

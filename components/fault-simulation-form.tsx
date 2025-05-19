@@ -12,44 +12,57 @@ import {
 } from '@/components/ui/select'
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Well, Part } from '@/lib/types'
+import { Well, Part, Transformer } from '@/lib/types'
 import { useTranslations } from 'next-intl'
 
 // TODO: Consider moving predefined fault types to a config or fetching from DB
 // For now, define with keys for translation
 const FAULT_TYPES = [
-  { key: 'wear_and_tear', severity: 'high' },
-  { key: 'blockage', severity: 'medium' },
-  { key: 'leakage', severity: 'medium' },
-  { key: 'electrical_failure', severity: 'critical' },
-  { key: 'other', severity: 'low' },
+  { key: 'insulation_deterioration', severity: 'critical' },
+  { key: 'winding_failure', severity: 'critical' },
+  { key: 'oil_leakage', severity: 'high' },
+  { key: 'overheating', severity: 'high' },
+  { key: 'bushing_failure', severity: 'high' },
+  { key: 'core_saturation', severity: 'medium' },
+  { key: 'cooling_system_malfunction', severity: 'medium' },
+  { key: 'tap_changer_misoperation', severity: 'medium' },
+  { key: 'voltage_fluctuation', severity: 'medium' },
+  { key: 'partial_discharge', severity: 'high' },
+  { key: 'moisture_ingress', severity: 'medium' },
+  { key: 'protection_system_failure', severity: 'critical' },
+  { key: 'phase_imbalance', severity: 'high' },
+  { key: 'harmonic_overload', severity: 'medium' },
+  { key: 'abnormal_vibration', severity: 'low' },
+  { key: 'ground_fault', severity: 'critical' },
+  { key: 'lightning_strike_damage', severity: 'high' },
+  { key: 'loose_connection', severity: 'medium' },
 ]
 
-// Reverted props to accept currentWell
+// Updated props to accept currentResource
 interface FaultSimulationFormProps {
-  currentWell: Well;
+  currentResource: Well | Transformer;
+  resourceType: 'well' | 'transformer';
   parts?: Part[];
-  onSubmit: (data: { wellId: string; partId: string; faultType: string; description?: string }) => Promise<void>;
+  onSubmit: (data: { resourceId: string; partId: string; faultType: string; description?: string }) => Promise<void>;
   isSubmitting: boolean;
 }
 
 export function FaultSimulationForm({
-  // Reverted props destructuring
-  currentWell,
+  currentResource,
+  resourceType,
   parts = [],
   onSubmit,
   isSubmitting,
 }: FaultSimulationFormProps) {
   const { toast } = useToast()
-  // Removed selectedWellId state
   const [selectedPart, setSelectedPart] = useState<string>('')
   const [selectedFaultType, setSelectedFaultType] = useState<string>('')
   const [description, setDescription] = useState<string>('')
   const t = useTranslations('faultSimulationForm')
 
   const handleSubmit = async () => {
-    // Reverted validation
-    if (!currentWell?.id || !selectedPart || !selectedFaultType) {
+    // Validate required fields
+    if (!currentResource?.id || !selectedPart || !selectedFaultType) {
       toast({
         title: t('validationError.title'),
         description: t('validationError.description'),
@@ -60,8 +73,7 @@ export function FaultSimulationForm({
 
     try {
       await onSubmit({
-        // Use currentWell.id
-        wellId: currentWell.id,
+        resourceId: currentResource.id,
         partId: selectedPart,
         faultType: selectedFaultType,
         description: description.trim() || undefined,
@@ -77,7 +89,7 @@ export function FaultSimulationForm({
     }
   }
 
-  // Reverted check (only check for parts)
+  // Check for parts
   if (!parts?.length) {
     return (
       <div className="p-4 text-center text-muted-foreground">
@@ -86,15 +98,20 @@ export function FaultSimulationForm({
     )
   }
 
+  // Get the appropriate label key based on resource type
+  const resourceLabelKey = resourceType === 'transformer' ? 'targetTransformer' : 'targetWell';
+
   return (
     <div className="space-y-4 pt-4">
-      {/* Removed Well Selector, added back Target Well display */}
+      {/* Target Resource display */}
       <div className="space-y-1">
-          <Label htmlFor="target-well" className="text-sm font-medium text-gray-700">{t('targetWell')}</Label>
-          <p id="target-well" className="text-base text-gray-900 font-semibold p-2 border border-gray-200 rounded-md bg-gray-50">{currentWell.name}</p>
+        <Label htmlFor="target-resource" className="text-sm font-medium text-gray-700">{t(resourceLabelKey)}</Label>
+        <p id="target-resource" className="text-base text-gray-900 font-semibold p-2 border border-gray-200 rounded-md bg-gray-50">
+          {currentResource.name}
+        </p>
       </div>
 
-      {/* Existing Part Selector */}
+      {/* Part Selector */}
       <Select value={selectedPart} onValueChange={setSelectedPart} disabled={isSubmitting}>
         <SelectTrigger>
           <SelectValue placeholder={t('partPlaceholder')} />
@@ -132,7 +149,7 @@ export function FaultSimulationForm({
         </SelectContent>
       </Select>
 
-      {/* Existing Description */}
+      {/* Description */}
       <div className="space-y-2">
         <Label htmlFor="fault-description">{t('description')}</Label>
         <Textarea
@@ -145,7 +162,7 @@ export function FaultSimulationForm({
         />
       </div>
 
-      {/* Existing Submit Button */}
+      {/* Submit Button */}
       <Button 
         onClick={handleSubmit} 
         disabled={isSubmitting}

@@ -1,5 +1,26 @@
-// Define the structure for the Well data based on the Supabase schema
+// Define the structure for the Transformer data based on the Supabase schema
 
+export interface Transformer {
+  id: string;
+  name: string;
+  substation: string;
+  type: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  status: string;
+  last_maintenance?: string | null;
+  fault_details?: { 
+    part_id?: string; 
+    fault_type?: string;
+    part_specifications?: {
+      serial_number?: string;
+      [key: string]: unknown;
+    }; 
+  } | null;
+  updated_at: string;
+}
+
+// Keep the Well interface for backward compatibility
 export interface Well {
   id: string;
   name: string;
@@ -9,7 +30,14 @@ export interface Well {
   longitude?: number | null;
   status: string;
   last_maintenance?: string | null;
-  fault_details?: { part_id?: string; fault_type?: string } | null;
+  fault_details?: { 
+    part_id?: string; 
+    fault_type?: string;
+    part_specifications?: {
+      serial_number?: string;
+      [key: string]: unknown;
+    }; 
+  } | null;
   updated_at: string;
 }
 
@@ -24,7 +52,8 @@ export interface Part {
 
 export interface Fault {
   fault_id: string;
-  well_id: string;
+  transformer_id?: string;
+  well_id?: string;
   part_id: string;
   fault_type: string;
   description: string;
@@ -32,6 +61,10 @@ export interface Fault {
   status: 'active' | 'resolved';
   resolved_at?: string;
   severity?: 'low' | 'medium' | 'high' | 'critical';
+  part_specifications?: {
+    serial_number?: string;
+    [key: string]: unknown;
+  };
 }
 
 export type FaultType = {

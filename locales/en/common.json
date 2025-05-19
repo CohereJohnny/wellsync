@@ -1,5 +1,6 @@
 {
   "greeting": "Hello!",
+  "allRightsReserved": "All Rights Reserved",
   "wellDetail": {
     "title": "Well Detail",
     "campLabel": "Camp",
@@ -25,14 +26,57 @@
     "toastFaultErrorDescription": "Failed to create fault for this well",
     "aiAssistantTitle": "AI Assistant"
   },
+  "transformerDetail": {
+    "title": "Transformer Detail",
+    "substationLabel": "Substation",
+    "typeLabel": "Type",
+    "locationLabel": "Location",
+    "lastMaintenanceLabel": "Last Maintenance",
+    "lastMaintenanceNA": "N/A",
+    "currentFaultTitle": "Current Fault",
+    "partLabel": "Part:",
+    "typeLabel": "Type:",
+    "serialNumberLabel": "Serial Number",
+    "mapLocationTitle": "Map Location",
+    "faultHistoryTitle": "Fault History",
+    "triggerFaultButton": "Trigger Fault",
+    "dialogTitlePrefix": "Simulate Fault for ",
+    "dialogDescription": "Select a part and fault type to simulate.",
+    "dialogLoadingParts": "Loading parts...",
+    "dialogErrorPartsPrefix": "Error loading parts: ",
+    "toastPartsErrorTitle": "Error",
+    "toastPartsErrorDescription": "Failed to load parts for fault simulation.",
+    "toastFaultCreatedTitle": "Fault Created",
+    "toastFaultCreatedDescription": "The fault has been successfully simulated for this transformer.",
+    "toastFaultErrorTitle": "Error",
+    "toastFaultErrorDescription": "Failed to create fault for this transformer",
+    "aiAssistantTitle": "AI Assistant"
+  },
   "wellStatus": {
+    "operational": "Operational",
+    "fault": "Fault",
+    "pendingrepair": "Pending Repair" 
+  },
+  "transformerStatus": {
     "operational": "Operational",
     "fault": "Fault",
     "pendingrepair": "Pending Repair" 
   },
   "wellCard": {
     "campLabel": "Camp",
-    "formationLabel": "Formation"
+    "formationLabel": "Formation",
+    "viewDetails": "View Details",
+    "triggerFault": "Trigger Fault",
+    "createSR": "Create Service Request",
+    "zoomTo": "Zoom to Well"
+  },
+  "transformerCard": {
+    "substationLabel": "Substation",
+    "typeLabel": "Type",
+    "viewDetails": "View Details",
+    "triggerFault": "Trigger Fault",
+    "createSR": "Create Service Request",
+    "zoomTo": "Zoom to Transformer"
   },
   "wellGrid": {
     "loading": "Loading wells...",
@@ -44,6 +88,20 @@
     "noWellsFound": "No wells found",
     "tryChangingFilters": "Try adjusting your filters or viewing all wells",
     "tryAdjustingFilters": "Try adjusting your filters or viewing all wells",
+    "connectingRealtime": "Connecting to real-time updates...",
+    "realtimeError": "Real-time updates unavailable",
+    "realtimeDisconnected": "Real-time updates unavailable. Data may not be current."
+  },
+  "transformerGrid": {
+    "loading": "Loading transformers...",
+    "error": "Error loading transformers",
+    "errorFetchingTransformers": "Failed to load transformer data. Please try again later.",
+    "fetchError": "Failed to load transformer data. Please try again later.",
+    "errorOccurred": "An error occurred",
+    "retry": "Retry",
+    "noTransformersFound": "No transformers found",
+    "tryChangingFilters": "Try adjusting your filters or viewing all transformers",
+    "tryAdjustingFilters": "Try adjusting your filters or viewing all transformers",
     "connectingRealtime": "Connecting to real-time updates...",
     "realtimeError": "Real-time updates unavailable",
     "realtimeDisconnected": "Real-time updates unavailable. Data may not be current."
@@ -64,12 +122,28 @@
     "triggerFaultTooltip": "Trigger simulated fault",
     "createSRTooltip": "Create service request"
   },
+  "transformerTable": {
+    "nameHeader": "Transformer Name",
+    "substationHeader": "Substation",
+    "typeHeader": "Type",
+    "statusHeader": "Status",
+    "lastMaintenanceHeader": "Last Maintenance",
+    "loading": "Loading transformers...",
+    "error": "Error loading transformers",
+    "fetchError": "Failed to load transformer data",
+    "noTransformersFound": "No transformers found matching your criteria",
+    "notAvailable": "N/A",
+    "actionsHeader": "Actions",
+    "viewDetailsTooltip": "View transformer details",
+    "triggerFaultTooltip": "Trigger simulated fault",
+    "createSRTooltip": "Create service request"
+  },
   "faultSimulationModal": {
     "loading": "Loading wells and parts...",
     "unavailable": "Well data or parts unavailable for fault simulation."
   },
   "navigation": {
-    "title": "WellSync AI",
+    "title": "GridSync AI",
     "dashboard": "Dashboard",
     "inventory": "Inventory",
     "settings": "Settings",
@@ -117,6 +191,16 @@
     }
   },
   "toolbar": {
+    "cardView": "Card",
+    "tableView": "Table",
+    "mapView": "Map",
+    "allSubstations": "All Substations",
+    "allTypes": "All Types",
+    "allStatuses": "All Statuses",
+    "substation": "Substation",
+    "type": "Type",
+    "status": "Status",
+    "triggerFault": "Trigger Fault",
     "filters": {
       "allCamps": "All Camps",
       "allFormations": "All Formations",
@@ -139,14 +223,14 @@
     },
     "simulationDialog": {
       "title": "Trigger New Fault Simulation",
-      "description": "Select a well, part, and fault type to simulate a new fault event.",
+      "description": "Select a transformer, part, and fault type to simulate a new fault event.",
       "loading": "Loading simulation options...",
       "errorPrefix": "Error: ",
-      "selectWellPlaceholder": "Select target well"
+      "selectTransformerPlaceholder": "Select target transformer"
     },
     "toasts": {
       "fetchErrorTitle": "Error",
-      "fetchErrorDescription": "Failed to load wells and parts",
+      "fetchErrorDescription": "Failed to load transformers and parts",
       "faultCreatedTitle": "Fault Created",
       "faultCreatedDescription": "The fault has been successfully simulated.",
       "faultErrorTitle": "Error",
@@ -159,7 +243,7 @@
   },
   "languageName": "English",
   "faultSimulationForm": {
-    "targetWell": "Target Well",
+    "targetTransformer": "Target Transformer",
     "partPlaceholder": "Select a part",
     "faultTypePlaceholder": "Select a fault type",
     "description": "Description (Optional)",
@@ -168,7 +252,7 @@
     "triggeringButton": "Triggering Fault...",
     "validationError": {
       "title": "Validation Error",
-      "description": "Please select a part and fault type for the current well."
+      "description": "Please select a part and fault type for the current transformer."
     },
     "success": {
       "title": "Success",
@@ -179,11 +263,24 @@
       "description": "Failed to trigger fault"
     },
     "noParts": "No parts available for fault simulation.",
-    "faultTypeWearAndTear": "Wear and Tear",
-    "faultTypeBlockage": "Blockage",
-    "faultTypeLeakage": "Leakage",
-    "faultTypeElectricalFailure": "Electrical Failure",
-    "faultTypeOther": "Other",
+    "faultTypeInsulationDeterioration": "Insulation Deterioration",
+    "faultTypeWindingFailure": "Winding Failure",
+    "faultTypeOilLeakage": "Oil Leakage",
+    "faultTypeOverheating": "Overheating",
+    "faultTypeBushingFailure": "Bushing Failure",
+    "faultTypeCoreSaturation": "Core Saturation",
+    "faultTypeCoolingSystemMalfunction": "Cooling System Malfunction",
+    "faultTypeTapChangerMisoperation": "Tap Changer Misoperation",
+    "faultTypeVoltageFluctuation": "Voltage Fluctuation",
+    "faultTypePartialDischarge": "Partial Discharge",
+    "faultTypeMoistureIngress": "Moisture Ingress",
+    "faultTypeProtectionSystemFailure": "Protection System Failure",
+    "faultTypePhaseImbalance": "Phase Imbalance",
+    "faultTypeHarmonicOverload": "Harmonic Overload",
+    "faultTypeAbnormalVibration": "Abnormal Vibration",
+    "faultTypeGroundFault": "Ground Fault",
+    "faultTypeLightningStrikeDamage": "Lightning Strike Damage",
+    "faultTypeLooseConnection": "Loose Connection",
     "severity": {
       "low": "Low",
       "medium": "Medium",
@@ -202,14 +299,15 @@
     "detailsTitle": "Fault Details",
     "noDescription": "No description provided",
     "partIdLabel": "Part ID",
+    "serialNumberLabel": "Serial Number",
     "severityLabel": "Severity",
     "faultIdLabel": "Fault ID",
-    "wellIdLabel": "Well ID"
+    "transformerIdLabel": "Transformer ID"
   },
   "chat": {
     "title": "AI Assistant",
     "placeholder": "Type your message or /search ...",
-    "noHistory": "No conversation history for this well yet. Start chatting!",
+    "noHistory": "No conversation history for this transformer yet. Start chatting!",
     "searchingFaults": "Searching relevant faults...",
     "searchError": "Search Error",
     "searchErrorMissingQuery": "Please provide a query after /search",
@@ -225,6 +323,6 @@
     "zoomToWell": "Zoom to Well"
   },
   "mapView": {
-    "searchPlaceholder": "Search wells by name, camp, formation..."
+    "searchPlaceholder": "Search transformers by name, substation, type..."
   }
 } 

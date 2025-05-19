@@ -1,44 +1,54 @@
-import type { ReactNode } from 'react';
-import "../globals.css"; // Correct path: Up one level from [locale]
-import { Toaster } from "@/components/ui/toaster";
+import { SupabaseProvider } from '@/context/supabase-context';
+import { Toaster } from '@/components/ui/toaster';
+import '@/app/globals.css';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
-import I18nClientProvider from "@/components/i18n-client-provider";
-import { MainToolbar } from "@/components/layout/main-toolbar";
-import { Providers } from './providers';
-import { GeistMono } from 'geist/font/mono'
-import { GeistSans } from 'geist/font/sans'
-import { SiteFooter } from "@/components/layout/site-footer";
+import { getMessages, getTranslations } from 'next-intl/server';
+import { ThemeProvider } from '@/components/theme-provider';
+import HeaderNav from '@/components/layout/header-nav';
 
-// Params are passed to layouts in the app router
-interface LocaleLayoutProps {
-    children: ReactNode;
-    params: { locale: string };
+export const metadata = {
+  title: 'GridSync AI',
+  description: 'Centerpoint Transformer Monitoring and Management Solution',
+};
+
+export async function generateStaticParams() {
+  return [{ locale: 'en' }, { locale: 'es' }, { locale: 'pt' }];
 }
 
-// This layout receives the locale param
-export default async function LocaleLayout({ children, params: { locale } }: LocaleLayoutProps) {
-  console.log(`[LocaleLayout] Rendering with locale: ${locale}`);
-  const messages = await getMessages({ locale });
+export default async function RootLayout({
+  children,
+  params: { locale },
+}: {
+  children: React.ReactNode;
+  params: { locale: string };
+}) {
+  const messages = await getMessages();
+  const t = await getTranslations('common');
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'GridSync AI';
 
   return (
-    // No <html> or <body> tags here
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      <I18nClientProvider>
-        <Providers>
-          {/* Site Header */}
-          <MainToolbar />
-
-          {/* Main Content Area - Removed horizontal padding, only top padding remains */}
-          <main className="flex-1 pt-16">
-            {children}
-          </main>
-
-          {/* Site Footer */}
-          <SiteFooter />
-          <Toaster />
-        </Providers>
-      </I18nClientProvider>
-    </NextIntlClientProvider>
+    <html lang={locale} suppressHydrationWarning>
+      <body>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SupabaseProvider>
+              <HeaderNav appName={appName} />
+              <main>{children}</main>
+              <Toaster />
+              <footer className="border-t py-4 text-center text-sm text-gray-500">
+                <div className="container mx-auto px-4">
+                  © {new Date().getFullYear()} {appName}. {t('allRightsReserved')}
+                </div>
+              </footer>
+            </SupabaseProvider>
+          </ThemeProvider>
+        </NextIntlClientProvider>
+      </body>
+    </html>
   );
 } 

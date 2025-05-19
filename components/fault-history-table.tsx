@@ -29,14 +29,16 @@ import { ArrowUpDown, ChevronDown, ChevronRight } from 'lucide-react'
 interface FaultHistoryTableProps {
   faults: Fault[]
   isLoading?: boolean
+  resourceType?: 'well' | 'transformer'
 }
 
 export function FaultHistoryTable({
   faults, 
-  isLoading
+  isLoading,
+  resourceType = 'transformer' // Default to transformer for new implementation
 }: FaultHistoryTableProps) {
   const t = useTranslations('faultHistory')
-  const tStatus = useTranslations('wellStatus')
+  const tStatus = useTranslations('transformerStatus') // Use transformer status translations by default
   const [sorting, setSorting] = useState<SortingState>([{ id: 'timestamp', desc: true }])
   const [expanded, setExpanded] = useState<ExpandedState>({})
   const [isClient, setIsClient] = useState(false)
@@ -74,6 +76,11 @@ export function FaultHistoryTable({
                     'bg-yellow-500' // Default/Pending color
     return cn('text-white px-2 py-1 text-xs font-medium rounded', bgColor)
   }
+
+  // Get correct ID field label based on resource type
+  const getResourceIdLabel = () => {
+    return resourceType === 'transformer' ? t('transformerIdLabel') : t('wellIdLabel');
+  };
 
   // Define columns
   const columns = useMemo<ColumnDef<Fault>[]>(() => [
@@ -230,11 +237,40 @@ export function FaultHistoryTable({
                         <br />
                         {row.original.description || t('noDescription')}
                       </p>
-                      <p>
-                        <span className="font-medium">Part Details:</span>
-                        <br />
-                        Part ID: {row.original.part_id}
-                      </p>
+                      <div className="grid grid-cols-2 gap-4 mt-2">
+                        <div>
+                          <span className="font-medium">{t('partIdLabel')}:</span>
+                          <br />
+                          {row.original.part_id}
+                          {row.original.part_specifications && row.original.part_specifications.serial_number && (
+                            <>
+                              <br />
+                              <span className="text-xs text-gray-500">
+                                {t('serialNumberLabel')}: {row.original.part_specifications.serial_number}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                        {row.original.severity && (
+                          <div>
+                            <span className="font-medium">{t('severityLabel')}:</span>
+                            <br />
+                            {row.original.severity}
+                          </div>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 mt-2">
+                        <div>
+                          <span className="font-medium">{t('faultIdLabel')}:</span>
+                          <br />
+                          {row.original.fault_id}
+                        </div>
+                        <div>
+                          <span className="font-medium">{getResourceIdLabel()}:</span>
+                          <br />
+                          {row.original.transformer_id || row.original.well_id}
+                        </div>
+                      </div>
                     </div>
                   </TableCell>
                 </TableRow>

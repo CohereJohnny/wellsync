@@ -30,6 +30,37 @@
     "fault": "Falla",
     "pendingrepair": "Reparación Pendiente"
   },
+  "transformerStatus": {
+    "operational": "Operacional",
+    "fault": "Falla",
+    "pendingrepair": "Reparación Pendiente"
+  },
+  "transformerDetail": {
+    "title": "Detalle del Transformador",
+    "substationLabel": "Subestación",
+    "typeLabel": "Tipo",
+    "locationLabel": "Ubicación",
+    "lastMaintenanceLabel": "Último Mantenimiento",
+    "lastMaintenanceNA": "N/D",
+    "currentFaultTitle": "Falla Actual",
+    "partLabel": "Parte:",
+    "typeLabel": "Tipo:",
+    "serialNumberLabel": "Número de Serie",
+    "mapLocationTitle": "Ubicación en Mapa",
+    "faultHistoryTitle": "Historial de Fallas",
+    "triggerFaultButton": "Activar Falla",
+    "dialogTitlePrefix": "Simular Falla para ",
+    "dialogDescription": "Seleccione una parte y tipo de falla para simular.",
+    "dialogLoadingParts": "Cargando partes...",
+    "dialogErrorPartsPrefix": "Error al cargar partes: ",
+    "toastPartsErrorTitle": "Error",
+    "toastPartsErrorDescription": "Error al cargar partes para la simulación de falla.",
+    "toastFaultCreatedTitle": "Falla Creada",
+    "toastFaultCreatedDescription": "La falla ha sido simulada exitosamente para este transformador.",
+    "toastFaultErrorTitle": "Error",
+    "toastFaultErrorDescription": "Error al crear falla para este transformador",
+    "aiAssistantTitle": "Asistente IA"
+  },
   "wellCard": {
     "campLabel": "Campo",
     "formationLabel": "Formación"
@@ -69,10 +100,10 @@
     "unavailable": "Datos de pozo o partes no disponibles para simulación de falla."
   },
   "navigation": {
-    "title": "WellSync AI",
-    "dashboard": "Tablero",
+    "title": "GridSync AI",
+    "dashboard": "Panel de Control",
     "inventory": "Inventario",
-    "settings": "Ajustes",
+    "settings": "Configuración",
     "documentation": "Documentación"
   },
   "toolbar": {
@@ -220,5 +251,6 @@
   },
   "mapView": {
     "searchPlaceholder": "Buscar por nombre, campo, formación..."
-  }
+  },
+  "allRightsReserved": "Todos los Derechos Reservados"
 } 

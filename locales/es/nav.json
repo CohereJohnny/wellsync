@@ -1,0 +1,10 @@
+{
+  "dashboard": "Panel de Control",
+  "transformers": "Transformadores",
+  "documentation": "Documentación",
+  "settings": "Configuración",
+  "profile": "Perfil",
+  "logout": "Cerrar Sesión",
+  "login": "Iniciar Sesión",
+  "register": "Registrarse"
+} 

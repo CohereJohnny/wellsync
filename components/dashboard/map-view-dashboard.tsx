@@ -6,8 +6,8 @@ import { useParams } from 'next/navigation';
 import Map, { Marker, MapRef, MapProps, ViewStateChangeEvent, ViewState } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useSupabase } from '@/context/supabase-context';
-import { Well, Part } from '@/lib/types';
-import { WellFilters } from '@/components/toolbar';
+import { Well, Part, Transformer } from '@/lib/types';
+import { TransformerFilters } from '@/components/toolbar-transformer';
 import { cn } from '@/lib/utils';
 import { MapWellListItem } from './map-well-list-item';
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -19,8 +19,8 @@ import { AlertCircle } from "lucide-react";
 import { useTranslations } from 'next-intl';
 
 interface MapViewDashboardProps {
-  filters: WellFilters;
-  openFaultDialog: (well: Well) => void;
+  filters: TransformerFilters;
+  openFaultDialog: (transformer: Transformer | null) => void;
 }
 
 interface MapViewportState {
@@ -37,83 +37,88 @@ export function MapViewDashboard({ filters, openFaultDialog }: MapViewDashboardP
   const params = useParams();
   const t = useTranslations('mapView');
   const locale = params.locale as string;
-  const [wells, setWells] = useState<Well[]>([]);
+  const [transformers, setTransformers] = useState<Transformer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewState, setViewState] = useState<Partial<ViewState>>({
-    longitude: -100,
-    latitude: 40,
-    zoom: 7,
+    longitude: -95.3698, // Houston coordinates
+    latitude: 29.7604,
+    zoom: 10,
   });
 
   const mapRef = useRef<MapRef>(null);
 
-  const filteredWells = useMemo(() => {
+  const filteredTransformers = useMemo(() => {
     if (!searchTerm) {
-      return wells;
+      return transformers;
     }
     const lowerSearchTerm = searchTerm.toLowerCase();
-    return wells.filter(well => 
-      (well.name?.toLowerCase().includes(lowerSearchTerm)) ||
-      (well.camp?.toLowerCase().includes(lowerSearchTerm)) ||
-      (well.formation?.toLowerCase().includes(lowerSearchTerm))
+    return transformers.filter(transformer => 
+      (transformer.name?.toLowerCase().includes(lowerSearchTerm)) ||
+      (transformer.substation?.toLowerCase().includes(lowerSearchTerm)) ||
+      (transformer.type?.toLowerCase().includes(lowerSearchTerm))
     );
-  }, [wells, searchTerm]);
+  }, [transformers, searchTerm]);
 
   const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
   useEffect(() => {
-    async function fetchWells() {
+    async function fetchTransformers() {
       setIsLoading(true);
       setError(null);
-      console.log("Fetching wells with filters:", filters);
+      console.log("Fetching transformers with filters:", filters);
       try {
-        let query = supabase.from('wells').select('*');
+        let query = supabase.from('transformers').select('*');
         
-        if (filters.camp && filters.camp !== 'all') {
-          console.log(`Applying camp filter: ${filters.camp}`);
-          query = query.eq('camp', filters.camp);
+        if (filters.substation && filters.substation !== 'all') {
+          console.log(`Applying substation filter: ${filters.substation}`);
+          const formattedSubstation = filters.substation.charAt(0).toUpperCase() + filters.substation.slice(1);
+          query = query.eq('substation', formattedSubstation);
         }
-        if (filters.formation && filters.formation !== 'all') {
-          console.log(`Applying formation filter: ${filters.formation}`);
-          query = query.eq('formation', filters.formation);
+        if (filters.type && filters.type !== 'all') {
+          console.log(`Applying type filter: ${filters.type}`);
+          const formattedType = filters.type.charAt(0).toUpperCase() + filters.type.slice(1);
+          query = query.eq('type', formattedType);
         }
         if (filters.status && filters.status !== 'all') {
           console.log(`Applying status filter: ${filters.status}`);
-          query = query.eq('status', filters.status);
+          const formattedStatus = filters.status === 'pending-repair' 
+            ? 'Pending Repair' 
+            : filters.status.charAt(0).toUpperCase() + filters.status.slice(1);
+          query = query.eq('status', formattedStatus);
         }
 
         const { data, error: dbError, count } = await query;
-        console.log(`Fetched wells data count: ${data?.length}, Supabase count: ${count}`);
+        console.log(`Fetched transformers data count: ${data?.length}, Supabase count: ${count}`);
 
         if (dbError) {
           console.error('Supabase fetch error:', dbError);
           throw dbError;
         }
 
-        const sortedWells = (data || []).sort((a, b) => 
+        const sortedTransformers = (data || []).sort((a, b) => 
           a.name.localeCompare(b.name)
         );
 
-        setWells(sortedWells);
+        setTransformers(sortedTransformers);
 
-        if (sortedWells.length > 0 && sortedWells[0].latitude && sortedWells[0].longitude) {
+        if (sortedTransformers.length > 0 && sortedTransformers[0].latitude && sortedTransformers[0].longitude) {
           setViewState(prevState => ({
             ...prevState,
-            latitude: sortedWells[0].latitude as number,
-            longitude: sortedWells[0].longitude as number,
+            latitude: sortedTransformers[0].latitude as number,
+            longitude: sortedTransformers[0].longitude as number,
           }));
         } 
 
       } catch (err: any) {
-        console.error('Error fetching wells for map:', err);
-        setError('Failed to load well data for the map.');
+        console.error('Error fetching transformers for map:', err);
+        setError('Failed to load transformer data for the map.');
       } finally {
         setIsLoading(false);
       }
     }
-    fetchWells();
+    fetchTransformers();
   }, [filters, supabase]);
 
   const debouncedSetSearchTerm = useMemo(
@@ -129,20 +134,20 @@ export function MapViewDashboard({ filters, openFaultDialog }: MapViewDashboardP
     return 'bg-gray-400';
   };
 
-  const handleMarkerClick = (wellId: string) => {
-    router.push(`/${locale}/well/${wellId}`);
+  const handleMarkerClick = (transformerId: string) => {
+    router.push(`/${locale}/transformer/${transformerId}`);
   };
 
-  const handleZoomToWell = useCallback((wellId: string) => {
-    const well = wells.find(w => w.id === wellId);
-    if (well && well.latitude && well.longitude && mapRef.current) {
+  const handleZoomToTransformer = useCallback((transformerId: string) => {
+    const transformer = transformers.find(t => t.id === transformerId);
+    if (transformer && transformer.latitude && transformer.longitude && mapRef.current) {
       mapRef.current.flyTo({
-        center: [well.longitude, well.latitude],
-        zoom: 10,
+        center: [transformer.longitude, transformer.latitude],
+        zoom: 12,
         duration: 1500
       });
     }
-  }, [wells]);
+  }, [transformers]);
 
   if (!mapboxAccessToken) {
     console.error('Mapbox access token is not configured.');
@@ -172,16 +177,20 @@ export function MapViewDashboard({ filters, openFaultDialog }: MapViewDashboardP
           />
         </div>
         <ScrollArea className="flex-1 h-auto">
-          {filteredWells.map((well) => (
-            <MapWellListItem
-              key={well.id}
-              well={well}
-              openFaultDialog={() => {
-                const wellToSimulate = wells.find(w => w.id === well.id);
-                if (wellToSimulate) openFaultDialog(wellToSimulate);
-              }}
-              onZoomToWell={handleZoomToWell}
-            />
+          {filteredTransformers.map((transformer) => (
+            <div 
+              key={transformer.id}
+              className="py-2 px-4 border-b hover:bg-gray-50 cursor-pointer"
+              onClick={() => handleMarkerClick(transformer.id)}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium">{transformer.name}</h3>
+                  <p className="text-sm text-gray-500">{transformer.substation} - {transformer.type}</p>
+                </div>
+                <div className={cn("w-3 h-3 rounded-full", getMarkerColor(transformer.status))}></div>
+              </div>
+            </div>
           ))}
         </ScrollArea>
       </div>
@@ -195,21 +204,21 @@ export function MapViewDashboard({ filters, openFaultDialog }: MapViewDashboardP
           mapStyle="mapbox://styles/mapbox/streets-v11"
           onMove={evt => setViewState(evt.viewState)}
         >
-          {filteredWells.map(well => (
-            well.latitude && well.longitude && (
+          {filteredTransformers.map(transformer => (
+            transformer.latitude && transformer.longitude && (
               <Marker
-                key={well.id}
-                longitude={well.longitude}
-                latitude={well.latitude}
-                onClick={(e) => {
-                  e.originalEvent.stopPropagation();
-                  handleMarkerClick(well.id);
-                }}
+                key={transformer.id}
+                longitude={transformer.longitude}
+                latitude={transformer.latitude}
+                onClick={() => handleMarkerClick(transformer.id)}
               >
-                <div className={cn(
-                  "w-3 h-3 rounded-full border-2 border-white cursor-pointer shadow",
-                  getMarkerColor(well.status)
-                )} title={well.name} />
+                <div 
+                  className={cn(
+                    "w-5 h-5 rounded-full border-2 border-white shadow-md cursor-pointer transition-all hover:w-6 hover:h-6",
+                    getMarkerColor(transformer.status)
+                  )}
+                  title={transformer.name}
+                ></div>
               </Marker>
             )
           ))}

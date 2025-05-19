@@ -1,0 +1,10 @@
+{
+  "dashboard": "Dashboard",
+  "transformers": "Transformers",
+  "documentation": "Documentation",
+  "settings": "Settings",
+  "profile": "Profile",
+  "logout": "Logout",
+  "login": "Login",
+  "register": "Register"
+} 
