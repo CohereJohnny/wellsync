@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useSupabase } from '@/context/supabase-context';
@@ -80,23 +80,23 @@ export default function TransformerDetail() {
   };
 
   // Function to handle realtime transformer updates
-  const handleTransformerUpdate = (payload: any) => {
+  const handleTransformerUpdate = useCallback((payload: any) => {
     if (payload.new && payload.new.id === transformerId) {
       console.log('Realtime transformer update received:', payload);
       setTransformer(payload.new as Transformer);
     }
-  };
+  }, [transformerId]);
 
   // Function to handle realtime fault updates
-  const handleFaultUpdate = (payload: any) => {
+  const handleFaultUpdate = useCallback((payload: any) => {
     if (payload.eventType === 'INSERT' && payload.new && payload.new.transformer_id === transformerId) {
       console.log('Realtime fault insert received:', payload);
       setFaults(prevFaults => [payload.new as Fault, ...prevFaults]);
     }
-  };
+  }, [transformerId]);
 
   // Function to load transformer data
-  const loadTransformerData = async () => {
+  const loadTransformerData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -136,10 +136,10 @@ export default function TransformerDetail() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [supabase, transformerId, toast]);
 
   // Set up realtime subscriptions
-  const setupRealtimeSubscription = () => {
+  const setupRealtimeSubscription = useCallback(() => {
     if (realtimeChannel) {
       console.log('Realtime subscription already active');
       return;
@@ -165,7 +165,7 @@ export default function TransformerDetail() {
     } catch (err) {
       console.error('Error setting up realtime subscription:', err);
     }
-  };
+  }, [supabase, transformerId, realtimeChannel, handleTransformerUpdate, handleFaultUpdate]);
 
   // Effect for initial data load
   useEffect(() => {
@@ -181,7 +181,7 @@ export default function TransformerDetail() {
         setRealtimeChannel(null);
       }
     };
-  }, [transformerId]);
+  }, [transformerId, loadTransformerData, setupRealtimeSubscription]);
 
   // Loading state
   if (isLoading) {

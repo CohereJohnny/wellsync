@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useSupabase } from '@/context/supabase-context';
@@ -53,7 +53,7 @@ export function TransformerTableView({ openFaultDialog }: TransformerTableViewPr
   const locale = window.location.pathname.split('/')[1] || 'en';
 
   // Function to fetch transformers with filters
-  const fetchTransformers = async () => {
+  const fetchTransformers = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     
@@ -94,12 +94,12 @@ export function TransformerTableView({ openFaultDialog }: TransformerTableViewPr
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [supabase, filters, t]);
 
   // Fetch transformers when filters change
   useEffect(() => {
     fetchTransformers();
-  }, [filters.substation, filters.type, filters.status]);
+  }, [fetchTransformers]);
 
   // Function to format date for display
   const formatDate = (dateString: string | null | undefined) => {

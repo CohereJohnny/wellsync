@@ -22,12 +22,22 @@ const nextConfig = {
       ],
     },
   },
-  // Add webpack configuration to handle the punycode deprecation warning
+  // Add webpack configuration to handle the punycode deprecation warning and mapbox-gl
   webpack: (config, { isServer, dev }) => {
     // This is to suppress the punycode deprecation warning
     config.ignoreWarnings = [
       { module: /node_modules\/punycode/ },
     ];
+    
+    // Handle mapbox-gl properly
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
     
     return config;
   },
