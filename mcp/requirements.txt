@@ -1,0 +1,18 @@
+# WellSync MCP Server Requirements
+# Core MCP and web server dependencies
+mcp>=1.0.0
+uvicorn>=0.25.0
+starlette>=0.32.0
+pydantic>=2.5.0
+
+# Database and API clients  
+supabase>=2.3.0
+httpx>=0.26.0
+
+# Utilities
+python-dotenv>=1.0.0
+loguru>=0.7.0
+
+# Development and testing (optional)
+# pytest>=7.4.0
+# pytest-asyncio>=0.21.0 
